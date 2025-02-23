@@ -2,31 +2,31 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
+import { Endpoint } from '@prisma/client';
+import DialogButton from './dialog-button';
+import EndpointForm from './endpoint-management-form';
 
-interface Endpoint {
-  id: string;
-  name: string;
-  method: string;
-  path: string;
-  description?: string;
+interface EndpointsListProps {
 }
 
 export default function EndpointsList() {
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
 
   useEffect(() => {
-    const fetchEndpoints = async () => {
-      try {
-        const response = await fetch('/api/endpoints');
-        const data = await response.json();
-        setEndpoints(data);
-      } catch (error) {
-        console.error('Error fetching endpoints:', error);
-      }
-    };
-
     fetchEndpoints();
   }, []);
+
+  const fetchEndpoints = async () => {
+    try {
+      const response = await fetch('/api/endpoints');
+      const data = await response.json();
+      setEndpoints(data);
+    } catch (error) {
+      console.error('Error fetching endpoints:', error);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -34,11 +34,25 @@ export default function EndpointsList() {
       {endpoints.map((endpoint) => (
         <Card key={endpoint.id}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-4">
-              <span className="px-2 py-1 bg-primary text-primary-foreground rounded text-sm">
-                {endpoint.method}
-              </span>
-              <span>{endpoint.name}</span>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="px-2 py-1 rounded text-sm">
+                  {endpoint.method}
+                </span>
+                <span>{endpoint.name}</span>
+              </div>
+              <DialogButton
+                variant="outline"
+                size="icon"
+                content={
+                  <EndpointForm
+                    endpoint={endpoint}
+                    onCancel={() => fetchEndpoints()}
+                  />
+                }
+              >
+                <Pencil className="h-4 w-4" />
+              </DialogButton>
             </CardTitle>
           </CardHeader>
           <CardContent>
