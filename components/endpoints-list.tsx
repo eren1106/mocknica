@@ -35,15 +35,15 @@ export default function EndpointsList() {
         <Card key={endpoint.id}>
           <CardHeader>
             <CardTitle className="flex items-center gap-4">
-              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">
+              <span className="px-2 py-1 bg-primary text-primary-foreground rounded text-sm">
                 {endpoint.method}
               </span>
               <span>{endpoint.name}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600 mb-2">{endpoint.description}</p>
-            <p className="font-mono bg-gray-100 p-2 rounded">
+            <p className="mb-2">{endpoint.description}</p>
+            <p className="font-mono p-2 rounded">
               {endpoint.path}
             </p>
           </CardContent>
