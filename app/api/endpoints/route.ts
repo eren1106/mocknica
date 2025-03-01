@@ -1,6 +1,5 @@
 // app/api/endpoints/route.ts
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import prisma from '@/lib/db';
 
 export async function POST(req: Request) {

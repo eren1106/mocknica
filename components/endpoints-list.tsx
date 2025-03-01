@@ -8,9 +8,6 @@ import { Endpoint } from '@prisma/client';
 import DialogButton from './dialog-button';
 import EndpointForm from './endpoint-management-form';
 
-interface EndpointsListProps {
-}
-
 export default function EndpointsList() {
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
 
@@ -51,7 +48,6 @@ export default function EndpointsList() {
                 content={
                   <EndpointForm
                     endpoint={endpoint}
-                    onCancel={() => fetchEndpoints()}
                   />
                 }
               >

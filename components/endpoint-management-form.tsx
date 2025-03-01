@@ -20,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Endpoint, HttpMethod, ResponseGeneration } from '@prisma/client';
 
@@ -33,35 +32,35 @@ const EndPointSchema = z.object({
   // requestBody: z.string().optional(),
   // responseSchema: z.string().min(1, "Response schema is required"),
   responseGen: z.nativeEnum(ResponseGeneration),
-  staticResponse: z.string().nullable().transform((val) => val ? JSON.parse(val) : null),
+  staticResponse: z.string().nullable(),
   // arrayQuantity: z.number().optional(),
 });
 
 interface EndpointFormProps {
   endpoint?: Endpoint;
-  onCancel?: () => void;
 }
 
-export default function EndpointForm({ endpoint, onCancel }: EndpointFormProps) {
+export default function EndpointForm({ endpoint }: EndpointFormProps) {
   const form = useForm({
     resolver: zodResolver(EndPointSchema),
     defaultValues: endpoint ? {
       ...endpoint,
       staticResponse: endpoint.staticResponse ? JSON.stringify(endpoint.staticResponse, null, 2) : '',
     } : {
+      name: '',
+      description: '',
+      path: '',
       method: HttpMethod.GET,
       responseGen: ResponseGeneration.STATIC,
+      staticResponse: '{"field": "value"}',
     },
   });
 
 
   const onSubmit = async (values: z.infer<typeof EndPointSchema>) => {
     try {
-      console.log("VALUES", values);
-      console.log("STRINGIFY", JSON.stringify(values));
-      
       let response;
-      if(endpoint) {
+      if (endpoint) {
         response = await fetch(`/api/endpoints/${endpoint.id}`, {
           method: 'PUT',
           headers: {
@@ -235,7 +234,7 @@ export default function EndpointForm({ endpoint, onCancel }: EndpointFormProps) 
               <FormItem>
                 <FormLabel>Static Response (JSON)</FormLabel>
                 <FormControl>
-                  <Textarea placeholder='{"id": 1, "name": "John Doe"}' {...field} />
+                  <Textarea placeholder='{"id": 1, "name": "John Doe"}' {...field} value={field.value || ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
