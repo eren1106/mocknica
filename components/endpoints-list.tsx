@@ -22,6 +22,10 @@ export default function EndpointsList() {
     try {
       const response = await fetch('/api/endpoints');
       const data = await response.json();
+      if(data.error) {
+        console.error('Error fetching endpoints:', data.error);
+        return;
+      }
       setEndpoints(data);
     } catch (error) {
       console.error('Error fetching endpoints:', error);
