@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash } from "lucide-react";
 import { Endpoint } from '@prisma/client';
 import DialogButton from './dialog-button';
 import EndpointForm from './endpoint-management-form';
@@ -19,7 +19,7 @@ export default function EndpointsList() {
     try {
       const response = await fetch('/api/endpoints');
       const data = await response.json();
-      if(data.error) {
+      if (data.error) {
         console.error('Error fetching endpoints:', data.error);
         return;
       }
@@ -28,6 +28,21 @@ export default function EndpointsList() {
       console.error('Error fetching endpoints:', error);
     }
   };
+
+  const deleteEndpoint = async (id: string) => {
+    try {
+      const response = await fetch(`/api/endpoints/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.error) {
+        console.error('Error deleting endpoint:', data.error);
+        return;
+      }
+    } catch (error) {
+      console.error('Error deleting endpoint:', error);
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -42,17 +57,38 @@ export default function EndpointsList() {
                 </span>
                 <span>{endpoint.name}</span>
               </div>
-              <DialogButton
-                variant="outline"
-                size="icon"
-                content={
-                  <EndpointForm
-                    endpoint={endpoint}
-                  />
-                }
-              >
-                <Pencil className="h-4 w-4" />
-              </DialogButton>
+              <div className='flex gap-2'>
+                <DialogButton
+                  variant="outline"
+                  size="icon"
+                  content={
+                    <EndpointForm
+                      endpoint={endpoint}
+                    />
+                  }
+                >
+                  <Pencil className="size-4" />
+                </DialogButton>
+                <DialogButton
+                  variant="outline"
+                  size="icon"
+                  content={
+                    <div>
+                      <h2 className="text-xl font-bold">Are you sure?</h2>
+                      <p>This action cannot be undone.</p>
+                      <div className="flex justify-end gap-4">
+                        <Button
+                          variant="destructive"
+                          onClick={() => deleteEndpoint(endpoint.id)}
+                        >Delete</Button>
+                        <Button variant="outline">Cancel</Button>
+                      </div>
+                    </div>
+                  }
+                >
+                  <Trash className="size-4" />
+                </DialogButton>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
