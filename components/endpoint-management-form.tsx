@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Endpoint, HttpMethod, ResponseGeneration } from '@prisma/client';
+import { toast } from 'sonner';
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -71,8 +72,6 @@ export default function EndpointForm({ endpoint }: EndpointFormProps) {
           },
           body: JSON.stringify(values),
         });
-
-        if (!response.ok) throw new Error('Failed to update endpoint');
       }
       else {
         response = await fetch('/api/endpoints', {
@@ -84,12 +83,12 @@ export default function EndpointForm({ endpoint }: EndpointFormProps) {
         });
       }
 
-      if (!response.ok) throw new Error('Failed to create endpoint');
+      if (!response.ok) throw new Error('Failed');
 
-      // Reset form and show success message
-      form.reset();
+      toast.success(`Endpoint ${ endpoint ? "updated" : "created"} successfully`);
     } catch (error) {
       console.error('Error creating endpoint:', error);
+      toast.error(`Failed to ${ endpoint ? "update" : "create"} endpoint`);
     }
   };
 

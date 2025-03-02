@@ -6,7 +6,7 @@ import { Plus } from 'lucide-react'
 
 const EndpointManagement = () => {
   return (
-    <main className="container mx-auto p-8 flex flex-col gap-8">
+    <div className="container mx-auto p-8 flex flex-col gap-8">
       <h1 className="text-3xl font-bold text-center">Mock API Server</h1>
       <DialogButton
         content={<EndpointForm />}
@@ -16,7 +16,7 @@ const EndpointManagement = () => {
         Create Endpoint
       </DialogButton>
       <EndpointsList />
-    </main>
+    </div>
   )
 }
 

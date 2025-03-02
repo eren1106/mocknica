@@ -7,6 +7,7 @@ import { Pencil, Trash } from "lucide-react";
 import { Endpoint } from '@prisma/client';
 import DialogButton from './dialog-button';
 import EndpointForm from './endpoint-management-form';
+import { toast } from 'sonner';
 
 export default function EndpointsList() {
   const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
@@ -37,10 +38,14 @@ export default function EndpointsList() {
       const data = await response.json();
       if (data.error) {
         console.error('Error deleting endpoint:', data.error);
+        toast.error('Failed to delete endpoint');
         return;
       }
+      toast.success('Endpoint deleted successfully');
+      setEndpoints(endpoints.filter((endpoint) => endpoint.id !== id));
     } catch (error) {
       console.error('Error deleting endpoint:', error);
+      toast.error('Failed to delete endpoint');
     }
   }
 
