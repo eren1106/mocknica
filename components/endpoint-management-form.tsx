@@ -45,14 +45,17 @@ export default function EndpointForm({ endpoint }: EndpointFormProps) {
     resolver: zodResolver(EndPointSchema),
     defaultValues: endpoint ? {
       ...endpoint,
-      staticResponse: endpoint.staticResponse ? JSON.stringify(endpoint.staticResponse, null, 2) : '',
+      staticResponse: endpoint.staticResponse ? JSON.stringify(endpoint.staticResponse, null, 4) : '',
     } : {
       name: '',
       description: '',
       path: '',
       method: HttpMethod.GET,
       responseGen: ResponseGeneration.STATIC,
-      staticResponse: '{"field": "value"}',
+      staticResponse: JSON.stringify({
+        id: 1,
+        name: 'John Doe',
+      }, null, 4),
     },
   });
 
