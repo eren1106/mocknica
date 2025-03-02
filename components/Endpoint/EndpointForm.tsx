@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -20,9 +20,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Endpoint, HttpMethod, ResponseGeneration } from '@prisma/client';
-import { toast } from 'sonner';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Endpoint, HttpMethod, ResponseGeneration } from "@prisma/client";
+import { toast } from "sonner";
+import { useEndpoint } from "@/hooks/useEndpoint";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -39,56 +40,52 @@ const EndPointSchema = z.object({
 
 interface EndpointFormProps {
   endpoint?: Endpoint;
+  onSuccess?: () => void;
 }
 
-export default function EndpointForm({ endpoint }: EndpointFormProps) {
+export default function EndpointForm({
+  endpoint,
+  onSuccess,
+}: EndpointFormProps) {
+  const { createEndpoint, updateEndpoint } = useEndpoint();
+
   const form = useForm({
     resolver: zodResolver(EndPointSchema),
-    defaultValues: endpoint ? {
-      ...endpoint,
-      staticResponse: endpoint.staticResponse ? JSON.stringify(endpoint.staticResponse, null, 4) : '',
-    } : {
-      name: '',
-      description: '',
-      path: '',
-      method: HttpMethod.GET,
-      responseGen: ResponseGeneration.STATIC,
-      staticResponse: JSON.stringify({
-        id: 1,
-        name: 'John Doe',
-      }, null, 4),
-    },
+    defaultValues: endpoint
+      ? {
+          ...endpoint,
+          staticResponse: endpoint.staticResponse
+            ? JSON.stringify(endpoint.staticResponse, null, 4)
+            : "",
+        }
+      : {
+          name: "",
+          description: "",
+          path: "",
+          method: HttpMethod.GET,
+          responseGen: ResponseGeneration.STATIC,
+          staticResponse: JSON.stringify(
+            {
+              id: 1,
+              name: "John Doe",
+            },
+            null,
+            4
+          ),
+        },
   });
-
 
   const onSubmit = async (values: z.infer<typeof EndPointSchema>) => {
     try {
-      let response;
       if (endpoint) {
-        response = await fetch(`/api/endpoints/${endpoint.id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(values),
-        });
+        await updateEndpoint(endpoint.id, values);
+      } else {
+        await createEndpoint(values);
       }
-      else {
-        response = await fetch('/api/endpoints', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(values),
-        });
-      }
-
-      if (!response.ok) throw new Error('Failed');
-
-      toast.success(`Endpoint ${ endpoint ? "updated" : "created"} successfully`);
+      onSuccess?.();
     } catch (error) {
-      console.error('Error creating endpoint:', error);
-      toast.error(`Failed to ${ endpoint ? "update" : "create"} endpoint`);
+      console.error("Error creating endpoint:", error);
+      toast.error(`Failed to ${endpoint ? "update" : "create"} endpoint`);
     }
   };
 
@@ -116,7 +113,11 @@ export default function EndpointForm({ endpoint }: EndpointFormProps) {
             <FormItem>
               <FormLabel>Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="API endpoint description" {...field} value={field.value || ''} />
+                <Textarea
+                  placeholder="API endpoint description"
+                  {...field}
+                  value={field.value || ""}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -130,7 +131,10 @@ export default function EndpointForm({ endpoint }: EndpointFormProps) {
             render={({ field }) => (
               <FormItem className="flex-1">
                 <FormLabel>Method</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select method" />
@@ -156,7 +160,7 @@ export default function EndpointForm({ endpoint }: EndpointFormProps) {
               <FormItem className="flex-1">
                 <FormLabel>Path</FormLabel>
                 <FormControl>
-                  <Input placeholder="/api/users" {...field} />
+                  <Input placeholder="/users" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -236,7 +240,11 @@ export default function EndpointForm({ endpoint }: EndpointFormProps) {
               <FormItem>
                 <FormLabel>Static Response (JSON)</FormLabel>
                 <FormControl>
-                  <Textarea placeholder='{"id": 1, "name": "John Doe"}' {...field} value={field.value || ''} />
+                  <Textarea
+                    placeholder='{"id": 1, "name": "John Doe"}'
+                    {...field}
+                    value={field.value || ""}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -259,7 +267,7 @@ export default function EndpointForm({ endpoint }: EndpointFormProps) {
             /> */}
 
         <Button type="submit" className="w-full">
-          {endpoint ? 'Update' : 'Create'} Endpoint
+          {endpoint ? "Update" : "Create"} Endpoint
         </Button>
       </form>
     </Form>

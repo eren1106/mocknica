@@ -1,4 +1,6 @@
-import { ReactNode } from 'react'
+'use client'
+
+import { ReactNode, useState } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -6,7 +8,7 @@ import { ScrollArea } from './ui/scroll-area';
 
 interface DialogButtonProps {
   children: ReactNode;
-  content: ReactNode;
+  content: ReactNode | ((close: () => void) => ReactNode);
   title?: string;
   description?: string;
   className?: string;
@@ -31,8 +33,17 @@ const DialogButton = ({
   contentClassName,
   disabled = false,
 }: DialogButtonProps) => {
+  const [isOpen, setIsOpen] = useState(open ||false);
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setIsOpen(newOpen);
+    onOpenChange?.(newOpen);
+  };
+
+  const close = () => handleOpenChange(false);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant={variant} className={className} size={size} disabled={disabled}>{children}</Button>
       </DialogTrigger>
@@ -44,7 +55,7 @@ const DialogButton = ({
               {description}
             </DialogDescription>
           </DialogHeader>
-          {content}
+          {typeof content === 'function' ? content(close) : content}
         </ScrollArea>
       </DialogContent>
     </Dialog>
