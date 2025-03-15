@@ -17,7 +17,7 @@ const EndpointManagement = () => {
   }, [fetchEndpoints]);
 
   return (
-    <div className="container mx-auto p-8 flex flex-col gap-8">
+    <div className="mx-auto flex flex-col">
       <DialogButton
         content={(close) => <EndpointForm onSuccess={close} />}
         className="w-fit ml-auto"
@@ -25,7 +25,7 @@ const EndpointManagement = () => {
         <Plus className="size-6 mr-2" />
         Create Endpoint
       </DialogButton>
-      <h2 className="text-2xl font-bold">Available Endpoints</h2>
+      <h2 className="text-2xl font-bold mb-3">Available Endpoints</h2>
       {
         isLoading ? (
           <div className="space-y-4">
