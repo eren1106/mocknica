@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
 import DialogButton from "../dialog-button";
-import EndpointForm from "./EndpointForm";
 import { useEndpoint } from "@/hooks/useEndpoint";
-import { Skeleton } from "../ui/skeleton";
 import { Endpoint } from "@prisma/client";
+import EndpointForm from "./EndpointForm";
 
 interface EndpointsListProps {
   endpoints: Endpoint[];

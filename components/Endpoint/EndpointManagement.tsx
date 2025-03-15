@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useEffect } from "react";
-import EndpointsList from "./EndpointList";
 import DialogButton from "../dialog-button";
-import EndpointForm from "./EndpointForm";
 import { Plus } from "lucide-react";
 import { useEndpoint } from "@/hooks/useEndpoint";
 import { Skeleton } from "../ui/skeleton";
+import EndpointsList from "./EndpointList";
+import EndpointForm from "./EndpointForm";
 
 const EndpointManagement = () => {
   const { endpoints, fetchEndpoints, isLoading } =
@@ -18,7 +18,6 @@ const EndpointManagement = () => {
 
   return (
     <div className="container mx-auto p-8 flex flex-col gap-8">
-      <h1 className="text-3xl font-bold text-center">Mock API Server</h1>
       <DialogButton
         content={(close) => <EndpointForm onSuccess={close} />}
         className="w-fit ml-auto"
