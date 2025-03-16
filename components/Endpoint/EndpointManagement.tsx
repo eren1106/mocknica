@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { useEffect } from "react";
 import DialogButton from "../dialog-button";
@@ -9,31 +9,39 @@ import EndpointsList from "./EndpointList";
 import EndpointForm from "./EndpointForm";
 
 const EndpointManagement = () => {
-  const { endpoints, fetchEndpoints, isLoading } =
-    useEndpoint();
+  const { endpoints, fetchEndpoints, isLoading } = useEndpoint();
 
   useEffect(() => {
     fetchEndpoints();
   }, [fetchEndpoints]);
 
   return (
-    <div className="mx-auto flex flex-col">
-      <DialogButton
-        content={(close) => <EndpointForm onSuccess={close} />}
-        className="w-fit ml-auto"
-      >
-        <Plus className="size-6 mr-2" />
-        Create Endpoint
-      </DialogButton>
+    <div className="flex flex-col">
+      <div className="flex justify-end gap-2 items-center">
+        <DialogButton
+          content={(close) => <EndpointForm onSuccess={close} />}
+          className="w-fit"
+        >
+          <Plus className="size-6 mr-2" />
+          Create Endpoint
+        </DialogButton>
+        <DialogButton
+          content={(close) => <EndpointForm onSuccess={close} />}
+          className="w-fit"
+        >
+          <Plus className="size-6 mr-2" />
+          Create Schema
+        </DialogButton>
+      </div>
       <h2 className="text-2xl font-bold mb-3">Available Endpoints</h2>
-      {
-        isLoading ? (
-          <div className="space-y-4">
-            <Skeleton className="w-full h-40" />
-            <Skeleton className="w-full h-40" />
-          </div>
-        ) : <EndpointsList endpoints={endpoints} />
-      }
+      {isLoading ? (
+        <div className="space-y-4">
+          <Skeleton className="w-full h-40" />
+          <Skeleton className="w-full h-40" />
+        </div>
+      ) : (
+        <EndpointsList endpoints={endpoints} />
+      )}
     </div>
   );
 };
