@@ -7,6 +7,7 @@ import { useEndpoint } from "@/hooks/useEndpoint";
 import { Skeleton } from "../ui/skeleton";
 import EndpointsList from "./EndpointList";
 import EndpointForm from "./EndpointForm";
+import SchemaForm from "../schema/SchemaForm";
 
 const EndpointManagement = () => {
   const { endpoints, fetchEndpoints, isLoading } = useEndpoint();
@@ -26,8 +27,9 @@ const EndpointManagement = () => {
           Create Endpoint
         </DialogButton>
         <DialogButton
-          content={(close) => <EndpointForm onSuccess={close} />}
+          content={(close) => <SchemaForm onSuccess={close} />}
           className="w-fit"
+          contentClassName="min-w-[40rem]"
         >
           <Plus className="size-6 mr-2" />
           Create Schema

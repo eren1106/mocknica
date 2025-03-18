@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { z } from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -13,4 +14,21 @@ export function convertCamelCaseToTitle(input: string): string  {
   const result = words.charAt(0).toUpperCase() + words.slice(1);
 
   return result;
+}
+
+export function getZodFieldNames <T extends z.ZodObject<any>>(schema: T | z.ZodEffects<T>) {
+  // If schema is a ZodEffects, extract the inner schema
+  const actualSchema = schema instanceof z.ZodEffects ? schema._def.schema : schema;
+
+  const shape = actualSchema.shape;
+
+  // Create an object that maps field names directly
+  return Object.keys(shape).reduce((acc, key) => {
+    acc[key as keyof T['shape']] = key; // Assign the field name directly
+    return acc;
+  }, {} as { [K in keyof T['shape']]: string });
+};
+
+export function convertFirstLetterToUpperCase(input: string): string {
+  return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
 }
