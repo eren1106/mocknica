@@ -1,5 +1,4 @@
 "use client";
-
 import React from "react";
 import { useZodForm } from "@/hooks/useZodForm";
 import ZodForm from "@/components/zod-form";
@@ -11,11 +10,9 @@ import { FakerType, IdFieldType, SchemaField, SchemaFieldType } from "@prisma/cl
 import { Input } from "../ui/input";
 import DynamicSelect from "../dynamic-select";
 import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
-
+import { Plus, X } from "lucide-react";
 // Base enums
 const FakerTypeEnum = z.nativeEnum(FakerType);
-
 const ObjectTypeSchema: z.ZodType<any> = z.lazy(() =>
   z.object({
     id: z.number().int(),
@@ -25,7 +22,6 @@ const ObjectTypeSchema: z.ZodType<any> = z.lazy(() =>
     schemaField: SchemaFieldSchema.optional(),
   })
 );
-
 const ArrayTypeSchema: z.ZodType<any> = z.lazy(() =>
   z.object({
     id: z.number().int(),
@@ -35,7 +31,6 @@ const ArrayTypeSchema: z.ZodType<any> = z.lazy(() =>
     schemaFieldId: z.number().int(),
   })
 );
-
 const SchemaFieldSchema: z.ZodType<any> = z.lazy(() =>
   z.object({
     // id: z.number().int(),
@@ -47,7 +42,6 @@ const SchemaFieldSchema: z.ZodType<any> = z.lazy(() =>
     arrayType: ArrayTypeSchema.optional(),
   })
 );
-
 // Main Schema schema
 const SchemaSchema = z.object({
   // id: z.number().int(),
@@ -57,17 +51,13 @@ const SchemaSchema = z.object({
   // updatedAt: z.date(),
   // ObjectType: z.array(ObjectTypeSchema).optional(),
 });
-
 // Validation functions
 export const validateSchema = (data: unknown) => SchemaSchema.safeParse(data);
 export const validateSchemaStrict = (data: unknown) => SchemaSchema.parse(data);
-
 const formFields = getZodFieldNames(SchemaSchema);
-
 interface SchemaFormProps {
   onSuccess?: () => void;
 }
-
 const SchemaForm = (props: SchemaFormProps) => {
   const form = useZodForm(SchemaSchema, {
     name: "",
@@ -83,12 +73,47 @@ const SchemaForm = (props: SchemaFormProps) => {
       },
     ],
   });
-
   const onSubmit = async (data: z.infer<typeof SchemaSchema>) => {
     console.log("DATA:", data);
   };
-
   const fields = form.watch("fields");
+  
+  // Function to add a new field
+  const addField = () => {
+    const currentFields = form.getValues("fields");
+    form.setValue("fields", [
+      ...currentFields,
+      {
+        name: "",
+        type: SchemaFieldType.STRING,
+      },
+    ]);
+  };
+  
+  // Function to delete a field by index
+  const deleteField = (indexToDelete: number) => {
+    const currentFields = form.getValues("fields");
+    form.setValue(
+      "fields", 
+      currentFields.filter((_, i) => i !== indexToDelete)
+    );
+  };
+  
+  // Function to update a field's name
+  const updateFieldName = (index: number, newName: string) => {
+    const currentFields = form.getValues("fields");
+    const updatedFields = [...currentFields];
+    updatedFields[index] = { ...updatedFields[index], name: newName };
+    form.setValue("fields", updatedFields);
+  };
+  
+  // Function to update a field's type
+  const updateFieldType = (index: number, newType: SchemaFieldType) => {
+    const currentFields = form.getValues("fields");
+    const updatedFields = [...currentFields];
+    updatedFields[index] = { ...updatedFields[index], type: newType };
+    form.setValue("fields", updatedFields);
+  };
 
   return (
     <ZodForm form={form} onSubmit={onSubmit}>
@@ -97,33 +122,6 @@ const SchemaForm = (props: SchemaFormProps) => {
         name={formFields.name}
         control={form.control}
       />
-
-      {/* <GenericFormField
-        type="custom"
-        name={formFields.idField}
-        control={form.control}
-        useFormNameAsLabel={false}
-        customChildren={
-          <div className="flex items-center gap-3 w-full">
-            <Input
-              placeholder="ID field name"
-              defaultValue={"id"}
-              className="w-full max-w-60"
-            />
-            <DynamicSelect
-              options={[
-                { label: "UUID", value: IdFieldType.UUID },
-                {
-                  label: "Auto Increment",
-                  value: IdFieldType.AUTOINCREMENT,
-                },
-              ]}
-              className="w-full max-w-60"
-            />
-          </div>
-        }
-      /> */}
-
       <GenericFormField
         type="custom"
         name={formFields.fields}
@@ -131,58 +129,44 @@ const SchemaForm = (props: SchemaFormProps) => {
         useFormNameAsLabel={false}
         customChildren={
           <div className="flex flex-col gap-3 w-full">
-            {/* CLICK + BUTTON TO ADD MORE FIELDS */}
-            {fields.map((field: SchemaField, index) => {
-              const handleFieldNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-                form.setValue(`fields`, [
-                  ...form.getValues("fields").slice(0, index),
-                  { ...field, name: e.target.value },
-                  ...form.getValues("fields").slice(index + 1),
-                ]);
-              };
-
-              return (
-                <div key={index} className="flex items-center gap-3">
-                  <Input
-                    placeholder="Field name"
-                    defaultValue={field.name}
-                    onChange={handleFieldNameChange}
-                    className="w-full max-w-60"
-                  />
-                  <DynamicSelect
-                    options={
-                      Object.values(SchemaFieldType).map((type) => ({
-                        label: convertFirstLetterToUpperCase(type),
-                        value: type,
-                      })) as any
-                    }
-                    defaultValue={field.type}
-                    className="w-full max-w-60"
-                  />
-                </div>
-              )
-            })}
+            {fields.map((field, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <Input
+                  placeholder="Field name"
+                  value={field.name}
+                  onChange={(e) => updateFieldName(index, e.target.value)}
+                  className="w-full max-w-60"
+                />
+                <DynamicSelect
+                  options={
+                    Object.values(SchemaFieldType).map((type) => ({
+                      label: convertFirstLetterToUpperCase(type),
+                      value: type,
+                    })) as any
+                  }
+                  value={field.type}
+                  onChange={(value) => updateFieldType(index, value as SchemaFieldType)}
+                  className="w-full max-w-60"
+                />
+                <Button 
+                  size="icon" 
+                  className="size-8" 
+                  variant="secondary" 
+                  onClick={() => deleteField(index)}
+                >
+                  <X className="size-4" />
+                </Button>
+              </div>
+            ))}
           </div>
         }
       />
-
       <Button
         size="icon"
-        onClick={() => {
-          // Add another field field
-          console.log(form.getValues("fields"));
-          form.setValue("fields", [
-            ...form.getValues("fields"),
-            {
-              name: "",
-              type: SchemaFieldType.STRING,
-            },
-          ]);
-        }}
+        onClick={addField}
       >
         <Plus className="size-6" />
       </Button>
-
       <FormButton
         isLoading={form.formState.isSubmitting}
         disabled={form.formState.isSubmitting}
@@ -192,5 +176,4 @@ const SchemaForm = (props: SchemaFormProps) => {
     </ZodForm>
   );
 };
-
 export default SchemaForm;
