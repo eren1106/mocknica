@@ -1,34 +1,44 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useZodForm } from "@/hooks/useZodForm";
 import ZodForm from "@/components/zod-form";
 import GenericFormField from "@/components/generic-form-field";
 import FormButton from "@/components/form-button";
-import { convertFirstLetterToUpperCase, getZodFieldNames } from "@/lib/utils";
+import {
+  convertEnumToTitleCase,
+  convertFirstLetterToUpperCase,
+  getZodFieldNames,
+} from "@/lib/utils";
 import { z } from "zod";
-import { FakerType, IdFieldType, SchemaField, SchemaFieldType } from "@prisma/client";
+import {
+  FakerType,
+  IdFieldType,
+  Schema,
+  SchemaFieldType,
+} from "@prisma/client";
 import { Input } from "../ui/input";
 import DynamicSelect from "../dynamic-select";
 import { Button } from "../ui/button";
 import { Plus, X } from "lucide-react";
-// Base enums
-const FakerTypeEnum = z.nativeEnum(FakerType);
-const ObjectTypeSchema: z.ZodType<any> = z.lazy(() =>
-  z.object({
-    id: z.number().int(),
-    schemaId: z.number().int(),
-    schemaFieldId: z.number().int(),
-    schema: SchemaSchema.optional(),
-    schemaField: SchemaFieldSchema.optional(),
-  })
-);
+import { SchemaService } from "@/services/schema.service";
+import { SchemaField } from "@/models/schema.model";
+
+// const ObjectTypeSchema: z.ZodType<any> = z.lazy(() =>
+//   z.object({
+//     // id: z.number().int(),
+//     schemaId: z.number().int(),
+//     // schemaFieldId: z.number().int(),
+//     // schema: SchemaSchema.optional(),
+//     // schemaField: SchemaFieldSchema.optional(),
+//   })
+// );
 const ArrayTypeSchema: z.ZodType<any> = z.lazy(() =>
   z.object({
-    id: z.number().int(),
+    // id: z.number().int(),
     elementType: z.nativeEnum(SchemaFieldType).optional(),
-    objectType: ObjectTypeSchema.optional(),
-    nestedArray: ArrayTypeSchema.optional(),
-    schemaFieldId: z.number().int(),
+    // objectType: ObjectTypeSchema.optional(),
+    // nestedArray: ArrayTypeSchema.optional(),
+    objectSchemaId: z.number().int().optional(),
   })
 );
 const SchemaFieldSchema: z.ZodType<any> = z.lazy(() =>
@@ -36,9 +46,9 @@ const SchemaFieldSchema: z.ZodType<any> = z.lazy(() =>
     // id: z.number().int(),
     name: z.string(),
     type: z.nativeEnum(SchemaFieldType),
-    fakerType: FakerTypeEnum.optional(),
-    schemaId: z.number().int().optional(),
-    objectType: ObjectTypeSchema.optional(),
+    fakerType: z.nativeEnum(FakerType).optional(),
+    // schemaId: z.number().int().optional(),
+    objectSchemaId: z.number().int().optional(),
     arrayType: ArrayTypeSchema.optional(),
   })
 );
@@ -59,6 +69,21 @@ interface SchemaFormProps {
   onSuccess?: () => void;
 }
 const SchemaForm = (props: SchemaFormProps) => {
+  const [allSchemas, setAllSchemas] = useState<Schema[]>([]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const schemas = await SchemaService.getAllSchemas();
+      setAllSchemas(schemas);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const form = useZodForm(SchemaSchema, {
     name: "",
     fields: [
@@ -76,8 +101,8 @@ const SchemaForm = (props: SchemaFormProps) => {
   const onSubmit = async (data: z.infer<typeof SchemaSchema>) => {
     console.log("DATA:", data);
   };
-  const fields = form.watch("fields");
-  
+  const fields = form.watch("fields") as SchemaField[];
+
   // Function to add a new field
   const addField = () => {
     const currentFields = form.getValues("fields");
@@ -89,16 +114,16 @@ const SchemaForm = (props: SchemaFormProps) => {
       },
     ]);
   };
-  
+
   // Function to delete a field by index
   const deleteField = (indexToDelete: number) => {
     const currentFields = form.getValues("fields");
     form.setValue(
-      "fields", 
+      "fields",
       currentFields.filter((_, i) => i !== indexToDelete)
     );
   };
-  
+
   // Function to update a field's name
   const updateFieldName = (index: number, newName: string) => {
     const currentFields = form.getValues("fields");
@@ -106,7 +131,7 @@ const SchemaForm = (props: SchemaFormProps) => {
     updatedFields[index] = { ...updatedFields[index], name: newName };
     form.setValue("fields", updatedFields);
   };
-  
+
   // Function to update a field's type
   const updateFieldType = (index: number, newType: SchemaFieldType) => {
     const currentFields = form.getValues("fields");
@@ -129,42 +154,142 @@ const SchemaForm = (props: SchemaFormProps) => {
         useFormNameAsLabel={false}
         customChildren={
           <div className="flex flex-col gap-3 w-full">
-            {fields.map((field, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <Input
-                  placeholder="Field name"
-                  value={field.name}
-                  onChange={(e) => updateFieldName(index, e.target.value)}
-                  className="w-full max-w-60"
-                />
-                <DynamicSelect
-                  options={
-                    Object.values(SchemaFieldType).map((type) => ({
-                      label: convertFirstLetterToUpperCase(type),
-                      value: type,
-                    })) as any
-                  }
-                  value={field.type}
-                  onChange={(value) => updateFieldType(index, value as SchemaFieldType)}
-                  className="w-full max-w-60"
-                />
-                <Button 
-                  size="icon" 
-                  className="size-8" 
-                  variant="secondary" 
-                  onClick={() => deleteField(index)}
-                >
-                  <X className="size-4" />
-                </Button>
-              </div>
-            ))}
+            {fields.map((field: SchemaField, index) => {
+              return (
+                <div key={index} className="flex items-center gap-3">
+                  <Input
+                    placeholder="Field name"
+                    value={field.name}
+                    onChange={(e) => updateFieldName(index, e.target.value)}
+                    className="w-full max-w-40"
+                  />
+                  <DynamicSelect
+                    options={
+                      Object.values(SchemaFieldType).map((type) => ({
+                        label: convertFirstLetterToUpperCase(type),
+                        value: type,
+                      })) as any
+                    }
+                    value={field.type}
+                    onChange={(value) =>
+                      updateFieldType(index, value as SchemaFieldType)
+                    }
+                    className="w-full max-w-40"
+                  />
+                  {field.type === SchemaFieldType.FAKER && (
+                    <DynamicSelect
+                      options={
+                        Object.values(FakerType).map((type) => ({
+                          label: convertEnumToTitleCase(type),
+                          value: type,
+                        })) as any
+                      }
+                      value={`${field.fakerType}`}
+                      onChange={(value) => {}}
+                      className="w-full max-w-40"
+                    />
+                  )}
+                  {field.type === SchemaFieldType.OBJECT && (
+                    <DynamicSelect
+                      options={[
+                        {
+                          label: "Empty Object",
+                          value: "0",
+                        },
+                        ...allSchemas.map((schema) => ({
+                          label: schema.name,
+                          value: schema.id.toString(),
+                        })),
+                      ]}
+                      value={field.objectSchemaId?.toString()}
+                      onChange={(value) => {
+                        const currentFields = form.getValues("fields");
+                        const updatedFields = [...currentFields];
+                        updatedFields[index] = {
+                          ...updatedFields[index],
+                          objectSchemaId: value ? Number(value) : null,
+                        };
+                        form.setValue("fields", updatedFields);
+                      }}
+                      className="w-full max-w-40"
+                    />
+                  )}
+                  {field.type === SchemaFieldType.ARRAY && (
+                    <>
+                      <DynamicSelect
+                        options={
+                          Object.values(SchemaFieldType)
+                            .filter((type) => type !== SchemaFieldType.ARRAY) // Filter out ARRAY type
+                            .map((type) => ({
+                              label: convertEnumToTitleCase(type),
+                              value: type,
+                            })) as any
+                        }
+                        value={field.arrayType?.elementType}
+                        onChange={(value) => {
+                          const currentFields = form.getValues("fields");
+                          const updatedFields = [...currentFields];
+                          updatedFields[index] = {
+                            ...updatedFields[index],
+                            arrayType: {
+                              ...updatedFields[index].arrayType,
+                              elementType: value as SchemaFieldType,
+                            },
+                          };
+                          form.setValue("fields", updatedFields);
+                        }}
+                        className="w-full max-w-40"
+                      />
+                      {field.arrayType?.elementType ===
+                        SchemaFieldType.OBJECT && (
+                        <DynamicSelect
+                          options={[
+                            {
+                              label: "Empty Object",
+                              value: "0",
+                            },
+                            ...allSchemas.map((schema) => ({
+                              label: schema.name,
+                              value: schema.id.toString(),
+                            }))
+                          ]}
+                          value={field.objectSchemaId?.toString()}
+                          onChange={(value) => {
+                            const currentFields = form.getValues("fields");
+                            const updatedFields = [...currentFields];
+                            updatedFields[index] = {
+                              ...updatedFields[index],
+                              arrayType: {
+                                ...updatedFields[index].arrayType,
+                                // objectType: {
+                                //   ...updatedFields[index].arrayType.objectType,
+                                //   schemaId: Number(value),
+                                // },
+                                objectSchemaId: Number(value),
+                              },
+                            };
+                            form.setValue("fields", updatedFields);
+                          }}
+                          className="w-full max-w-40"
+                        />
+                      )}
+                    </>
+                  )}
+                  <Button
+                    size="icon"
+                    className="size-8 min-w-8"
+                    variant="secondary"
+                    onClick={() => deleteField(index)}
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         }
       />
-      <Button
-        size="icon"
-        onClick={addField}
-      >
+      <Button size="icon" onClick={addField}>
         <Plus className="size-6" />
       </Button>
       <FormButton

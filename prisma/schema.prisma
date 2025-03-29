@@ -28,10 +28,12 @@ model Schema {
   name       String
   // idField     IdFieldType
   // idFieldName String
-  fields     SchemaField[]
+  fields     SchemaField[] @relation("FieldToParentSchema")
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
-  ObjectType ObjectType[]
+
+  ArrayType  ArrayType[]
+  ObjectFields SchemaField[] @relation("FieldToObjectSchema")
 }
 
 model SchemaField {
@@ -46,31 +48,35 @@ model SchemaField {
   fakerType FakerType?
 
   schemaId Int?
-  Schema   Schema? @relation(fields: [schemaId], references: [id])
+  Schema   Schema? @relation("FieldToParentSchema", fields: [schemaId], references: [id])
 
-  // if type is object
-  objectTypeId Int?
-  ObjectType   ObjectType?
+  // if type is object and selected object type is not empty object
+  objectSchemaId Int?
+  objectSchema   Schema? @relation("FieldToObjectSchema", fields: [objectSchemaId], references: [id])
+
+  // objectTypeId Int? // Foreign key to ObjectType.id
+  // objectType   ObjectType? @relation("SchemaFieldToObjectType", fields: [objectTypeId], references: [id])
 
   // if type is array
-  arrayType ArrayType? // Link to ArrayType
+  arrayTypeId Int? // Foreign key to ArrayType.id
+  arrayType   ArrayType? @relation("SchemaFieldToArrayType", fields: [arrayTypeId], references: [id])
 }
+
+// model ObjectType {
+//   id           Int           @id @default(autoincrement())
+//   schemaId     Int
+//   schema       Schema        @relation(fields: [schemaId], references: [id])
+//   SchemaFields SchemaField[] @relation("SchemaFieldToObjectType")
+// }
 
 model ArrayType {
-  id            Int              @id @default(autoincrement())
-  elementType   SchemaFieldType? // For primitive types (STRING, INTEGER, etc.)
-  objectTypeId  Int? // If elements are objects, link to ObjectType
-  arrayTypeId   Int? // If elements are arrays, link to another ArrayType
-  schemaFieldId Int              @unique
-  schemaField   SchemaField      @relation(fields: [schemaFieldId], references: [id])
-}
-
-model ObjectType {
-  id            Int         @id @default(autoincrement())
-  schemaId      Int
-  schemaFieldId Int         @unique
-  schema        Schema      @relation(fields: [schemaId], references: [id])
-  schemaField   SchemaField @relation(fields: [schemaFieldId], references: [id])
+  id           Int             @id @default(autoincrement())
+  elementType  SchemaFieldType
+  schemaId     Int
+  schema       Schema        @relation(fields: [schemaId], references: [id])
+  // objectTypeId Int? // If elements are objects, link to ObjectType
+  // arrayTypeId  Int? // If elements are arrays, link to another ArrayType
+  SchemaFields SchemaField[]   @relation("SchemaFieldToArrayType")
 }
 
 enum HttpMethod {

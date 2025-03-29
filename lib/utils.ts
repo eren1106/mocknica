@@ -32,3 +32,18 @@ export function getZodFieldNames <T extends z.ZodObject<any>>(schema: T | z.ZodE
 export function convertFirstLetterToUpperCase(input: string): string {
   return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
 }
+
+export function convertEnumToTitleCase(input: string): string {
+  return input
+      .toLowerCase()                 // Convert the string to lowercase
+      .split('_')                    // Split by underscores
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
+      .join(' ');                    // Join the words with a space
+}
+
+export function removeUndefinedFields (obj: any): any {
+  return Object.fromEntries(
+    Object.entries(obj)
+      .filter(([_, value]) => value !== undefined)
+  );
+};
