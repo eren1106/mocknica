@@ -23,43 +23,25 @@ import { Plus, X } from "lucide-react";
 import { SchemaService } from "@/services/schema.service";
 import { SchemaField } from "@/models/schema.model";
 
-// const ObjectTypeSchema: z.ZodType<any> = z.lazy(() =>
-//   z.object({
-//     // id: z.number().int(),
-//     schemaId: z.number().int(),
-//     // schemaFieldId: z.number().int(),
-//     // schema: SchemaSchema.optional(),
-//     // schemaField: SchemaFieldSchema.optional(),
-//   })
-// );
 const ArrayTypeSchema: z.ZodType<any> = z.lazy(() =>
   z.object({
-    // id: z.number().int(),
     elementType: z.nativeEnum(SchemaFieldType).optional(),
-    // objectType: ObjectTypeSchema.optional(),
-    // nestedArray: ArrayTypeSchema.optional(),
     objectSchemaId: z.number().int().optional(),
   })
 );
 const SchemaFieldSchema: z.ZodType<any> = z.lazy(() =>
   z.object({
-    // id: z.number().int(),
     name: z.string(),
     type: z.nativeEnum(SchemaFieldType),
     fakerType: z.nativeEnum(FakerType).optional(),
-    // schemaId: z.number().int().optional(),
     objectSchemaId: z.number().int().optional(),
     arrayType: ArrayTypeSchema.optional(),
   })
 );
 // Main Schema schema
 const SchemaSchema = z.object({
-  // id: z.number().int(),
   name: z.string().min(1),
   fields: z.array(SchemaFieldSchema),
-  // createdAt: z.date(),
-  // updatedAt: z.date(),
-  // ObjectType: z.array(ObjectTypeSchema).optional(),
 });
 // Validation functions
 export const validateSchema = (data: unknown) => SchemaSchema.safeParse(data);
@@ -100,6 +82,12 @@ const SchemaForm = (props: SchemaFormProps) => {
   });
   const onSubmit = async (data: z.infer<typeof SchemaSchema>) => {
     console.log("DATA:", data);
+    try {
+      await SchemaService.createSchema(data);
+      props.onSuccess?.();
+    } catch (e) {
+      console.error(e);
+    }
   };
   const fields = form.watch("fields") as SchemaField[];
 

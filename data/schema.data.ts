@@ -1,5 +1,5 @@
 import prisma from '@/lib/db';
-import { Schema, SchemaField, SchemaFieldType, FakerType, IdFieldType } from '@prisma/client';
+import { Schema, SchemaField, SchemaFieldType, FakerType } from '@prisma/client';
 
 export class SchemaData {
     static async createSchema(data: {
@@ -7,20 +7,43 @@ export class SchemaData {
         fields: Array<{
             name: string;
             type: SchemaFieldType;
-            idFieldType?: IdFieldType;
             fakerType?: FakerType;
+            objectSchemaId?: number;
+            arrayType?: {
+                elementType: SchemaFieldType;
+                objectSchemaId?: number;
+            };
         }>;
     }): Promise<Schema> {
+        console.log("OBBB", data.fields)
         return prisma.schema.create({
             data: {
                 name: data.name,
                 fields: {
-                    create: data.fields,
-                },
+                    create: data.fields.map(field => ({
+                        name: field.name,
+                        type: field.type,
+                        ...(field.fakerType && { fakerType: field.fakerType }),
+                        ...(field.objectSchemaId && { objectSchema: { connect: { id: field.objectSchemaId } } }),
+                        ...(field.arrayType && {
+                            arrayType: {
+                                create: {
+                                    elementType: field.arrayType.elementType,
+                                    ...(field.arrayType.objectSchemaId && { objectSchema: { connect: { id: field.arrayType.objectSchemaId } } })
+                                }
+                            }
+                        })
+                    }))
+                }
             },
             include: {
-                fields: true,
-            },
+                fields: {
+                    include: {
+                        arrayType: true,
+                        objectSchema: true
+                    }
+                }
+            }
         });
     }
 
@@ -43,8 +66,12 @@ export class SchemaData {
             id?: number;
             name: string;
             type: SchemaFieldType;
-            idFieldType?: IdFieldType;
             fakerType?: FakerType;
+            objectSchemaId?: number;
+            arrayType?: {
+                elementType: SchemaFieldType;
+                objectSchemaId?: number;
+            };
         }>;
     }): Promise<Schema> {
         const updatedSchema = await prisma.schema.update({
@@ -82,22 +109,26 @@ export class SchemaData {
         });
     }
 
-    static async addFieldToSchema(
-        schemaId: number,
-        fieldData: {
-            name: string;
-            type: SchemaFieldType;
-            idFieldType?: IdFieldType;
-            fakerType?: FakerType;
-        }
-    ): Promise<SchemaField> {
-        return prisma.schemaField.create({
-            data: {
-                ...fieldData,
-                schemaId,
-            },
-        });
-    }
+    // static async addFieldToSchema(
+    //     schemaId: number,
+    //     fieldData: {
+    //         name: string;
+    //         type: SchemaFieldType;
+    //         fakerType?: FakerType;
+    //         objectSchemaId?: number;
+    //         arrayType?: {
+    //             elementType: SchemaFieldType;
+    //             objectSchemaId?: number;
+    //         };
+    //     }
+    // ): Promise<SchemaField> {
+    //     return prisma.schemaField.create({
+    //         data: {
+    //             ...fieldData,
+    //             schemaId,
+    //         },
+    //     });
+    // }
 
     static async removeFieldFromSchema(fieldId: number): Promise<SchemaField> {
         return prisma.schemaField.delete({
