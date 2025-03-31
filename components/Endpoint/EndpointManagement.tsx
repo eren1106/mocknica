@@ -8,6 +8,7 @@ import { Skeleton } from "../ui/skeleton";
 import EndpointsList from "./EndpointList";
 import EndpointForm from "./EndpointForm";
 import SchemaForm from "../schema/SchemaForm";
+import EndpointCreationTabs from "./EndpointCreationTabs";
 
 const EndpointManagement = () => {
   const { endpoints, fetchEndpoints, isLoading } = useEndpoint();
@@ -20,7 +21,7 @@ const EndpointManagement = () => {
     <div className="flex flex-col">
       <div className="flex justify-end gap-2 items-center">
         <DialogButton
-          content={(close) => <EndpointForm onSuccess={close} />}
+          content={(close) => <EndpointCreationTabs onSuccess={close} />}
           className="w-fit"
         >
           <Plus className="size-6 mr-2" />

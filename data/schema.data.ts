@@ -15,7 +15,6 @@ export class SchemaData {
             };
         }>;
     }): Promise<Schema> {
-        console.log("OBBB", data.fields)
         return prisma.schema.create({
             data: {
                 name: data.name,

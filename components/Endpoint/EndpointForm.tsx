@@ -24,6 +24,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Endpoint, HttpMethod, ResponseGeneration } from "@prisma/client";
 import { toast } from "sonner";
 import { useEndpoint } from "@/hooks/useEndpoint";
+import AutoResizeTextarea from "../auto-resize-textarea";
+import GenericFormField from "../generic-form-field";
+import ZodForm from "../zod-form";
+import { useZodForm } from "@/hooks/useZodForm";
+import FormButton from "../form-button";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -33,7 +38,7 @@ const EndPointSchema = z.object({
   // parameters: z.string().optional(),
   // requestBody: z.string().optional(),
   // responseSchema: z.string().min(1, "Response schema is required"),
-  responseGen: z.nativeEnum(ResponseGeneration),
+  // responseGen: z.nativeEnum(ResponseGeneration),
   staticResponse: z.string().nullable(),
   // arrayQuantity: z.number().optional(),
 });
@@ -49,9 +54,9 @@ export default function EndpointForm({
 }: EndpointFormProps) {
   const { createEndpoint, updateEndpoint } = useEndpoint();
 
-  const form = useForm({
-    resolver: zodResolver(EndPointSchema),
-    defaultValues: endpoint
+  const form = useZodForm(
+    EndPointSchema,
+    endpoint
       ? {
           ...endpoint,
           staticResponse: endpoint.staticResponse
@@ -63,7 +68,7 @@ export default function EndpointForm({
           description: "",
           path: "",
           method: HttpMethod.GET,
-          responseGen: ResponseGeneration.STATIC,
+          // responseGen: ResponseGeneration.STATIC,
           staticResponse: JSON.stringify(
             {
               id: 1,
@@ -72,8 +77,8 @@ export default function EndpointForm({
             null,
             4
           ),
-        },
-  });
+        }
+  );
 
   const onSubmit = async (values: z.infer<typeof EndPointSchema>) => {
     try {
@@ -90,186 +95,58 @@ export default function EndpointForm({
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
+    <ZodForm form={form} onSubmit={onSubmit}>
+      <GenericFormField
+        control={form.control}
+        type="input"
+        name="name"
+        label="Endpoint Name"
+        placeholder="Users API"
+      />
+
+      <GenericFormField
+        control={form.control}
+        type="input"
+        name="description"
+        label="Description"
+        placeholder="API endpoint description"
+      />
+
+      <div className="flex gap-4">
+        <GenericFormField
           control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Endpoint Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Users API" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          type="select"
+          name="method"
+          label="Method"
+          options={[
+            { value: "GET", label: "GET" },
+            { value: "POST", label: "POST" },
+            { value: "PUT", label: "PUT" },
+            { value: "DELETE", label: "DELETE" },
+            { value: "PATCH", label: "PATCH" },
+          ]}
         />
 
-        <FormField
+        <GenericFormField
           control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="API endpoint description"
-                  {...field}
-                  value={field.value || ""}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          type="input"
+          name="path"
+          label="Path"
+          placeholder="/users"
         />
+      </div>
 
-        <div className="flex gap-4">
-          <FormField
-            control={form.control}
-            name="method"
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel>Method</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select method" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {["GET", "POST", "PUT", "DELETE", "PATCH"].map((method) => (
-                      <SelectItem key={method} value={method}>
-                        {method}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <GenericFormField
+        control={form.control}
+        type="textarea"
+        name="staticResponse"
+        label="Static Response (JSON)"
+        placeholder='{"id": 1, "name": "John Doe"}'
+      />
 
-          <FormField
-            control={form.control}
-            name="path"
-            render={({ field }) => (
-              <FormItem className="flex-1">
-                <FormLabel>Path</FormLabel>
-                <FormControl>
-                  <Input placeholder="/users" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* <FormField
-              control={form.control}
-              name="parameters"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Query Parameters (JSON)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder='{"page": "number", "limit": "number"}' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-
-        {/* <FormField
-              control={form.control}
-              name="requestBody"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Request Body Schema (TypeScript)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="interface RequestBody { name: string; age: number; }" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-
-        {/* <FormField
-              control={form.control}
-              name="responseSchema"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Response Schema (TypeScript)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="interface Response { id: number; name: string; }" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-
-        <FormField
-          control={form.control}
-          name="responseGen"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Response Generation</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select response type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="STATIC">Static Response</SelectItem>
-                  <SelectItem value="LLM">LLM Generated</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {form.watch("responseGen") === "STATIC" && (
-          <FormField
-            control={form.control}
-            name="staticResponse"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Static Response (JSON)</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder='{"id": 1, "name": "John Doe"}'
-                    {...field}
-                    value={field.value || ""}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {/* <FormField
-              control={form.control}
-              name="arrayQuantity"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Array Quantity (if response is an array)</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} onChange={(e) => field.onChange(parseInt(e.target.value))} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-
-        <Button type="submit" className="w-full">
-          {endpoint ? "Update" : "Create"} Endpoint
-        </Button>
-      </form>
-    </Form>
+      <FormButton>
+        {endpoint ? "Update" : "Create"} Endpoint
+      </FormButton>
+    </ZodForm>
   );
 }

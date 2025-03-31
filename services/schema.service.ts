@@ -1,9 +1,8 @@
 import { apiRequest } from "@/helpers/api-request";
-import { SchemaFieldType, FakerType } from "@prisma/client";
-import { Schema } from "zod";
+import { SchemaFieldType, FakerType, Schema } from "@prisma/client";
 
 export class SchemaService {
-    static async getAllSchemas() {
+    static async getAllSchemas(): Promise<Schema[]> {
         const res = await apiRequest.get('schema');
         return res.data;
     }

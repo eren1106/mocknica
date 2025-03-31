@@ -15,19 +15,22 @@ model Endpoint {
   path           String
   responseGen    ResponseGeneration @default(STATIC)
   staticResponse Json? // For hardcoded responses
+  schemaId       Int?
+  schema         Schema?             @relation(fields: [schemaId], references: [id])
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
 }
 
 model Schema {
-  id         Int           @id @default(autoincrement())
-  name       String
-  fields     SchemaField[] @relation("FieldToParentSchema")
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  id        Int           @id @default(autoincrement())
+  name      String
+  fields    SchemaField[] @relation("FieldToParentSchema")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
 
-  ArrayType  ArrayType[]
+  ArrayType    ArrayType[]
   ObjectFields SchemaField[] @relation("FieldToObjectSchema")
+  Endpoints    Endpoint[]
 }
 
 model SchemaField {
@@ -54,14 +57,14 @@ model SchemaField {
 }
 
 model ArrayType {
-  id           Int             @id @default(autoincrement())
-  elementType  SchemaFieldType
+  id          Int             @id @default(autoincrement())
+  elementType SchemaFieldType
 
   // if type is object
-  objectSchemaId     Int?
-  objectSchema       Schema?        @relation(fields: [objectSchemaId], references: [id])
-  
-  SchemaFields SchemaField[]   @relation("SchemaFieldToArrayType")
+  objectSchemaId Int?
+  objectSchema   Schema? @relation(fields: [objectSchemaId], references: [id])
+
+  SchemaFields SchemaField[] @relation("SchemaFieldToArrayType")
 }
 
 enum HttpMethod {

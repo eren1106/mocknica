@@ -13,9 +13,9 @@ const FormButton = React.forwardRef<HTMLButtonElement, FormButtonProps>(
       <Button
         ref={ref}  // Pass the ref to Button
         type="submit"
-        className="w-min ml-auto"
+        className="w-min ml-auto w-full"
         disabled={isLoading}
-        size="rounded"
+        // size="rounded"
         {...props}
       >
         {isLoading && <Spinner className='text-primary-foreground size-5' />}
