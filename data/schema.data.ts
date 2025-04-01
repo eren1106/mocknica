@@ -1,5 +1,6 @@
 import prisma from '@/lib/db';
-import { Schema, SchemaField, SchemaFieldType, FakerType } from '@prisma/client';
+import { Schema } from '@/models/schema.model';
+import { SchemaField, SchemaFieldType, FakerType } from '@prisma/client';
 
 export class SchemaData {
     static async createSchema(data: {
@@ -56,7 +57,11 @@ export class SchemaData {
     }
 
     static async getAllSchemas(): Promise<Schema[]> {
-        return prisma.schema.findMany();
+        return prisma.schema.findMany({
+            include: {
+                fields: true,
+            },
+        });
     }
 
     static async updateSchema(id: number, data: {
@@ -98,7 +103,7 @@ export class SchemaData {
         return this.getSchema(id) as Promise<Schema>;
     }
 
-    static async deleteSchema(id: number): Promise<Schema> {
+    static async deleteSchema(id: number): Promise<Partial<Schema>> {
         await prisma.schemaField.deleteMany({
             where: { schemaId: id },
         });

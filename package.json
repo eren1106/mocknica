@@ -10,6 +10,7 @@
     "db-sync": "pnpx prisma db push && pnpx prisma generate"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.6.0",
     "@hookform/resolvers": "^4.1.1",
     "@prisma/client": "^6.4.1",
     "@radix-ui/react-checkbox": "^1.1.4",

@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
             method: HttpMethod.GET,
             path: basePath,
             responseGen: ResponseGeneration.STATIC,
-            staticResponse: null,
             schemaId,
         });
         const getById = await EndpointData.createEndpoint({
@@ -24,8 +23,7 @@ export async function POST(req: NextRequest) {
             description: `GET ${basePath}/:id`,
             method: HttpMethod.GET,
             path: `${basePath}/:id`,
-            responseGen: ResponseGeneration.STATIC,
-            staticResponse: null,
+            responseGen: ResponseGeneration.SCHEMA,
             schemaId,
         });
         const post = await EndpointData.createEndpoint({
@@ -33,8 +31,7 @@ export async function POST(req: NextRequest) {
             description: `POST ${basePath}`,
             method: HttpMethod.POST,
             path: basePath,
-            responseGen: ResponseGeneration.STATIC,
-            staticResponse: null,
+            responseGen: ResponseGeneration.SCHEMA,
             schemaId,
         });
         const putById = await EndpointData.createEndpoint({
@@ -42,8 +39,7 @@ export async function POST(req: NextRequest) {
             description: `PUT ${basePath}/:id`,
             method: HttpMethod.PUT,
             path: `${basePath}/:id`,
-            responseGen: ResponseGeneration.STATIC,
-            staticResponse: null,
+            responseGen: ResponseGeneration.SCHEMA,
             schemaId,
         });
         const deleteById = await EndpointData.createEndpoint({
@@ -51,8 +47,7 @@ export async function POST(req: NextRequest) {
             description: `DELETE ${basePath}/:id`,
             method: HttpMethod.DELETE,
             path: `${basePath}/:id`,
-            responseGen: ResponseGeneration.STATIC,
-            staticResponse: null,
+            responseGen: ResponseGeneration.SCHEMA,
             schemaId,
         });
         return apiResponse(req, { data: [get, getById, post, putById, deleteById] });

@@ -21,7 +21,7 @@ import DynamicSelect from "../dynamic-select";
 import { Button } from "../ui/button";
 import { Plus, X } from "lucide-react";
 import { SchemaService } from "@/services/schema.service";
-import { SchemaField } from "@/models/schema.model";
+import { SchemaField } from "@/models/schema-field.model";
 
 const ArrayTypeSchema: z.ZodType<any> = z.lazy(() =>
   z.object({

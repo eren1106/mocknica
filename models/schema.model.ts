@@ -1,8 +1,7 @@
 import { Prisma } from "@prisma/client"
 
-export type SchemaField = Prisma.SchemaFieldGetPayload<{
+export type Schema = Prisma.SchemaGetPayload<{
     include: { 
-      objectType: true;
-      arrayType: true;
+      fields: true;
     }
   }>
