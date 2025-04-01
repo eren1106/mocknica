@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
             description: `GET ${basePath}`,
             method: HttpMethod.GET,
             path: basePath,
-            responseGen: ResponseGeneration.STATIC,
+            responseGen: ResponseGeneration.SCHEMA,
             schemaId,
         });
         const getById = await EndpointData.createEndpoint({

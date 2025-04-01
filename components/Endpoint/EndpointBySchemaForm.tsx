@@ -29,7 +29,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
   }, [fetchSchemas]);
 
   const form = useZodForm(EndpointBySchemaSchema, {
-    schemaId: 1,
+    // schemaId: 1,
     basePath: "data",
   });
 

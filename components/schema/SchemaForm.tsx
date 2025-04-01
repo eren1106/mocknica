@@ -72,7 +72,7 @@ const SchemaForm = (props: SchemaFormProps) => {
       {
         name: "id",
         type: SchemaFieldType.ID,
-        IdFieldType: IdFieldType.UUID,
+        idFieldType: IdFieldType.AUTOINCREMENT,
       },
       {
         name: "name",
@@ -164,6 +164,27 @@ const SchemaForm = (props: SchemaFormProps) => {
                     }
                     className="w-full max-w-40"
                   />
+                  {field.type === SchemaFieldType.ID && (
+                    <DynamicSelect
+                      options={
+                        Object.values(IdFieldType).map((type) => ({
+                          label: convertEnumToTitleCase(type),
+                          value: type,
+                        })) as any
+                      }
+                      value={`${field.idFieldType}`}
+                      onChange={(value) => {
+                        const currentFields = form.getValues("fields");
+                        const updatedFields = [...currentFields];
+                        updatedFields[index] = {
+                          ...updatedFields[index],
+                          idFieldType: value as IdFieldType,
+                        };
+                        form.setValue("fields", updatedFields);
+                      }}
+                      className="w-full max-w-40"
+                    />
+                  )}
                   {field.type === SchemaFieldType.FAKER && (
                     <DynamicSelect
                       options={
@@ -173,7 +194,15 @@ const SchemaForm = (props: SchemaFormProps) => {
                         })) as any
                       }
                       value={`${field.fakerType}`}
-                      onChange={(value) => {}}
+                      onChange={(value) => {
+                        const currentFields = form.getValues("fields");
+                        const updatedFields = [...currentFields];
+                        updatedFields[index] = {
+                          ...updatedFields[index],
+                          fakerType: value as FakerType,
+                        };
+                        form.setValue("fields", updatedFields);
+                      }}
                       className="w-full max-w-40"
                     />
                   )}

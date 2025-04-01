@@ -15,6 +15,9 @@ import { SchemaField } from "@/models/schema-field.model";
 
 // const ollama = new Ollama({ host: 'http://localhost:11434' });
 
+// Counter for auto-incrementing IDs
+let idCounter = 1;
+
 function generateFakerValue(fakerType: FakerType): any {
   switch (fakerType) {
     // Person
@@ -112,7 +115,7 @@ async function generateSchemaValue(field: SchemaField): Promise<any> {
     case SchemaFieldType.FLOAT: return faker.number.float({ min: 0, max: 1000 });
     case SchemaFieldType.BOOLEAN: return faker.datatype.boolean();
     case SchemaFieldType.DATE: return faker.date.recent();
-    case SchemaFieldType.ID: return field.idFieldType === IdFieldType.UUID ? faker.string.uuid() : faker.number.int({ min: 1, max: 1000000 });
+    case SchemaFieldType.ID: return field.idFieldType === IdFieldType.UUID ? faker.string.uuid() : idCounter++;
     default: return null;
   }
 }
@@ -158,12 +161,11 @@ async function handleRequest(
   method: HttpMethod
 ) {
   try {
-    const path = params.path.join("/");
-
-    // Find matching endpoint
-    const endpoint = await prisma.endpoint.findFirst({
+    const fullPath = params.path.join("/");
+    
+    // Find matching endpoint by checking if the request path matches the endpoint path pattern
+    const endpoints = await prisma.endpoint.findMany({
       where: {
-        path,
         method,
       },
       include: {
@@ -192,27 +194,99 @@ async function handleRequest(
       }
     });
 
-    if (!endpoint) {
+    // Find the best matching endpoint and extract ID if present
+    let matchingEndpoint: any = null;
+    let extractedId: string | null = null;
+
+    for (const endpoint of endpoints) {
+      const endpointParts = endpoint.path.split('/');
+      const requestParts = fullPath.split('/');
+      
+      if (endpointParts.length !== requestParts.length) continue;
+      
+      let isMatch = true;
+      for (let i = 0; i < endpointParts.length; i++) {
+        const part = endpointParts[i];
+        const requestPart = requestParts[i];
+        
+        // Check if this part is an ID parameter (e.g. :id or {id})
+        const isIdParam = part.startsWith(':') || (part.startsWith('{') && part.endsWith('}'));
+        if (isIdParam) {
+          // For ID parameters, check if the request part is a valid ID format
+          if (/^\d+$/.test(requestPart) || /^[0-9a-fA-F-]+$/.test(requestPart)) {
+            extractedId = requestPart;
+            continue;
+          }
+          isMatch = false;
+          break;
+        }
+        if (part !== requestPart) {
+          isMatch = false;
+          break;
+        }
+      }
+      
+      if (isMatch) {
+        matchingEndpoint = endpoint;
+        break;
+      }
+    }
+
+    if (!matchingEndpoint) {
       return NextResponse.json(
         { error: "Endpoint not found" },
         { status: 404 }
       );
     }
 
+    // Check if this is a GET request and if it's a collection endpoint (no ID parameter)
+    const isCollectionEndpoint = !matchingEndpoint.path.includes('/:') && !matchingEndpoint.path.includes('/{');
+    const shouldReturnArray = method === 'GET' && isCollectionEndpoint;
+
     // Generate response
     let response: any;
-    if (endpoint.responseGen === ResponseGeneration.STATIC) {
-      response = endpoint.staticResponse;
+    if (matchingEndpoint.responseGen === ResponseGeneration.STATIC) {
+      response = matchingEndpoint.staticResponse;
+      // For GET requests to collection endpoints, wrap static response in array if it's not already
+      if (shouldReturnArray && !Array.isArray(response)) {
+        response = [response];
+      }
+      // For single item responses with ID, ensure the ID matches the URL
+      else if (extractedId && !shouldReturnArray) {
+        response = { ...response, id: extractedId };
+      }
     } else if (
-      endpoint.responseGen === ResponseGeneration.SCHEMA &&
-      endpoint.schema
+      matchingEndpoint.responseGen === ResponseGeneration.SCHEMA &&
+      matchingEndpoint.schema
     ) {
-      response = {};
-      for (const field of endpoint.schema.fields) {
-        response[field.name] = await generateSchemaValue(field as SchemaField);
+      if (shouldReturnArray) {
+        // Generate array of 5-10 items for collection endpoints
+        const count = Math.floor(Math.random() * 6) + 5;
+        response = [];
+        for (let i = 0; i < count; i++) {
+          const item: any = {};
+          for (const field of matchingEndpoint.schema.fields) {
+            if (field.name === 'id') {
+              item[field.name] = (i + 1).toString(); // Generate sequential IDs
+            } else {
+              item[field.name] = await generateSchemaValue(field as SchemaField);
+            }
+          }
+          response.push(item);
+        }
+      } else {
+        // Generate single item for ID endpoints
+        response = {};
+        for (const field of matchingEndpoint.schema.fields) {
+          if (field.name === 'id' && extractedId) {
+            response[field.name] = extractedId;
+          } else {
+            response[field.name] = await generateSchemaValue(field as SchemaField);
+          }
+        }
       }
     } else {
-      response = "no data";
+      response = shouldReturnArray ? [] : "no data";
     }
 
     return NextResponse.json(response);
