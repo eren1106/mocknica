@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CUSTOM STYLING VARIABLES */
+:root {
+  --sidebar-width: 15rem;
+  --topbar-height: 4rem;
+}
+
 
 @layer base {
   :root {
