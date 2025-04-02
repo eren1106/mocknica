@@ -1,5 +1,5 @@
+import { Schema } from "@/models/schema.model";
 import { SchemaService } from "@/services/schema.service";
-import { Schema } from "@prisma/client";
 import { toast } from "sonner";
 import { create } from "zustand";
 

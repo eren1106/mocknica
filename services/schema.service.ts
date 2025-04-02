@@ -1,5 +1,6 @@
 import { apiRequest } from "@/helpers/api-request";
-import { SchemaFieldType, FakerType, Schema } from "@prisma/client";
+import { Schema } from "@/models/schema.model";
+import { SchemaFieldType, FakerType, IdFieldType } from "@prisma/client";
 
 export class SchemaService {
     static async getAllSchemas(): Promise<Schema[]> {
@@ -12,6 +13,7 @@ export class SchemaService {
         fields: Array<{
             name: string;
             type: SchemaFieldType;
+            idFieldType?: IdFieldType;
             fakerType?: FakerType;
             objectSchemaId?: number;
             arrayType?: {

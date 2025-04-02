@@ -64,6 +64,9 @@ model ArrayType {
   objectSchemaId Int?
   objectSchema   Schema? @relation(fields: [objectSchemaId], references: [id])
 
+  // if type is faker
+  fakerType FakerType?
+
   SchemaFields SchemaField[] @relation("SchemaFieldToArrayType")
 }
 

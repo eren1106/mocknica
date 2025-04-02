@@ -1,6 +1,6 @@
 import prisma from '@/lib/db';
 import { Schema } from '@/models/schema.model';
-import { SchemaField, SchemaFieldType, FakerType } from '@prisma/client';
+import { SchemaField, SchemaFieldType, FakerType, IdFieldType } from '@prisma/client';
 
 export class SchemaData {
     static async createSchema(data: {
@@ -8,6 +8,7 @@ export class SchemaData {
         fields: Array<{
             name: string;
             type: SchemaFieldType;
+            idFieldType?: IdFieldType;
             fakerType?: FakerType;
             objectSchemaId?: number;
             arrayType?: {
@@ -23,6 +24,7 @@ export class SchemaData {
                     create: data.fields.map(field => ({
                         name: field.name,
                         type: field.type,
+                        ...(field.idFieldType && { idFieldType: field.idFieldType }),
                         ...(field.fakerType && { fakerType: field.fakerType }),
                         ...(field.objectSchemaId && { objectSchema: { connect: { id: field.objectSchemaId } } }),
                         ...(field.arrayType && {
@@ -39,8 +41,12 @@ export class SchemaData {
             include: {
                 fields: {
                     include: {
-                        arrayType: true,
-                        objectSchema: true
+                        objectSchema: true,
+                        arrayType: {
+                            include: {
+                                objectSchema: true
+                            }
+                        }
                     }
                 }
             }
@@ -51,16 +57,34 @@ export class SchemaData {
         return prisma.schema.findUnique({
             where: { id },
             include: {
-                fields: true,
-            },
+                fields: {
+                    include: {
+                        objectSchema: true,
+                        arrayType: {
+                            include: {
+                                objectSchema: true
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 
     static async getAllSchemas(): Promise<Schema[]> {
         return prisma.schema.findMany({
             include: {
-                fields: true,
-            },
+                fields: {
+                    include: {
+                        objectSchema: true,
+                        arrayType: {
+                            include: {
+                                objectSchema: true
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 
@@ -83,6 +107,18 @@ export class SchemaData {
             data: {
                 name: data.name,
             },
+            include: {
+                fields: {
+                    include: {
+                        objectSchema: true,
+                        arrayType: {
+                            include: {
+                                objectSchema: true
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         if (data.fields) {
@@ -94,9 +130,22 @@ export class SchemaData {
                 where: { id },
                 data: {
                     fields: {
-                        create: data.fields,
-                    },
-                },
+                        create: data.fields.map(field => ({
+                            name: field.name,
+                            type: field.type,
+                            ...(field.fakerType && { fakerType: field.fakerType }),
+                            ...(field.objectSchemaId && { objectSchema: { connect: { id: field.objectSchemaId } } }),
+                            ...(field.arrayType && {
+                                arrayType: {
+                                    create: {
+                                        elementType: field.arrayType.elementType,
+                                        ...(field.arrayType.objectSchemaId && { objectSchema: { connect: { id: field.arrayType.objectSchemaId } } })
+                                    }
+                                }
+                            })
+                        }))
+                    }
+                }
             });
         }
 
@@ -104,39 +153,18 @@ export class SchemaData {
     }
 
     static async deleteSchema(id: number): Promise<Partial<Schema>> {
-        await prisma.schemaField.deleteMany({
-            where: { schemaId: id },
-        });
-
         return prisma.schema.delete({
             where: { id },
+            select: {
+                id: true,
+                name: true
+            }
         });
     }
 
-    // static async addFieldToSchema(
-    //     schemaId: number,
-    //     fieldData: {
-    //         name: string;
-    //         type: SchemaFieldType;
-    //         fakerType?: FakerType;
-    //         objectSchemaId?: number;
-    //         arrayType?: {
-    //             elementType: SchemaFieldType;
-    //             objectSchemaId?: number;
-    //         };
-    //     }
-    // ): Promise<SchemaField> {
-    //     return prisma.schemaField.create({
-    //         data: {
-    //             ...fieldData,
-    //             schemaId,
-    //         },
-    //     });
-    // }
-
     static async removeFieldFromSchema(fieldId: number): Promise<SchemaField> {
         return prisma.schemaField.delete({
-            where: { id: fieldId },
+            where: { id: fieldId }
         });
     }
 }

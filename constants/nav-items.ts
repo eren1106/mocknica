@@ -13,8 +13,8 @@ export const NAV_ITEMS: NavItem[] = [
       icon: Home
     },
     {
-      to: "schema",
-      label: "Schema",
+      to: "schemas",
+      label: "Schemas",
       icon: Table2,
     },
   ]

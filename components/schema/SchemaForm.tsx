@@ -48,6 +48,7 @@ export const validateSchema = (data: unknown) => SchemaSchema.safeParse(data);
 export const validateSchemaStrict = (data: unknown) => SchemaSchema.parse(data);
 const formFields = getZodFieldNames(SchemaSchema);
 interface SchemaFormProps {
+  schema?: Schema;
   onSuccess?: () => void;
 }
 const SchemaForm = (props: SchemaFormProps) => {
@@ -66,7 +67,7 @@ const SchemaForm = (props: SchemaFormProps) => {
     }
   };
 
-  const form = useZodForm(SchemaSchema, {
+  const form = useZodForm(SchemaSchema, props.schema || {
     name: "",
     fields: [
       {
@@ -172,6 +173,7 @@ const SchemaForm = (props: SchemaFormProps) => {
                           value: type,
                         })) as any
                       }
+                      defaultValue={IdFieldType.AUTOINCREMENT}
                       value={`${field.idFieldType}`}
                       onChange={(value) => {
                         const currentFields = form.getValues("fields");
