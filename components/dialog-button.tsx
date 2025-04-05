@@ -49,7 +49,7 @@ const DialogButton = ({
       </DialogTrigger>
       <DialogContent className={cn("p-0", contentClassName)}>
         <ScrollArea className='max-h-[90vh] p-6'>
-          <DialogHeader>
+          <DialogHeader className='mb-5'>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>
               {description}

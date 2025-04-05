@@ -4,10 +4,10 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Schema } from "@/models/schema.model";
 import { SchemaFieldType } from "@prisma/client";
-import { Button } from "@/components/ui/button";
 import { Edit, Trash } from "lucide-react";
 import DialogButton from "@/components/dialog-button";
 import SchemaForm from "@/components/schema/SchemaForm";
+import DeleteSchemaConfirmation from "./DeleteSchemaConfirmation";
 
 const SchemaCard = ({ schema }: { schema: Schema }) => {
   return (
@@ -24,13 +24,17 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
           > 
             <Edit size={16}/>
           </DialogButton>
-          <Button
-            onClick={() => {}}
+          <DialogButton
             variant="outline"
             className="size-10 p-0"
+            title="Delete Schema"
+            description="Are you sure you want to delete this schema?"
+            content={(close) => (
+              <DeleteSchemaConfirmation id={schema.id} onClose={close} />
+            )}
           >
             <Trash size={16}/>
-          </Button>
+          </DialogButton>
         </div>  
       </CardHeader>
       <CardContent>
