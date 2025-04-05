@@ -1,22 +1,10 @@
 import prisma from '@/lib/db';
 import { Schema } from '@/models/schema.model';
 import { SchemaField, SchemaFieldType, FakerType, IdFieldType } from '@prisma/client';
+import { SchemaSchemaType } from '@/zod-schemas/schema.schema';
 
 export class SchemaData {
-    static async createSchema(data: {
-        name: string;
-        fields: Array<{
-            name: string;
-            type: SchemaFieldType;
-            idFieldType?: IdFieldType;
-            fakerType?: FakerType;
-            objectSchemaId?: number;
-            arrayType?: {
-                elementType: SchemaFieldType;
-                objectSchemaId?: number;
-            };
-        }>;
-    }): Promise<Schema> {
+    static async createSchema(data: SchemaSchemaType): Promise<Schema> {
         return prisma.schema.create({
             data: {
                 name: data.name,
@@ -88,24 +76,32 @@ export class SchemaData {
         });
     }
 
-    static async updateSchema(id: number, data: {
-        name?: string;
-        fields?: Array<{
-            id?: number;
-            name: string;
-            type: SchemaFieldType;
-            fakerType?: FakerType;
-            objectSchemaId?: number;
-            arrayType?: {
-                elementType: SchemaFieldType;
-                objectSchemaId?: number;
-            };
-        }>;
-    }): Promise<Schema> {
+    static async updateSchema(id: number, data: SchemaSchemaType): Promise<Schema> {
+        // Delete all fields associated with the schema
+        await prisma.schemaField.deleteMany({
+            where: { schemaId: id },
+        });
+
         const updatedSchema = await prisma.schema.update({
             where: { id },
             data: {
                 name: data.name,
+                fields: {
+                    create: data.fields.map(field => ({
+                        name: field.name,
+                        type: field.type,
+                        ...(field.fakerType && { fakerType: field.fakerType }),
+                        ...(field.objectSchemaId && { objectSchema: { connect: { id: field.objectSchemaId } } }),
+                        ...(field.arrayType && {
+                            arrayType: {
+                                create: {
+                                    elementType: field.arrayType.elementType,
+                                    ...(field.arrayType.objectSchemaId && { objectSchema: { connect: { id: field.arrayType.objectSchemaId } } })
+                                }
+                            }
+                        })
+                    }))
+                }
             },
             include: {
                 fields: {
@@ -121,35 +117,7 @@ export class SchemaData {
             }
         });
 
-        if (data.fields) {
-            await prisma.schemaField.deleteMany({
-                where: { schemaId: id },
-            });
-
-            await prisma.schema.update({
-                where: { id },
-                data: {
-                    fields: {
-                        create: data.fields.map(field => ({
-                            name: field.name,
-                            type: field.type,
-                            ...(field.fakerType && { fakerType: field.fakerType }),
-                            ...(field.objectSchemaId && { objectSchema: { connect: { id: field.objectSchemaId } } }),
-                            ...(field.arrayType && {
-                                arrayType: {
-                                    create: {
-                                        elementType: field.arrayType.elementType,
-                                        ...(field.arrayType.objectSchemaId && { objectSchema: { connect: { id: field.arrayType.objectSchemaId } } })
-                                    }
-                                }
-                            })
-                        }))
-                    }
-                }
-            });
-        }
-
-        return this.getSchema(id) as Promise<Schema>;
+        return updatedSchema;
     }
 
     static async deleteSchema(id: number): Promise<Partial<Schema>> {

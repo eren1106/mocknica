@@ -11,7 +11,7 @@ import DeleteSchemaConfirmation from "./DeleteSchemaConfirmation";
 
 const SchemaCard = ({ schema }: { schema: Schema }) => {
   return (
-    <Card key={schema.id}>
+    <Card>
       <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle>{schema.name}</CardTitle>
         <div className="flex flex-row gap-1">
@@ -21,8 +21,8 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
             content={(close) => (
               <SchemaForm schema={schema} onSuccess={close} />
             )}
-          > 
-            <Edit size={16}/>
+          >
+            <Edit size={16} />
           </DialogButton>
           <DialogButton
             variant="outline"
@@ -33,9 +33,9 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
               <DeleteSchemaConfirmation id={schema.id} onClose={close} />
             )}
           >
-            <Trash size={16}/>
+            <Trash size={16} />
           </DialogButton>
-        </div>  
+        </div>
       </CardHeader>
       <CardContent>
         {schema.fields.map((field) => (
@@ -59,8 +59,6 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
               field.arrayType?.elementType === SchemaFieldType.FAKER && (
                 <p>{field.arrayType?.fakerType}</p>
               )}
-            {field.type !== SchemaFieldType.OBJECT &&
-              field.type !== SchemaFieldType.ARRAY && <p>{field.type}</p>}
           </div>
         ))}
       </CardContent>

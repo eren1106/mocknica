@@ -1,5 +1,6 @@
 import { Schema } from "@/models/schema.model";
 import { SchemaService } from "@/services/schema.service";
+import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
 import { toast } from "sonner";
 import { create } from "zustand";
 
@@ -8,8 +9,8 @@ interface SchemaStore {
   isLoading: boolean;
   isMutating: boolean;
   fetchSchemas: () => Promise<void>;
-  createSchema: (data: Omit<Schema, 'id'>) => Promise<void>;
-  updateSchema: (id: number, data: Omit<Schema, 'id'>) => Promise<void>;
+  createSchema: (data: SchemaSchemaType) => Promise<void>;
+  updateSchema: (id: number, data: SchemaSchemaType) => Promise<void>;
   deleteSchema: (id: number) => Promise<void>;
 }
 
@@ -31,11 +32,11 @@ export const useSchema = create<SchemaStore>((set, get) => ({
     }
   },
 
-  createSchema: async (data: Omit<Schema, 'id'>) => {
+  createSchema: async (data: SchemaSchemaType) => {
     try {
       set({ isMutating: true });
-      await SchemaService.createSchema(data);
-      await get().fetchSchemas();
+      const newSchema = await SchemaService.createSchema(data);
+      set((state) => ({ schemas: [...state.schemas, newSchema] }));
       toast.success('Schema created successfully');
     } catch (error) {
       console.error('Error creating schema:', error);
@@ -45,11 +46,11 @@ export const useSchema = create<SchemaStore>((set, get) => ({
     }
   },
 
-  updateSchema: async (id: number, data: Omit<Schema, 'id'>) => {
+  updateSchema: async (id: number, data: SchemaSchemaType) => {
     try {
       set({ isMutating: true });
       await SchemaService.updateSchema(id, data);
-      await get().fetchSchemas();
+      set((state) => ({ schemas: state.schemas.map((s) => (s.id === id ? { ...s, ...data } : s)) }));
       toast.success('Schema updated successfully');
     } catch (error) {
       console.error('Error updating schema:', error);
@@ -63,7 +64,7 @@ export const useSchema = create<SchemaStore>((set, get) => ({
     try {
       set({ isMutating: true });
       await SchemaService.deleteSchema(id);
-      await get().fetchSchemas();
+      set((state) => ({ schemas: state.schemas.filter((s) => s.id !== id) }));
       toast.success('Schema deleted successfully');
     } catch (error) {
       console.error('Error deleting schema:', error);

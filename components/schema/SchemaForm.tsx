@@ -9,87 +9,70 @@ import {
   convertFirstLetterToUpperCase,
   getZodFieldNames,
 } from "@/lib/utils";
-import { z } from "zod";
-import {
-  FakerType,
-  IdFieldType,
-  Schema,
-  SchemaFieldType,
-} from "@prisma/client";
+import { FakerType, IdFieldType, SchemaFieldType } from "@prisma/client";
 import { Input } from "../ui/input";
 import DynamicSelect from "../dynamic-select";
 import { Button } from "../ui/button";
 import { Plus, X } from "lucide-react";
-import { SchemaService } from "@/services/schema.service";
 import { SchemaField } from "@/models/schema-field.model";
+import { SchemaSchema, SchemaSchemaType } from "@/zod-schemas/schema.schema";
+import { useSchema } from "@/hooks/useSchema";
+import { Schema } from "@/models/schema.model";
 
-const ArrayTypeSchema: z.ZodType<any> = z.lazy(() =>
-  z.object({
-    elementType: z.nativeEnum(SchemaFieldType).optional(),
-    objectSchemaId: z.number().int().optional(),
-  })
-);
-const SchemaFieldSchema: z.ZodType<any> = z.lazy(() =>
-  z.object({
-    name: z.string(),
-    type: z.nativeEnum(SchemaFieldType),
-    fakerType: z.nativeEnum(FakerType).optional(),
-    objectSchemaId: z.number().int().optional(),
-    arrayType: ArrayTypeSchema.optional(),
-  })
-);
-// Main Schema schema
-const SchemaSchema = z.object({
-  name: z.string().min(1),
-  fields: z.array(SchemaFieldSchema),
-});
-// Validation functions
-export const validateSchema = (data: unknown) => SchemaSchema.safeParse(data);
-export const validateSchemaStrict = (data: unknown) => SchemaSchema.parse(data);
 const formFields = getZodFieldNames(SchemaSchema);
 interface SchemaFormProps {
   schema?: Schema;
   onSuccess?: () => void;
 }
 const SchemaForm = (props: SchemaFormProps) => {
-  const [allSchemas, setAllSchemas] = useState<Schema[]>([]);
+  const { schemas, createSchema, updateSchema, isMutating } = useSchema();
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const schemas = await SchemaService.getAllSchemas();
-      setAllSchemas(schemas);
-    } catch (e) {
-      console.error(e);
+  const form = useZodForm<SchemaSchemaType>(
+    SchemaSchema,
+    props.schema ? {
+      name: props.schema.name,
+      fields: props.schema.fields.map((field) => ({
+        name: field.name,
+        type: field.type,
+        idFieldType: field.idFieldType,
+        fakerType: field.fakerType,
+        objectSchemaId: field.objectSchemaId,
+        arrayType: field.arrayType
+      }))
+    } : {
+      name: "",
+      fields: [
+        {
+          name: "id",
+          type: SchemaFieldType.ID,
+          idFieldType: IdFieldType.AUTOINCREMENT,
+        },
+        {
+          name: "name",
+          type: SchemaFieldType.STRING,
+        },
+      ],
     }
-  };
-
-  const form = useZodForm(SchemaSchema, props.schema || {
-    name: "",
-    fields: [
-      {
-        name: "id",
-        type: SchemaFieldType.ID,
-        idFieldType: IdFieldType.AUTOINCREMENT,
-      },
-      {
-        name: "name",
-        type: SchemaFieldType.STRING,
-      },
-    ],
-  });
-  const onSubmit = async (data: z.infer<typeof SchemaSchema>) => {
+  );
+  const onSubmit = async (data: SchemaSchemaType) => {
     console.log("DATA:", data);
     try {
-      await SchemaService.createSchema(data);
+      if (props.schema) {
+        await updateSchema(props.schema.id, data);
+      } else {
+        await createSchema(data);
+      }
       props.onSuccess?.();
     } catch (e) {
       console.error(e);
     }
   };
+  const onError = (errors: any) => {
+    console.error("Validation errors:", errors);
+    const data = form.getValues(); // Retrieve all form values.
+    console.log("Form values:", data);
+  };
+
   const fields = form.watch("fields") as SchemaField[];
 
   // Function to add a new field
@@ -130,7 +113,7 @@ const SchemaForm = (props: SchemaFormProps) => {
   };
 
   return (
-    <ZodForm form={form} onSubmit={onSubmit}>
+    <ZodForm form={form} onSubmit={onSubmit} onError={onError}>
       <GenericFormField
         type="input"
         name={formFields.name}
@@ -140,7 +123,7 @@ const SchemaForm = (props: SchemaFormProps) => {
         type="custom"
         name={formFields.fields}
         control={form.control}
-        useFormNameAsLabel={false}
+        // useFormNameAsLabel={false}
         customChildren={
           <div className="flex flex-col gap-3 w-full">
             {fields.map((field: SchemaField, index) => {
@@ -215,7 +198,7 @@ const SchemaForm = (props: SchemaFormProps) => {
                           label: "Empty Object",
                           value: "0",
                         },
-                        ...allSchemas.map((schema) => ({
+                        ...schemas.map((schema) => ({
                           label: schema.name,
                           value: schema.id.toString(),
                         })),
@@ -267,10 +250,10 @@ const SchemaForm = (props: SchemaFormProps) => {
                               label: "Empty Object",
                               value: "0",
                             },
-                            ...allSchemas.map((schema) => ({
+                            ...schemas.map((schema) => ({
                               label: schema.name,
                               value: schema.id.toString(),
-                            }))
+                            })),
                           ]}
                           value={field.objectSchemaId?.toString()}
                           onChange={(value) => {
@@ -311,10 +294,7 @@ const SchemaForm = (props: SchemaFormProps) => {
       <Button size="icon" onClick={addField}>
         <Plus className="size-6" />
       </Button>
-      <FormButton
-        isLoading={form.formState.isSubmitting}
-        disabled={form.formState.isSubmitting}
-      >
+      <FormButton isLoading={isMutating} disabled={isMutating}>
         Submit
       </FormButton>
     </ZodForm>
