@@ -1,6 +1,6 @@
 import prisma from '@/lib/db';
 import { Schema } from '@/models/schema.model';
-import { SchemaField, SchemaFieldType, FakerType, IdFieldType } from '@prisma/client';
+import { SchemaField } from '@prisma/client';
 import { SchemaSchemaType } from '@/zod-schemas/schema.schema';
 
 export class SchemaData {
@@ -90,6 +90,7 @@ export class SchemaData {
                     create: data.fields.map(field => ({
                         name: field.name,
                         type: field.type,
+                        ...(field.idFieldType && { idFieldType: field.idFieldType }),
                         ...(field.fakerType && { fakerType: field.fakerType }),
                         ...(field.objectSchemaId && { objectSchema: { connect: { id: field.objectSchemaId } } }),
                         ...(field.arrayType && {

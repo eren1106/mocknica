@@ -38,8 +38,8 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
         </div>
       </CardHeader>
       <CardContent>
-        {schema.fields.map((field) => (
-          <div className="flex items-center gap-2" key={field.id}>
+        {schema.fields.map((field, index) => (
+          <div className="flex items-center gap-2" key={index}>
             <p>{field.name}</p>
             <p>{field.type}</p>
             {field.type === SchemaFieldType.ID && <p>{field.idFieldType}</p>}
