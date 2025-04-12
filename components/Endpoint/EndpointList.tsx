@@ -7,6 +7,12 @@ import DialogButton from "../dialog-button";
 import { useEndpoint } from "@/hooks/useEndpoint";
 import { Endpoint } from "@prisma/client";
 import EndpointForm from "./EndpointForm";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "../ui/accordion";
 
 interface EndpointsListProps {
   endpoints: Endpoint[];
@@ -20,59 +26,22 @@ export default function EndpointsList({ endpoints }: EndpointsListProps) {
       {endpoints.length < 1 ? (
         <p className="text-muted-foreground">No endpoints available</p>
       ) : (
-        endpoints.map((endpoint) => (
-          <Card key={endpoint.id}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <span className="px-2 py-1 rounded text-sm">
-                  {endpoint.method}
-                </span>
-                <span>{endpoint.name}</span>
-              </div>
-              <div className="flex gap-2">
-                <DialogButton
-                  variant="outline"
-                  size="icon"
-                  content={(close) => (
-                    <EndpointForm endpoint={endpoint} onSuccess={close} />
-                  )}
-                >
-                  <Pencil className="size-4" />
-                </DialogButton>
-                <DialogButton
-                  variant="outline"
-                  size="icon"
-                  content={(close) => (
-                    <div>
-                      <h2 className="text-xl font-bold">Are you sure?</h2>
-                      <p>This action cannot be undone.</p>
-                      <div className="flex justify-end gap-4">
-                        <Button
-                          variant="destructive"
-                          onClick={async () => {
-                            await deleteEndpoint(endpoint.id);
-                            close();
-                          }}
-                        >
-                          Delete
-                        </Button>
-                        <Button variant="outline" onClick={close}>
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                >
-                  <Trash className="size-4" />
-                </DialogButton>
-              </div>
-            </div>
-            <div>
-              <p className="mb-2">{endpoint.description}</p>
-              <p className="font-mono p-2 rounded">{endpoint.path}</p>
-            </div>
-          </Card>
-        ))
+        <Accordion type="multiple" className="w-full">
+          {endpoints.map((endpoint) => (
+            <AccordionItem value={endpoint.id} key={endpoint.id}>
+              <AccordionTrigger className="hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <p className="w-20 bg-secondary text-secondary-foreground p-2 rounded-[2px] font-semibold text-center">{endpoint.method}</p>
+                  <p>{endpoint.path}</p>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <p className="mb-2">{endpoint.description}</p>
+                <p className="font-mono p-2 rounded">{endpoint.path}</p>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       )}
     </div>
   );

@@ -12,23 +12,22 @@ const config = {
   ],
   prefix: "",
   theme: {
-    screens: {
-      'xs': '475px',
-      ...defaultTheme.screens,
-    },
-    aspectRatio: {
-      '9/16': '9 / 16',
-      ...defaultTheme.aspectRatio
-    },
-
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
-    },
-    extend: {
+  	screens: {
+  		xs: '475px',
+            ...defaultTheme.screens
+  	},
+  	aspectRatio: {
+  		'9/16': '9 / 16',
+            ...defaultTheme.aspectRatio
+  	},
+  	container: {
+  		center: true,
+  		padding: '2rem',
+  		screens: {
+  			'2xl': '1400px'
+  		}
+  	},
+  	extend: {
   		colors: {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
@@ -98,10 +97,10 @@ const config = {
   			},
   			shimmer: {
   				from: {
-  					'backgroundPosition': '0 0'
+  					backgroundPosition: '0 0'
   				},
   				to: {
-  					'backgroundPosition': '-200% 0'
+  					backgroundPosition: '-200% 0'
   				}
   			},
   			'background-position-spin': {
