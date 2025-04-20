@@ -52,7 +52,7 @@ export default function EndpointForm({
   endpoint,
   onSuccess,
 }: EndpointFormProps) {
-  const { createEndpoint, updateEndpoint } = useEndpoint();
+  const { createEndpoint, updateEndpoint, isMutating } = useEndpoint();
 
   const form = useZodForm(
     EndPointSchema,
@@ -144,7 +144,7 @@ export default function EndpointForm({
         placeholder='{"id": 1, "name": "John Doe"}'
       />
 
-      <FormButton>
+      <FormButton isLoading={isMutating}>
         {endpoint ? "Update" : "Create"} Endpoint
       </FormButton>
     </ZodForm>

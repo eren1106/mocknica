@@ -13,7 +13,7 @@ const FormButton = React.forwardRef<HTMLButtonElement, FormButtonProps>(
       <Button
         ref={ref}  // Pass the ref to Button
         type="submit"
-        className="w-min ml-auto w-full"
+        className="ml-auto w-full"
         disabled={isLoading}
         // size="rounded"
         {...props}

@@ -1,10 +1,17 @@
-'use client'
+"use client";
 
-import { ReactNode, useState } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from './ui/scroll-area';
+import { ReactNode, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface DialogButtonProps {
   children: ReactNode;
@@ -12,7 +19,13 @@ interface DialogButtonProps {
   title?: string;
   description?: string;
   className?: string;
-  variant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost";
+  variant?:
+    | "link"
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost";
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   size?: "default" | "sm" | "lg" | "icon" | "rounded";
@@ -33,7 +46,7 @@ const DialogButton = ({
   contentClassName,
   disabled = false,
 }: DialogButtonProps) => {
-  const [isOpen, setIsOpen] = useState(open ||false);
+  const [isOpen, setIsOpen] = useState(open || false);
 
   const handleOpenChange = (newOpen: boolean) => {
     setIsOpen(newOpen);
@@ -45,21 +58,31 @@ const DialogButton = ({
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant={variant} className={className} size={size} disabled={disabled}>{children}</Button>
+        <Button
+          variant={variant}
+          className={className}
+          size={size}
+          disabled={disabled}
+        >
+          {children}
+        </Button>
       </DialogTrigger>
       <DialogContent className={cn("p-0", contentClassName)}>
-        <ScrollArea className='max-h-[90vh] p-6'>
-          <DialogHeader className='mb-5'>
-            <DialogTitle>{title}</DialogTitle>
-            <DialogDescription>
-              {description}
-            </DialogDescription>
-          </DialogHeader>
-          {typeof content === 'function' ? content(close) : content}
+        {/* the dialog content need dialog title component no matter what */}
+        {!title && <DialogTitle className="hidden"/>}
+
+        <ScrollArea className="max-h-[90vh] p-6">
+          {(title || description) && (
+            <DialogHeader className="mb-5">
+               {title && <DialogTitle>{title}</DialogTitle>}
+              {description && <DialogDescription>{description}</DialogDescription>}
+            </DialogHeader>
+          )}
+          {typeof content === "function" ? content(close) : content}
         </ScrollArea>
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};
 
-export default DialogButton
+export default DialogButton;

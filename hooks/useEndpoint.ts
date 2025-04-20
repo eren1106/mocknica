@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 interface EndpointStore {
   endpoints: Endpoint[];
   isLoading: boolean;
+  isMutating: boolean;
   fetchEndpoints: () => Promise<void>;
   createEndpoint: (data: Partial<Endpoint>) => Promise<void>;
   updateEndpoint: (id: string, data: Partial<Endpoint>) => Promise<void>;
@@ -14,6 +15,7 @@ interface EndpointStore {
 export const useEndpoint = create<EndpointStore>((set, get) => ({
   endpoints: [],
   isLoading: false,
+  isMutating: false,
 
   fetchEndpoints: async () => {
     try {
@@ -32,6 +34,7 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
 
   createEndpoint: async (data) => {
     try {
+      set({ isMutating: true });
       const response = await fetch('/api/endpoints', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,7 +42,6 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
-      
       set((state) => ({ endpoints: [...state.endpoints, result] }));
       toast.success('Endpoint created successfully');
     } catch (error) {
@@ -47,10 +49,14 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
       toast.error('Failed to create endpoint');
       throw error;
     }
+    finally {
+      set({ isMutating: false });
+    }
   },
 
   updateEndpoint: async (id, data) => {
     try {
+      set({ isMutating: true });
       const response = await fetch(`/api/endpoints/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -70,10 +76,14 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
       toast.error('Failed to update endpoint');
       throw error;
     }
+    finally {
+      set({ isMutating: false });
+    }
   },
 
   deleteEndpoint: async (id) => {
     try {
+      set({ isMutating: true });
       const response = await fetch(`/api/endpoints/${id}`, {
         method: 'DELETE',
       });
@@ -88,6 +98,9 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
       console.error('Error deleting endpoint:', error);
       toast.error('Failed to delete endpoint');
       throw error;
+    }
+    finally {
+      set({ isMutating: false });
     }
   },
 }));
