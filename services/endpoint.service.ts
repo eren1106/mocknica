@@ -1,5 +1,5 @@
 import { apiRequest } from "@/helpers/api-request";
-import { Endpoint } from "@prisma/client";
+import { Endpoint } from "@/models/endpoint.model";
 
 export class EndpointService {
     static async getAllEndpoints(): Promise<Endpoint[]> {

@@ -1,11 +1,8 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Edit, Pencil, Trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import DialogButton from "../dialog-button";
 import { useEndpoint } from "@/hooks/useEndpoint";
-import { Endpoint } from "@prisma/client";
 import EndpointForm from "./EndpointForm";
 import {
   Accordion,
@@ -14,6 +11,8 @@ import {
   AccordionTrigger,
 } from "../ui/accordion";
 import DeleteConfirmationDialog from "../delete-confirmation";
+import { Endpoint } from "@/models/endpoint.model";
+import { SchemaService } from "@/services/schema.service";
 
 interface EndpointsListProps {
   endpoints: Endpoint[];
@@ -39,7 +38,7 @@ export default function EndpointsList({ endpoints }: EndpointsListProps) {
                   <p>{endpoint.path}</p>
                 </div>
               </AccordionTrigger>
-              <AccordionContent>
+              <AccordionContent className="flex flex-col gap-2">
                 <div className="flex items-center gap-2 justify-end">
                   <DialogButton
                     content={(close) => (
@@ -67,8 +66,15 @@ export default function EndpointsList({ endpoints }: EndpointsListProps) {
                     <Trash size={20} />
                   </DialogButton>
                 </div>
-                <p className="mb-2">{endpoint.description}</p>
-                <p className="font-mono p-2 rounded">{endpoint.path}</p>
+                <p className="">{endpoint.description}</p>
+                <p className="">{endpoint.path}</p>
+                {endpoint.schema && (
+                  <>
+                    <p className="">Schema: {endpoint.schema.name}</p>
+                    <p className="">Response:</p>
+                    <p className="">{JSON.stringify(SchemaService.generateResponseFromSchema(endpoint.schema, true))}</p>
+                  </>
+                )}
               </AccordionContent>
             </AccordionItem>
           ))}

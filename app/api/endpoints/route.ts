@@ -1,8 +1,10 @@
 // app/api/endpoints/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import prisma from '@/lib/db';
+import { EndpointData } from '@/data/endpoint.data';
+import { apiResponse, errorResponse } from '../_helpers/api-response';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
 
@@ -14,19 +16,19 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(endpoint);
+    return apiResponse(req, { data: endpoint });
   } catch (error) {
     console.error('Error creating endpoint:', error);
-    return NextResponse.json({ error: 'Failed to create endpoint' }, { status: 500 });
+    return errorResponse(req, { error: 'Failed to create endpoint' });
   }
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const endpoints = await prisma.endpoint.findMany();
-    return NextResponse.json(endpoints);
+    const endpoints = await EndpointData.getEndpoints();
+    return apiResponse(req, { data: endpoints });
   } catch (error) {
     console.error('Error fetching endpoints:', error);
-    return NextResponse.json({ error: 'Failed to fetch endpoints' }, { status: 500 });
+    return errorResponse(req, { error: 'Failed to fetch endpoints' });
   }
 }

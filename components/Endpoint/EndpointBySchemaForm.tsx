@@ -13,7 +13,7 @@ import Spinner from "../spinner";
 import { EndpointService } from "@/services/endpoint.service";
 
 const EndpointBySchemaSchema = z.object({
-  schemaId: z.number().min(1, "Schema is required"),
+  schemaId: z.coerce.number().min(1, "Schema is required"),
   basePath: z.string().min(1, "Base path is required"),
 });
 
@@ -22,11 +22,11 @@ interface EndpointBySchemaFormProps {
 }
 
 const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
-  const { schemas, fetchSchemas, isLoading } = useSchema();
+  const { schemas, fetchSchemas, isLoading, isMutating } = useSchema();
 
   useEffect(() => {
     fetchSchemas();
-  }, [fetchSchemas]);
+  }, []);
 
   const form = useZodForm(EndpointBySchemaSchema, {
     // schemaId: 1,
@@ -57,8 +57,9 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
       <GenericFormField
         control={form.control}
         type="select"
-        name="schema"
+        name="schemaId"
         label="Schema"
+        placeholder="Select a schema"
         options={schemas.map((schema) => ({
           value: schema.id.toString(),
           label: schema.name,
@@ -96,7 +97,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
 				<InfoIcon className="size-5 text-muted-foreground" />
 				<p className="text-sm text-muted-foreground">You can modify the endpoint later.</p>
 			</Card>
-      <FormButton>Create Endpoint</FormButton>
+      <FormButton isLoading={isMutating}>Create Endpoint</FormButton>
     </ZodForm>
   );
 };

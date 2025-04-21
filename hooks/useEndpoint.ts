@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { Endpoint } from '@prisma/client';
 import { toast } from 'sonner';
+import { Endpoint } from '@/models/endpoint.model';
+import { EndpointService } from '@/services/endpoint.service';
 
 interface EndpointStore {
   endpoints: Endpoint[];
@@ -20,10 +21,8 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
   fetchEndpoints: async () => {
     try {
       set({ isLoading: true });
-      const response = await fetch('/api/endpoints');
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
-      set({ endpoints: data });
+      const endpoints = await EndpointService.getAllEndpoints();
+      set({ endpoints });
     } catch (error) {
       console.error('Error fetching endpoints:', error);
       toast.error('Failed to fetch endpoints');

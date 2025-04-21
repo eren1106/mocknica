@@ -16,7 +16,8 @@ model Endpoint {
   responseGen    ResponseGeneration @default(STATIC)
   staticResponse Json? // For hardcoded responses
   schemaId       Int?
-  schema         Schema?             @relation(fields: [schemaId], references: [id])
+  schema         Schema?            @relation(fields: [schemaId], references: [id])
+  // isDataList    Boolean?           @default(false) // if schema is used in the endpoint, then will need to check the data is return in list or not
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
 }

@@ -6,7 +6,6 @@ import { Plus } from "lucide-react";
 import { useEndpoint } from "@/hooks/useEndpoint";
 import { Skeleton } from "../ui/skeleton";
 import EndpointsList from "./EndpointList";
-import EndpointForm from "./EndpointForm";
 import SchemaForm from "../schema/SchemaForm";
 import EndpointCreationTabs from "./EndpointCreationTabs";
 
@@ -15,7 +14,7 @@ const EndpointManagement = () => {
 
   useEffect(() => {
     fetchEndpoints();
-  }, [fetchEndpoints]);
+  }, []);
 
   return (
     <div className="flex flex-col">
