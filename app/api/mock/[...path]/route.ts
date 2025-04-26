@@ -156,9 +156,7 @@ async function handleRequest(
         matchingEndpoint.schema,
         shouldReturnArray
       );
-      console.log("RESPONSEEE", response);
     } else {
-      console.log("WHYYY");
       response = shouldReturnArray ? [] : "no data";
     }
 

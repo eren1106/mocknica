@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import DialogButton from "../dialog-button";
 import { Plus } from "lucide-react";
 import { useEndpoint } from "@/hooks/useEndpoint";
 import { Skeleton } from "../ui/skeleton";
 import EndpointsList from "./EndpointList";
-import SchemaForm from "../schema/SchemaForm";
 import EndpointCreationTabs from "./EndpointCreationTabs";
 
 const EndpointManagement = () => {
@@ -25,14 +24,6 @@ const EndpointManagement = () => {
         >
           <Plus className="size-6 mr-2" />
           Create Endpoint
-        </DialogButton>
-        <DialogButton
-          content={(close) => <SchemaForm onSuccess={close} />}
-          className="w-fit"
-          contentClassName="min-w-[40rem]"
-        >
-          <Plus className="size-6 mr-2" />
-          Create Schema
         </DialogButton>
       </div>
       <h2 className="text-2xl font-bold mb-3">Available Endpoints</h2>
