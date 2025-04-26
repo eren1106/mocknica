@@ -1,34 +1,19 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Endpoint, HttpMethod, ResponseGeneration } from "@prisma/client";
-import { toast } from "sonner";
 import { useEndpoint } from "@/hooks/useEndpoint";
-import AutoResizeTextarea from "../auto-resize-textarea";
+import { useZodForm } from "@/hooks/useZodForm";
+import { Endpoint, HttpMethod } from "@prisma/client";
+import { toast } from "sonner";
+import * as z from "zod";
+import FormButton from "../form-button";
 import GenericFormField from "../generic-form-field";
 import ZodForm from "../zod-form";
-import { useZodForm } from "@/hooks/useZodForm";
-import FormButton from "../form-button";
+import { Button } from "../ui/button";
+import { Sparkles } from "lucide-react";
+import DialogButton from "../dialog-button";
+import AutoResizeTextarea from "../auto-resize-textarea";
+import { useState } from "react";
+import { EndpointService } from "@/services/endpoint.service";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -53,6 +38,8 @@ export default function EndpointForm({
   onSuccess,
 }: EndpointFormProps) {
   const { createEndpoint, updateEndpoint, isMutating } = useEndpoint();
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const form = useZodForm(
     EndPointSchema,
@@ -83,7 +70,11 @@ export default function EndpointForm({
   const onSubmit = async (values: z.infer<typeof EndPointSchema>) => {
     try {
       if (endpoint) {
-        await updateEndpoint(endpoint.id, values);
+        await updateEndpoint(endpoint.id, {
+          ...values,
+          // cannot send stringy format, need send in object format, because the stringify process will be conducted automatically when send data via api
+          staticResponse: values.staticResponse ? JSON.parse(values.staticResponse) : undefined,
+        });
       } else {
         await createEndpoint(values);
       }
@@ -91,6 +82,24 @@ export default function EndpointForm({
     } catch (error) {
       console.error("Error creating endpoint:", error);
       toast.error(`Failed to ${endpoint ? "update" : "create"} endpoint`);
+    }
+  };
+
+  const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setAiPrompt(e.target.value);
+  };
+
+  const handleGenerateResponseByAI = async (callback: () => void) => {
+    setIsGenerating(true);
+    try {
+      const res = await EndpointService.generateResponseByAI(aiPrompt);
+      form.setValue("staticResponse", JSON.stringify(res, null, 4));
+    } catch (error) {
+      console.error("Error generating response:", error);
+      toast.error("Failed to generate response");
+    } finally {
+      setIsGenerating(false);
+      callback();
     }
   };
 
@@ -142,6 +151,37 @@ export default function EndpointForm({
         name="staticResponse"
         label="Static Response (JSON)"
         placeholder='{"id": 1, "name": "John Doe"}'
+        minRows={5}
+        topEndContent={
+          <DialogButton
+            variant="secondary"
+            size="sm"
+            className="flex items-center gap-2 rounded-full"
+            title="Generate Response with AI"
+            description="Describe the response you want to generate"
+            content={(close) => (
+              <div className="flex flex-col gap-4">
+                <AutoResizeTextarea
+                  placeholder="Generate a user profile response with fields for id, name, email, role, and status"
+                  minRows={5}
+                  value={aiPrompt}
+                  onChange={handlePromptChange}
+                />
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => close()}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => handleGenerateResponseByAI(close)} disabled={isGenerating}>
+                    {isGenerating ? "Generating..." : "Generate"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          >
+            <Sparkles size={16} />
+            Generate with AI
+          </DialogButton>
+        }
       />
 
       <FormButton isLoading={isMutating}>

@@ -75,7 +75,22 @@ export default function EndpointsList({ endpoints }: EndpointsListProps) {
                     <p>Response:</p>
                     <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
                       <code className="">
-                        {formatJSON(SchemaService.generateResponseFromSchema(endpoint.schema, true))}
+                        {formatJSON(
+                          SchemaService.generateResponseFromSchema(
+                            endpoint.schema,
+                            true
+                          )
+                        )}
+                      </code>
+                    </pre>
+                  </>
+                )}
+                {endpoint.staticResponse && (
+                  <>
+                    <p>Static Response:</p>
+                    <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
+                      <code className="">
+                        {formatJSON(endpoint.staticResponse)}
                       </code>
                     </pre>
                   </>

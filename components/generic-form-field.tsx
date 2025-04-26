@@ -1,37 +1,36 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   FormControl,
   FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Star } from 'lucide-react';
-import { cn, convertCamelCaseToTitle } from '@/lib/utils';
-import PasswordInput from './password-input';
-import { SelectOption } from '@/types/select-option';
-import AutoResizeTextarea from './auto-resize-textarea';
-import DatePicker from './date-picker';
-import { InputTags } from './input-tags';
-import { Switch } from './ui/switch';
-import RichTextEditor from './rich-text-editor';
-import Combobox from './combobox';
-import Link from 'next/link';
-
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Star } from "lucide-react";
+import { cn, convertCamelCaseToTitle } from "@/lib/utils";
+import PasswordInput from "./password-input";
+import { SelectOption } from "@/types/select-option";
+import AutoResizeTextarea from "./auto-resize-textarea";
+import DatePicker from "./date-picker";
+import { InputTags } from "./input-tags";
+import { Switch } from "./ui/switch";
+import RichTextEditor from "./rich-text-editor";
+import Combobox from "./combobox";
+import Link from "next/link";
 
 interface BaseField {
   control: any;
@@ -42,53 +41,66 @@ interface BaseField {
   disabled?: boolean;
   optional?: boolean; // add asterisk (*) on label if not optional
   useFormNameAsLabel?: boolean;
+  topEndContent?: React.ReactNode;
 }
 
 interface InputField {
-  type: 'input' | 'number' | 'password' | 'email' | 'star' | 'date' | 'tags' | 'switch' | 'rich-text' | 'checkbox';
+  type:
+    | "input"
+    | "number"
+    | "password"
+    | "email"
+    | "star"
+    | "date"
+    | "tags"
+    | "switch"
+    | "rich-text"
+    | "checkbox";
   inputClassName?: string;
 }
 
 interface TextareaField {
-  type: 'textarea';
+  type: "textarea";
   minRows?: number;
 }
 
 interface SelectField {
-  type: 'select' | 'multiple-choice' | 'combobox';
+  type: "select" | "multiple-choice" | "combobox";
   options: SelectOption[];
 }
 
 interface CustomField {
-  type: 'custom';
+  type: "custom";
   customChildren: React.ReactNode;
 }
 
 interface RadioField {
-  type: 'radio';
+  type: "radio";
   options: SelectOption[];
   hasOther?: boolean;
   textFieldMinRows?: number;
 }
 
 interface FileField {
-  type: 'file';
+  type: "file";
   inputClassName?: string;
   fileUrl?: string;
 }
 
 type GenericFormFieldProps =
-  (BaseField & InputField)
+  | (BaseField & InputField)
   | (BaseField & TextareaField)
   | (BaseField & SelectField)
   | (BaseField & RadioField)
   | (BaseField & FileField)
   | (BaseField & CustomField);
 
-const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFieldProps) => {
+const GenericFormField: React.FC<GenericFormFieldProps> = (
+  props: GenericFormFieldProps
+) => {
   // for radio section
-  const [otherValue, setOtherValue] = useState('');
-  const [radioValue, setRadioValue] = useState<string>('');
+  const [otherValue, setOtherValue] = useState("");
+  const [radioValue, setRadioValue] = useState<string>("");
 
   const {
     control,
@@ -109,16 +121,39 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
       render={({ field }) => {
         let res;
         switch (type) {
-          case 'input':
-            res = <Input placeholder={placeholder} {...field} disabled={disabled} className={props.inputClassName} />;
+          case "input":
+            res = (
+              <Input
+                placeholder={placeholder}
+                {...field}
+                disabled={disabled}
+                className={props.inputClassName}
+              />
+            );
             break;
-          case 'number':
-            res = <Input placeholder={placeholder} {...field} type="number" disabled={disabled} className={props.inputClassName} />;
+          case "number":
+            res = (
+              <Input
+                placeholder={placeholder}
+                {...field}
+                type="number"
+                disabled={disabled}
+                className={props.inputClassName}
+              />
+            );
             break;
-          case 'email':
-            res = <Input placeholder={placeholder} {...field} type="email" disabled={disabled} className={props.inputClassName} />;
+          case "email":
+            res = (
+              <Input
+                placeholder={placeholder}
+                {...field}
+                type="email"
+                disabled={disabled}
+                className={props.inputClassName}
+              />
+            );
             break;
-          case 'file':
+          case "file":
             res = (
               <>
                 <Input
@@ -128,16 +163,24 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      field.onChange(file);  // Pass the file to form state directly
+                      field.onChange(file); // Pass the file to form state directly
                     }
                   }}
                   className={cn(props.inputClassName, "cursor-pointer")}
                 />
-                {props.fileUrl && <Link href={props.fileUrl} target='_blank' className='text-sm text-primary underline'>View current resume</Link>}
+                {props.fileUrl && (
+                  <Link
+                    href={props.fileUrl}
+                    target="_blank"
+                    className="text-sm text-primary underline"
+                  >
+                    View current resume
+                  </Link>
+                )}
               </>
             );
             break;
-          case 'password':
+          case "password":
             res = (
               <PasswordInput
                 placeholder={placeholder}
@@ -146,7 +189,7 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
               />
             );
             break;
-          case 'textarea':
+          case "textarea":
             res = (
               <AutoResizeTextarea
                 placeholder={placeholder}
@@ -156,9 +199,13 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
               />
             );
             break;
-          case 'select':
+          case "select":
             res = (
-              <Select onValueChange={field.onChange} defaultValue={field.value} disabled={disabled}>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                disabled={disabled}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
@@ -172,7 +219,7 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
               </Select>
             );
             break;
-          case 'combobox':
+          case "combobox":
             res = (
               <Combobox
                 items={props.options || []}
@@ -182,35 +229,36 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
               />
             );
             break;
-          case 'radio':
+          case "radio":
             res = (
               <RadioGroup
                 value={radioValue}
                 onValueChange={(value) => {
                   field.onChange(value);
                   setRadioValue(value);
-                  if (value !== 'other') {
-                    setOtherValue('');
+                  if (value !== "other") {
+                    setOtherValue("");
                   }
                 }}
-                className='gap-5'
+                className="gap-5"
                 disabled={disabled}
               >
                 {props.options?.map((item) => (
                   <div key={item.value} className="flex items-center gap-2">
-                    <RadioGroupItem value={`${item.value}`} id={`${item.value}`} />
+                    <RadioGroupItem
+                      value={`${item.value}`}
+                      id={`${item.value}`}
+                    />
                     <Label htmlFor={`${item.value}`}>{item.label}</Label>
                   </div>
                 ))}
-                {
-                  props.hasOther && (
-                    <div className="flex items-center gap-2">
-                      <RadioGroupItem value="other" id="other" />
-                      <Label htmlFor="other">Other</Label>
-                    </div>
-                  )
-                }
-                {radioValue === 'other' && (
+                {props.hasOther && (
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value="other" id="other" />
+                    <Label htmlFor="other">Other</Label>
+                  </div>
+                )}
+                {radioValue === "other" && (
                   <AutoResizeTextarea
                     placeholder="Please specify"
                     minRows={props.textFieldMinRows || 3}
@@ -224,9 +272,9 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
               </RadioGroup>
             );
             break;
-          case 'multiple-choice':
+          case "multiple-choice":
             res = (
-              <div className='flex flex-col gap-5'>
+              <div className="flex flex-col gap-5">
                 {props.options?.map((item) => (
                   <div className="flex items-center gap-2" key={item.value}>
                     <Checkbox
@@ -235,7 +283,11 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
                       onCheckedChange={(checked) =>
                         checked
                           ? field.onChange([...field.value, item.value])
-                          : field.onChange(field.value?.filter((value: string) => value !== item.value))
+                          : field.onChange(
+                              field.value?.filter(
+                                (value: string) => value !== item.value
+                              )
+                            )
                       }
                       disabled={disabled}
                     />
@@ -245,29 +297,30 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
               </div>
             );
             break;
-          case 'star':
+          case "star":
             res = (
               <div className="flex space-x-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
                     size={24}
-                    className={`cursor-pointer ${field.value >= star ? 'text-primary fill-primary' : 'text-muted-foreground'} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+                    className={`cursor-pointer ${
+                      field.value >= star
+                        ? "text-primary fill-primary"
+                        : "text-muted-foreground"
+                    } ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
                     onClick={() => field.onChange(star)}
                   />
                 ))}
               </div>
             );
             break;
-          case 'date':
+          case "date":
             res = (
-              <DatePicker
-                selected={field.value}
-                onSelect={field.onChange}
-              />
+              <DatePicker selected={field.value} onSelect={field.onChange} />
             );
             break;
-          case 'tags':
+          case "tags":
             res = (
               <InputTags
                 value={field.value}
@@ -276,23 +329,17 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
               />
             );
             break;
-          case 'switch':
+          case "switch":
             res = (
-              <Switch
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
             );
             break;
-          case 'rich-text':
+          case "rich-text":
             res = (
-              <RichTextEditor
-                value={field.value}
-                onChange={field.onChange}
-              />
-            )
+              <RichTextEditor value={field.value} onChange={field.onChange} />
+            );
             break;
-          case 'checkbox':
+          case "checkbox":
             res = (
               <Checkbox
                 checked={field.value}
@@ -300,7 +347,7 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
               />
             );
             break;
-          case 'custom':
+          case "custom":
             res = props.customChildren;
             break;
           default:
@@ -310,14 +357,26 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (props: GenericFormFie
 
         return (
           <FormItem className="flex flex-col items-start w-full">
-            {
-              (label || useFormNameAsLabel) && (
-                <FormLabel className='font-medium text-sm flex gap-1 items-center'>
-                  {label || convertCamelCaseToTitle(name)} {!optional && <p>*</p>}
+            <div className="flex items-center gap-2 justify-between w-full">
+              {(label || useFormNameAsLabel) && (
+                <FormLabel className="font-medium text-sm flex gap-1 items-center">
+                  {label || convertCamelCaseToTitle(name)}{" "}
+                  {!optional && <p>*</p>}
                 </FormLabel>
-              )
-            }
-            {description && <FormDescription className='whitespace-pre'>{description}</FormDescription>}
+              )}
+              {
+                props.topEndContent && (
+                  <div className="ml-auto">
+                    {props.topEndContent}
+                  </div>
+                )
+              }
+            </div>
+            {description && (
+              <FormDescription className="whitespace-pre">
+                {description}
+              </FormDescription>
+            )}
             <FormControl>{res}</FormControl>
             <FormMessage />
           </FormItem>
