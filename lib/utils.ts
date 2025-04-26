@@ -47,3 +47,12 @@ export function removeUndefinedFields (obj: any): any {
       .filter(([_, value]) => value !== undefined)
   );
 };
+
+// Helper function to format JSON with proper indentation
+export function formatJSON (jsonData: any): string {
+  try {
+    return JSON.stringify(jsonData, null, 2);
+  } catch (error) {
+    return String(jsonData);
+  }
+};

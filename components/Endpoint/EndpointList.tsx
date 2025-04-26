@@ -13,6 +13,7 @@ import {
 import DeleteConfirmationDialog from "../delete-confirmation";
 import { Endpoint } from "@/models/endpoint.model";
 import { SchemaService } from "@/services/schema.service";
+import { formatJSON } from "@/lib/utils";
 
 interface EndpointsListProps {
   endpoints: Endpoint[];
@@ -70,9 +71,13 @@ export default function EndpointsList({ endpoints }: EndpointsListProps) {
                 <p className="">{endpoint.path}</p>
                 {endpoint.schema && (
                   <>
-                    <p className="">Schema: {endpoint.schema.name}</p>
-                    <p className="">Response:</p>
-                    <p className="">{JSON.stringify(SchemaService.generateResponseFromSchema(endpoint.schema, true))}</p>
+                    <p>Schema: {endpoint.schema.name}</p>
+                    <p>Response:</p>
+                    <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
+                      <code className="">
+                        {formatJSON(SchemaService.generateResponseFromSchema(endpoint.schema, true))}
+                      </code>
+                    </pre>
                   </>
                 )}
               </AccordionContent>
