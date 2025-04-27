@@ -1,5 +1,5 @@
 import prisma from "@/lib/db";
-import { Endpoint } from "@prisma/client";
+import { Endpoint } from "@/models/endpoint.model";
 import { Prisma } from "@prisma/client";
 
 export class EndpointData {
@@ -11,7 +11,7 @@ export class EndpointData {
     responseGen: string;
     staticResponse?: string | null;
     schemaId?: number | null;
-  }): Promise<Endpoint> {
+  }): Promise<Partial<Endpoint>> {
     return prisma.endpoint.create({
       data: {
         name: data.name,
@@ -27,8 +27,9 @@ export class EndpointData {
     });
   }
 
-  static async getEndpoints(): Promise<Endpoint[]> {
+  static async getEndpoints({where}: {where?: Prisma.EndpointWhereInput}): Promise<Endpoint[]> {
     return prisma.endpoint.findMany({
+      where,
       include: {
         schema: {
           include: {

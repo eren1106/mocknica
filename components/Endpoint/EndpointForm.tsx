@@ -168,7 +168,7 @@ export default function EndpointForm({
                   onChange={handlePromptChange}
                 />
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => close()}>
+                  <Button variant="outline" onClick={() => close()} disabled={isGenerating}>
                     Cancel
                   </Button>
                   <Button onClick={() => handleGenerateResponseByAI(close)} disabled={isGenerating}>

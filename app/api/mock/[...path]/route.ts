@@ -2,10 +2,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { HttpMethod, ResponseGeneration } from "@prisma/client";
 // import { Ollama } from 'ollama';
-import prisma from "@/lib/db";
 import { SchemaService } from "@/services/schema.service";
 import { errorResponse } from "../../_helpers/api-response";
 import { Endpoint } from "@/models/endpoint.model";
+import { EndpointData } from "@/data/endpoint.data";
 
 export async function GET(
   req: NextRequest,
@@ -54,35 +54,10 @@ async function handleRequest(
       return errorResponse(req, { message: "Invalid path", statusCode: 400 });
     }
 
-    // TODO: call endpoint data class
     // Find matching endpoint by checking if the request path matches the endpoint path pattern
-    const endpoints = await prisma.endpoint.findMany({
+    const endpoints = await EndpointData.getEndpoints({
       where: {
         method,
-      },
-      include: {
-        schema: {
-          include: {
-            fields: {
-              include: {
-                objectSchema: {
-                  include: {
-                    fields: true,
-                  },
-                },
-                arrayType: {
-                  include: {
-                    objectSchema: {
-                      include: {
-                        fields: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
       },
     });
 
@@ -140,14 +115,6 @@ async function handleRequest(
     let response: any;
     if (matchingEndpoint.responseGen === ResponseGeneration.STATIC) {
       response = matchingEndpoint.staticResponse;
-      // For GET requests to collection endpoints, wrap static response in array if it's not already
-      if (shouldReturnArray && !Array.isArray(response)) {
-        response = [response];
-      }
-      // For single item responses with ID, ensure the ID matches the URL
-      // else if (extractedId && !shouldReturnArray) {
-      //   response = { ...response, id: extractedId };
-      // }
     } else if (
       matchingEndpoint.responseGen === ResponseGeneration.SCHEMA &&
       matchingEndpoint.schema
