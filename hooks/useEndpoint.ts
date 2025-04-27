@@ -56,17 +56,11 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
   updateEndpoint: async (id, data) => {
     try {
       set({ isMutating: true });
-      const response = await fetch(`/api/endpoints/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
+      const res = await EndpointService.updateEndpoint(id, data);
 
       set((state) => ({
         endpoints: state.endpoints.map((endpoint) =>
-          endpoint.id === id ? { ...endpoint, ...result } : endpoint
+          endpoint.id === id ? { ...endpoint, ...res } : endpoint
         ),
       }));
       toast.success('Endpoint updated successfully');

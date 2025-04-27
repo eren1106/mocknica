@@ -14,6 +14,7 @@ import DialogButton from "../dialog-button";
 import AutoResizeTextarea from "../auto-resize-textarea";
 import { useState } from "react";
 import { EndpointService } from "@/services/endpoint.service";
+import JsonEditor from "../json-editor";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -69,14 +70,25 @@ export default function EndpointForm({
 
   const onSubmit = async (values: z.infer<typeof EndPointSchema>) => {
     try {
+      // TODO: fix fields order not same after parse
+      // console.log("STRING RESPONSE", values.staticResponse);
+      // console.log("OBJECT RESPONSE", JSON.parse(values.staticResponse!));
       if (endpoint) {
         await updateEndpoint(endpoint.id, {
           ...values,
-          // cannot send stringy format, need send in object format, because the stringify process will be conducted automatically when send data via api
-          staticResponse: values.staticResponse ? JSON.parse(values.staticResponse) : undefined,
+          // cannot send stringify format, need send in object format, because the stringify process will be conducted automatically when send data via api
+          staticResponse: values.staticResponse
+            ? JSON.parse(values.staticResponse)
+            : undefined,
         });
       } else {
-        await createEndpoint(values);
+        await createEndpoint({
+          ...values,
+          // cannot send stringify format, need send in object format, because the stringify process will be conducted automatically when send data via api
+          staticResponse: values.staticResponse
+            ? JSON.parse(values.staticResponse)
+            : undefined,
+        });
       }
       onSuccess?.();
     } catch (error) {
@@ -147,11 +159,15 @@ export default function EndpointForm({
 
       <GenericFormField
         control={form.control}
-        type="textarea"
+        type="custom"
         name="staticResponse"
         label="Static Response (JSON)"
-        placeholder='{"id": 1, "name": "John Doe"}'
-        minRows={5}
+        customChildren={
+          <JsonEditor
+            value={form.watch("staticResponse") || ""}
+            onChange={(value) => form.setValue("staticResponse", value)}
+          />
+        }
         topEndContent={
           <DialogButton
             variant="secondary"
@@ -168,10 +184,17 @@ export default function EndpointForm({
                   onChange={handlePromptChange}
                 />
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => close()} disabled={isGenerating}>
+                  <Button
+                    variant="outline"
+                    onClick={() => close()}
+                    disabled={isGenerating}
+                  >
                     Cancel
                   </Button>
-                  <Button onClick={() => handleGenerateResponseByAI(close)} disabled={isGenerating}>
+                  <Button
+                    onClick={() => handleGenerateResponseByAI(close)}
+                    disabled={isGenerating}
+                  >
                     {isGenerating ? "Generating..." : "Generate"}
                   </Button>
                 </div>

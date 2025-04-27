@@ -27,7 +27,7 @@ export class EndpointData {
     });
   }
 
-  static async getEndpoints({where}: {where?: Prisma.EndpointWhereInput}): Promise<Endpoint[]> {
+  static async getEndpoints({where}: {where?: Prisma.EndpointWhereInput} = {}): Promise<Endpoint[]> {
     return prisma.endpoint.findMany({
       where,
       include: {

@@ -10,10 +10,7 @@ export async function POST(req: NextRequest) {
 
     // Convert string JSON fields to actual JSON
     const endpoint = await prisma.endpoint.create({
-      data: {
-        ...data,
-        staticResponse: data.staticResponse ? JSON.parse(data.staticResponse) : null,
-      },
+      data,
     });
 
     return apiResponse(req, { data: endpoint });

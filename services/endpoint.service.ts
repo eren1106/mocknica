@@ -32,4 +32,9 @@ export class EndpointService {
     const res = await apiRequest.post("generate-response-ai", { prompt });
     return res.data;
   }
+
+  static async updateEndpoint(id: string, data: Partial<Endpoint>): Promise<Endpoint> {
+    const res = await apiRequest.put(`endpoints/${id}`, data);
+    return res.data;
+  }
 }
