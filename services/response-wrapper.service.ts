@@ -1,5 +1,5 @@
 import { apiRequest } from "@/helpers/api-request";
-import { ResponseWrapper } from "@/models/response-wrapper.model";
+import { ResponseWrapper } from "@prisma/client";
 
 export class ResponseWrapperService {
   static async getAllResponseWrappers(): Promise<ResponseWrapper[]> {
@@ -12,10 +12,7 @@ export class ResponseWrapperService {
     return res.data;
   }
 
-  static async createResponseWrapper(data: {
-    name: string;
-    json: any;
-  }): Promise<ResponseWrapper> {
+  static async createResponseWrapper(data: Partial<ResponseWrapper>): Promise<ResponseWrapper> {
     const res = await apiRequest.post("response-wrappers", data);
     return res.data;
   }

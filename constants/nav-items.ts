@@ -18,8 +18,8 @@ export const NAV_ITEMS: NavItem[] = [
       icon: Table2,
     },
     {
-      to: "wrappers",
-      label: "Wrappers",
+      to: "response-wrapper",
+      label: "Response Wrappers",
       icon: FileJson2,
     },
   ]

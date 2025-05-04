@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return apiResponse(req, { data: wrapper });
+    return apiResponse(req, { data: wrapper, message: 'Response wrapper created successfully' });
   } catch (error) {
     return errorResponse(req, { error });
   }
