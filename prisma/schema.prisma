@@ -8,18 +8,20 @@ datasource db {
 }
 
 model Endpoint {
-  id             String             @id @default(cuid())
-  name           String
-  description    String?
-  method         HttpMethod         @default(GET)
-  path           String
-  responseGen    ResponseGeneration @default(STATIC)
-  staticResponse Json? // For hardcoded responses
-  schemaId       Int?
-  schema         Schema?            @relation(fields: [schemaId], references: [id])
+  id                String             @id @default(cuid())
+  name              String
+  description       String?
+  method            HttpMethod         @default(GET)
+  path              String
+  responseGen       ResponseGeneration @default(STATIC)
+  staticResponse    Json? // For hardcoded responses
+  schemaId          Int?
+  schema            Schema?            @relation(fields: [schemaId], references: [id])
+  responseWrapperId Int?
+  responseWrapper   ResponseWrapper?   @relation(fields: [responseWrapperId], references: [id])
   // isDataList    Boolean?           @default(false) // if schema is used in the endpoint, then will need to check the data is return in list or not
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
 }
 
 model Schema {
@@ -69,6 +71,15 @@ model ArrayType {
   fakerType FakerType?
 
   SchemaFields SchemaField[] @relation("SchemaFieldToArrayType")
+}
+
+model ResponseWrapper {
+  id       Int        @id @default(autoincrement())
+  name     String     @db.VarChar(255)
+  json     Json
+  Endpoint Endpoint[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
 
 enum HttpMethod {

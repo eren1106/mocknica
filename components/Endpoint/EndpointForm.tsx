@@ -207,6 +207,8 @@ export default function EndpointForm({
         }
       />
 
+      {/* TODO: add wrapper field - toggle (use wrapper) + selector (select wrapper) */}
+
       <FormButton isLoading={isMutating}>
         {endpoint ? "Update" : "Create"} Endpoint
       </FormButton>

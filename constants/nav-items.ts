@@ -1,4 +1,4 @@
-import { Home, Table2 } from "lucide-react";
+import { FileJson2, Home, Table2 } from "lucide-react";
 
 interface NavItem {
   to: string;
@@ -16,5 +16,10 @@ export const NAV_ITEMS: NavItem[] = [
       to: "schemas",
       label: "Schemas",
       icon: Table2,
+    },
+    {
+      to: "wrappers",
+      label: "Wrappers",
+      icon: FileJson2,
     },
   ]

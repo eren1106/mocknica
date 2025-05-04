@@ -35,6 +35,7 @@ const nextResponse = (
   return NextResponse.json(cleanRes, { status: statusCode || STATUS_CODES.OK });
 }
 
+// TODO: design like this => apiResponse.success() & apiResponse.error() & apiResponse.custom()
 // this will return error if data is empty
 export const apiResponse = (req: NextRequest, {
   data,

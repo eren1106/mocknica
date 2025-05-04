@@ -34,6 +34,7 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
   createEndpoint: async (data) => {
     try {
       set({ isMutating: true });
+      // TODO: use service
       const response = await fetch('/api/endpoints', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,6 +42,7 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
+      // TODO: fix update state not working
       set((state) => ({ endpoints: [...state.endpoints, result] }));
       toast.success('Endpoint created successfully');
     } catch (error) {
@@ -58,6 +60,7 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
       set({ isMutating: true });
       const res = await EndpointService.updateEndpoint(id, data);
 
+      // TODO: fix update state not working
       set((state) => ({
         endpoints: state.endpoints.map((endpoint) =>
           endpoint.id === id ? { ...endpoint, ...res } : endpoint
