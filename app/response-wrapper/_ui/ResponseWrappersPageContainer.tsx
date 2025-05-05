@@ -3,12 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { useResponseWrapper } from "@/hooks/useResponseWrapper";
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import DialogButton from "@/components/dialog-button";
 import ResponseWrapperForm from "./ResponseWrapperForm";
 import { Edit, Plus, Trash } from "lucide-react";
 import DeleteConfirmationDialog from "@/components/delete-confirmation";
+import { formatJSON } from "@/lib/utils";
+import { DATA_STR, WRAPPER_DATA_STR } from "@/constants";
 
 const ResponseWrappersPageContainer = () => {
   const {
@@ -22,6 +25,33 @@ const ResponseWrappersPageContainer = () => {
   useEffect(() => {
     fetchResponseWrappers();
   }, []);
+
+  // Function to render JSON with Badge for DATA_STR
+  const renderFormattedJson = useCallback((json: any) => {
+    const formattedJson = formatJSON(json);
+    const parts = formattedJson.split(`"${WRAPPER_DATA_STR}"`);
+    
+    const elements: any[] = [];
+    parts.forEach((part, index) => {
+      // Add the text part with a key
+      elements.push(<span key={`part-${index}`}>{part}</span>);
+      
+      // Add the Badge after each part except the last one
+      if (index < parts.length - 1) {
+        elements.push(
+          <Badge 
+            key={`badge-${index}`} 
+            variant="default"
+            className="rounded-sm"
+          >
+            {DATA_STR}
+          </Badge>
+        );
+      }
+    });
+    
+    return elements;
+  }, [formatJSON]);
 
   return (
     <div className="container flex flex-col gap-4">
@@ -77,8 +107,10 @@ const ResponseWrappersPageContainer = () => {
                   </DialogButton>
                 </div>
               </div>
-              <pre className="bg-muted p-4 rounded-lg overflow-auto max-h-48">
-                {JSON.stringify(wrapper.json, null, 2)}
+              <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
+                <code className="whitespace-pre-wrap">
+                  {renderFormattedJson(wrapper.json)}
+                </code>
               </pre>
             </Card>
           ))

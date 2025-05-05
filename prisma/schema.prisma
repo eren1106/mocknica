@@ -76,6 +76,7 @@ model ArrayType {
 model ResponseWrapper {
   id       Int        @id @default(autoincrement())
   name     String     @db.VarChar(255)
+  // TODO: change json to response
   json     Json
   Endpoint Endpoint[]
   createdAt DateTime   @default(now())

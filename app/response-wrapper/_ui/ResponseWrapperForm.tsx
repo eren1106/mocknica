@@ -11,6 +11,7 @@ import { getZodFieldNames } from "@/lib/utils";
 import { ResponseWrapper } from "@prisma/client";
 import JsonEditor from "@/components/json-editor";
 import FormButton from "@/components/form-button";
+import { WRAPPER_DATA_STR } from "@/constants";
 
 const formFields = getZodFieldNames(ResponseWrapperSchema);
 interface ResponseWrapperFormProps {
@@ -25,21 +26,32 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
     responseWrapper
       ? {
           name: responseWrapper.name,
-          json: responseWrapper.json ? JSON.stringify(responseWrapper.json) : null,
+          // Replace "WRAPPER_DATA_STR" with WRAPPER_DATA_STR, so that the system will detect it and display it in primary color
+          json: responseWrapper.json ? JSON.stringify(responseWrapper.json, null, 2).replaceAll(`"${WRAPPER_DATA_STR}"`, WRAPPER_DATA_STR) : null,
         }
       : {
           name: "",
-          json: null,
+          json: undefined,
         }
   );
   const onSubmit = async (data: ResponseWrapperSchemaType) => {
     console.log("DATA:", data);
 
     try {
+      if(data.json) {
+        // Replace WRAPPER_DATA_STR with "WRAPPER_DATA_STR" in the JSON string, so that it become valid JSON
+        data.json = data.json.replace(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`)
+      }
       if (responseWrapper) {
-        await updateResponseWrapper(responseWrapper.id, data);
+        await updateResponseWrapper(responseWrapper.id, {
+          ...data,
+          json: data.json ? JSON.parse(data.json) : undefined,
+        });
       } else {
-        await createResponseWrapper(data);
+        await createResponseWrapper({
+          ...data,
+          json: data.json ? JSON.parse(data.json) : undefined,
+        });
       }
       onSuccess?.();
     } catch (e) {
@@ -63,6 +75,7 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
         name="json"
         control={form.control}
         placeholder="Enter JSON"
+        description="Insert ${data} as the response data"
         customChildren={
           <JsonEditor
             value={form.watch("json") || ""}
