@@ -17,6 +17,7 @@ export const useResponseWrapper = create<ResponseWrapperStore>((set, get) => ({
     responseWrappers: [],
     isLoading: false,
     isMutating: false,
+    // TODO: make all fetch function of hook call automatically on load (can just apply tanstack lol)
     fetchResponseWrappers: async () => {
         try {
             set({ isLoading: true });

@@ -12,21 +12,21 @@ import { Button } from "../ui/button";
 import { Sparkles } from "lucide-react";
 import DialogButton from "../dialog-button";
 import AutoResizeTextarea from "../auto-resize-textarea";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EndpointService } from "@/services/endpoint.service";
 import JsonEditor from "../json-editor";
+import { Switch } from "../ui/switch";
+import { useResponseWrapper } from "@/hooks/useResponseWrapper";
+import { Skeleton } from "../ui/skeleton";
+import { Label } from "../ui/label";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().nullable(),
   method: z.nativeEnum(HttpMethod),
   path: z.string().min(1, "Path is required"),
-  // parameters: z.string().optional(),
-  // requestBody: z.string().optional(),
-  // responseSchema: z.string().min(1, "Response schema is required"),
-  // responseGen: z.nativeEnum(ResponseGeneration),
+  responseWrapperId: z.coerce.number().nullable(),
   staticResponse: z.string().nullable(),
-  // arrayQuantity: z.number().optional(),
 });
 
 interface EndpointFormProps {
@@ -41,6 +41,16 @@ export default function EndpointForm({
   const { createEndpoint, updateEndpoint, isMutating } = useEndpoint();
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [useWrapper, setUseWrapper] = useState(!!endpoint?.responseWrapperId);
+  const {
+    fetchResponseWrappers,
+    responseWrappers,
+    isLoading: isLoadingResponseWrapper,
+  } = useResponseWrapper();
+
+  useEffect(() => {
+    fetchResponseWrappers();
+  }, []);
 
   const form = useZodForm(
     EndPointSchema,
@@ -69,10 +79,9 @@ export default function EndpointForm({
   );
 
   const onSubmit = async (values: z.infer<typeof EndPointSchema>) => {
+    console.log("VALUES", values);
     try {
       // TODO: fix fields order not same after parse
-      // console.log("STRING RESPONSE", values.staticResponse);
-      // console.log("OBJECT RESPONSE", JSON.parse(values.staticResponse!));
       if (endpoint) {
         await updateEndpoint(endpoint.id, {
           ...values,
@@ -114,6 +123,28 @@ export default function EndpointForm({
       callback();
     }
   };
+
+  const handleUseWrapperChange = (checked: boolean) => {
+    if(checked) {
+      form.setValue("responseWrapperId", (endpoint?.responseWrapperId || null) || (defaultWrapperId || null));
+    }
+    if(!checked) {
+      form.setValue("responseWrapperId", null);
+    }
+    setUseWrapper(checked);
+  };
+
+  // TODO: need form.setValue or try other approach
+  const defaultWrapperId = useMemo(() => {
+    if((endpoint && endpoint.responseWrapperId) || responseWrappers.length === 0) return undefined;
+    return responseWrappers[0].id;
+  }, [responseWrappers]);
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  if (isLoadingResponseWrapper) {
+    return <Skeleton className="h-[200px]" />;
+  }
 
   return (
     <ZodForm form={form} onSubmit={onSubmit}>
@@ -207,7 +238,26 @@ export default function EndpointForm({
         }
       />
 
-      {/* TODO: add wrapper field - toggle (use wrapper) + selector (select wrapper) */}
+      {/* RESPONSE WRAPPER */}
+      <div className="flex items-center gap-2">
+        <Switch checked={useWrapper} onCheckedChange={handleUseWrapperChange} />
+        <Label htmlFor="use-wrapper">Use Response Wrapper</Label>
+      </div>
+      {useWrapper && (
+        <GenericFormField
+          control={form.control}
+          type="select"
+          name="responseWrapperId"
+          label="Response Wrapper"
+          placeholder="Select response wrapper"
+          options={responseWrappers.map((wrapper) => ({
+            value: wrapper.id.toString(),
+            label: wrapper.name,
+          }))}
+          defaultValue={defaultWrapperId?.toString()}
+        />
+      )}
+      {/* TODO: add response wrapper preview */}
 
       <FormButton isLoading={isMutating}>
         {endpoint ? "Update" : "Create"} Endpoint

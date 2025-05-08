@@ -67,6 +67,7 @@ interface TextareaField {
 interface SelectField {
   type: "select" | "multiple-choice" | "combobox";
   options: SelectOption[];
+  defaultValue?: string;
 }
 
 interface CustomField {
@@ -203,7 +204,7 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (
             res = (
               <Select
                 onValueChange={field.onChange}
-                defaultValue={field.value}
+                defaultValue={ field.value ? field.value?.toString() : props.defaultValue?.toString()}
                 disabled={disabled}
               >
                 <SelectTrigger>

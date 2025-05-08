@@ -16,5 +16,6 @@ export type Endpoint = Prisma.EndpointGetPayload<{
         };
       };
     };
+    responseWrapper: true;
   };
 }>;
