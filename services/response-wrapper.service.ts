@@ -1,5 +1,7 @@
+import { WRAPPER_DATA_STR } from "@/constants";
 import { apiRequest } from "@/helpers/api-request";
 import { ResponseWrapper } from "@prisma/client";
+import { JsonValue } from "@prisma/client/runtime/library";
 
 export class ResponseWrapperService {
   static async getAllResponseWrappers(): Promise<ResponseWrapper[]> {
@@ -27,5 +29,11 @@ export class ResponseWrapperService {
 
   static async deleteResponseWrapper(id: number): Promise<void> {
     await apiRequest.delete(`response-wrappers/${id}`);
+  }
+
+  static generateResponseWrapperJson({response, wrapper}: {response: JsonValue, wrapper: ResponseWrapper}): string {
+    // replace "${data}" with stringified response
+    const res = JSON.stringify(wrapper.json).replaceAll(`"${WRAPPER_DATA_STR}"`, JSON.stringify(response));
+    return JSON.parse(res);
   }
 }

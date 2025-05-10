@@ -11,6 +11,7 @@ export class EndpointData {
     responseGen: string;
     staticResponse?: string | null;
     schemaId?: number | null;
+    responseWrapperId?: number | null;
   }): Promise<Partial<Endpoint>> {
     return prisma.endpoint.create({
       data: {
@@ -23,6 +24,9 @@ export class EndpointData {
           ? (JSON.parse(data.staticResponse) as Prisma.InputJsonValue)
           : Prisma.JsonNull,
         ...(data.schemaId && { schema: { connect: { id: data.schemaId } } }),
+        ...(data.responseWrapperId && {
+          responseWrapper: { connect: { id: data.responseWrapperId } },
+        }),
       },
     });
   }
@@ -53,6 +57,7 @@ export class EndpointData {
             },
           },
         },
+        responseWrapper: true,
       },
     });
   }

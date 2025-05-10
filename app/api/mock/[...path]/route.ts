@@ -6,6 +6,7 @@ import { SchemaService } from "@/services/schema.service";
 import { errorResponse } from "../../_helpers/api-response";
 import { Endpoint } from "@/models/endpoint.model";
 import { EndpointData } from "@/data/endpoint.data";
+import { ResponseWrapperService } from "@/services/response-wrapper.service";
 
 export async function GET(
   req: NextRequest,
@@ -101,7 +102,10 @@ async function handleRequest(
     }
 
     if (!matchingEndpoint) {
-      return errorResponse(req, { message: "Endpoint not found", statusCode: 404 });
+      return errorResponse(req, {
+        message: "Endpoint not found",
+        statusCode: 404,
+      });
     }
 
     // TODO: should return array or not is not check like this, need add a flag in endpoint (isDataList)
@@ -114,15 +118,28 @@ async function handleRequest(
     // Generate response
     let response: any;
     if (matchingEndpoint.responseGen === ResponseGeneration.STATIC) {
-      response = matchingEndpoint.staticResponse;
+      response = matchingEndpoint.responseWrapper
+        ? ResponseWrapperService.generateResponseWrapperJson({
+            response: matchingEndpoint.staticResponse,
+            wrapper: matchingEndpoint.responseWrapper,
+          })
+        : matchingEndpoint.staticResponse;
     } else if (
       matchingEndpoint.responseGen === ResponseGeneration.SCHEMA &&
       matchingEndpoint.schema
     ) {
-      response = SchemaService.generateResponseFromSchema(
-        matchingEndpoint.schema,
-        shouldReturnArray
-      );
+      response = matchingEndpoint.responseWrapper
+        ? ResponseWrapperService.generateResponseWrapperJson({
+            response: SchemaService.generateResponseFromSchema(
+              matchingEndpoint.schema,
+              shouldReturnArray
+            ),
+            wrapper: matchingEndpoint.responseWrapper,
+          })
+        : SchemaService.generateResponseFromSchema(
+            matchingEndpoint.schema,
+            shouldReturnArray
+          );
     } else {
       response = shouldReturnArray ? [] : "no data";
     }
