@@ -12,6 +12,7 @@ import { Edit, Plus, Trash } from "lucide-react";
 import DeleteConfirmationDialog from "@/components/delete-confirmation";
 import { formatJSON } from "@/lib/utils";
 import { DATA_STR, WRAPPER_DATA_STR } from "@/constants";
+import ResponseWrapperView from "./ResponseWrapperView";
 
 const ResponseWrappersPageContainer = () => {
   const {
@@ -25,33 +26,6 @@ const ResponseWrappersPageContainer = () => {
   useEffect(() => {
     fetchResponseWrappers();
   }, []);
-
-  // Function to render JSON with Badge for DATA_STR
-  const renderFormattedJson = useCallback((json: any) => {
-    const formattedJson = formatJSON(json);
-    const parts = formattedJson.split(`"${WRAPPER_DATA_STR}"`);
-    
-    const elements: any[] = [];
-    parts.forEach((part, index) => {
-      // Add the text part with a key
-      elements.push(<span key={`part-${index}`}>{part}</span>);
-      
-      // Add the Badge after each part except the last one
-      if (index < parts.length - 1) {
-        elements.push(
-          <Badge 
-            key={`badge-${index}`} 
-            variant="default"
-            className="rounded-sm"
-          >
-            {DATA_STR}
-          </Badge>
-        );
-      }
-    });
-    
-    return elements;
-  }, [formatJSON]);
 
   return (
     <div className="container flex flex-col gap-4">
@@ -107,11 +81,7 @@ const ResponseWrappersPageContainer = () => {
                   </DialogButton>
                 </div>
               </div>
-              <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
-                <code className="whitespace-pre-wrap">
-                  {renderFormattedJson(wrapper.json)}
-                </code>
-              </pre>
+              <ResponseWrapperView wrapper={wrapper} />
             </Card>
           ))
         )}

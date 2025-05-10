@@ -19,6 +19,7 @@ import { Switch } from "../ui/switch";
 import { useResponseWrapper } from "@/hooks/useResponseWrapper";
 import { Skeleton } from "../ui/skeleton";
 import { Label } from "../ui/label";
+import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -134,7 +135,6 @@ export default function EndpointForm({
     setUseWrapper(checked);
   };
 
-  // TODO: need form.setValue or try other approach
   const defaultWrapperId = useMemo(() => {
     if((endpoint && endpoint.responseWrapperId) || responseWrappers.length === 0) return undefined;
     return responseWrappers[0].id;
@@ -257,8 +257,17 @@ export default function EndpointForm({
           defaultValue={defaultWrapperId?.toString()}
         />
       )}
-      {/* TODO: add response wrapper preview */}
-
+      {useWrapper && (
+        <ResponseWrapperView
+          wrapper={
+            responseWrappers.find(
+              (wrapper) =>
+                wrapper.id === Number(form.watch("responseWrapperId"))
+            )!
+          }
+        />
+      )}
+      
       <FormButton isLoading={isMutating}>
         {endpoint ? "Update" : "Create"} Endpoint
       </FormButton>
