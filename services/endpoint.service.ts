@@ -1,5 +1,8 @@
 import { apiRequest } from "@/helpers/api-request";
 import { Endpoint } from "@/models/endpoint.model";
+import { ResponseGeneration } from "@prisma/client";
+import { ResponseWrapperService } from "./response-wrapper.service";
+import { SchemaService } from "./schema.service";
 
 export class EndpointService {
   static async getAllEndpoints(): Promise<Endpoint[]> {
@@ -33,8 +36,43 @@ export class EndpointService {
     return res.data;
   }
 
-  static async updateEndpoint(id: string, data: Partial<Endpoint>): Promise<Endpoint> {
+  static async updateEndpoint(
+    id: string,
+    data: Partial<Endpoint>
+  ): Promise<Endpoint> {
     const res = await apiRequest.put(`endpoints/${id}`, data);
     return res.data;
+  }
+
+  static getEndpointResponse(endpoint: Endpoint) {
+    let response;
+    if (endpoint.responseGen === ResponseGeneration.STATIC) {
+      response = endpoint.responseWrapper
+        ? ResponseWrapperService.generateResponseWrapperJson({
+            response: endpoint.staticResponse,
+            wrapper: endpoint.responseWrapper,
+          })
+        : endpoint.staticResponse;
+    } else if (
+      endpoint.responseGen === ResponseGeneration.SCHEMA &&
+      endpoint.schema
+    ) {
+      response = endpoint.responseWrapper
+        ? ResponseWrapperService.generateResponseWrapperJson({
+            response: SchemaService.generateResponseFromSchema(
+              endpoint.schema
+              // shouldReturnArray
+            ),
+            wrapper: endpoint.responseWrapper,
+          })
+        : SchemaService.generateResponseFromSchema(
+            endpoint.schema
+            // shouldReturnArray
+          );
+    }
+    // else {
+    //   response = shouldReturnArray ? [] : "no data";
+    // }
+    return response;
   }
 }

@@ -7,6 +7,7 @@ import { errorResponse } from "../../_helpers/api-response";
 import { Endpoint } from "@/models/endpoint.model";
 import { EndpointData } from "@/data/endpoint.data";
 import { ResponseWrapperService } from "@/services/response-wrapper.service";
+import { EndpointService } from "@/services/endpoint.service";
 
 export async function GET(
   req: NextRequest,
@@ -110,39 +111,12 @@ async function handleRequest(
 
     // TODO: should return array or not is not check like this, need add a flag in endpoint (isDataList)
     // Check if this is a GET request and if it's a collection endpoint (no ID parameter)
-    const isCollectionEndpoint =
-      !matchingEndpoint.path.includes("/:") &&
-      !matchingEndpoint.path.includes("/{");
-    const shouldReturnArray = method === "GET" && isCollectionEndpoint;
+    // const isCollectionEndpoint =
+    //   !matchingEndpoint.path.includes("/:") &&
+    //   !matchingEndpoint.path.includes("/{");
+    // const shouldReturnArray = method === "GET" && isCollectionEndpoint;
 
-    // Generate response
-    let response: any;
-    if (matchingEndpoint.responseGen === ResponseGeneration.STATIC) {
-      response = matchingEndpoint.responseWrapper
-        ? ResponseWrapperService.generateResponseWrapperJson({
-            response: matchingEndpoint.staticResponse,
-            wrapper: matchingEndpoint.responseWrapper,
-          })
-        : matchingEndpoint.staticResponse;
-    } else if (
-      matchingEndpoint.responseGen === ResponseGeneration.SCHEMA &&
-      matchingEndpoint.schema
-    ) {
-      response = matchingEndpoint.responseWrapper
-        ? ResponseWrapperService.generateResponseWrapperJson({
-            response: SchemaService.generateResponseFromSchema(
-              matchingEndpoint.schema,
-              shouldReturnArray
-            ),
-            wrapper: matchingEndpoint.responseWrapper,
-          })
-        : SchemaService.generateResponseFromSchema(
-            matchingEndpoint.schema,
-            shouldReturnArray
-          );
-    } else {
-      response = shouldReturnArray ? [] : "no data";
-    }
+    const response = EndpointService.getEndpointResponse(matchingEndpoint);
 
     return NextResponse.json(response);
   } catch (error) {

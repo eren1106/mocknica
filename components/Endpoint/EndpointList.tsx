@@ -14,6 +14,7 @@ import DeleteConfirmationDialog from "../delete-confirmation";
 import { Endpoint } from "@/models/endpoint.model";
 import { SchemaService } from "@/services/schema.service";
 import { formatJSON } from "@/lib/utils";
+import { EndpointService } from "@/services/endpoint.service";
 
 interface EndpointsListProps {
   endpoints: Endpoint[];
@@ -69,32 +70,17 @@ export default function EndpointsList({ endpoints }: EndpointsListProps) {
                 </div>
                 <p className="">{endpoint.description}</p>
                 <p className="">{endpoint.path}</p>
-                {endpoint.schema && (
+                {
                   <>
-                    <p>Schema: {endpoint.schema.name}</p>
-                    <p>Response:</p>
-                    <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
+                  {endpoint.schema && <p>Schema: {endpoint.schema.name}</p>}
+                  <p>Response:</p>
+                  <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
                       <code className="">
-                        {formatJSON(
-                          SchemaService.generateResponseFromSchema(
-                            endpoint.schema,
-                            true
-                          )
-                        )}
+                        {formatJSON(EndpointService.getEndpointResponse(endpoint))}
                       </code>
                     </pre>
                   </>
-                )}
-                {endpoint.staticResponse && (
-                  <>
-                    <p>Static Response:</p>
-                    <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
-                      <code className="">
-                        {formatJSON(endpoint.staticResponse)}
-                      </code>
-                    </pre>
-                  </>
-                )}
+                }
               </AccordionContent>
             </AccordionItem>
           ))}

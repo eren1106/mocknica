@@ -188,6 +188,7 @@ export default function EndpointForm({
         />
       </div>
 
+      {/* TODO: add a switch to let user choose between static response and schema response */}
       <GenericFormField
         control={form.control}
         type="custom"
