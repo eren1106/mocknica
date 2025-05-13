@@ -20,12 +20,14 @@ import { useResponseWrapper } from "@/hooks/useResponseWrapper";
 import { Skeleton } from "../ui/skeleton";
 import { Label } from "../ui/label";
 import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
+import { useSchema } from "@/hooks/useSchema";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().nullable(),
   method: z.nativeEnum(HttpMethod),
   path: z.string().min(1, "Path is required"),
+  schemaId: z.coerce.number().nullable(),
   responseWrapperId: z.coerce.number().nullable(),
   staticResponse: z.string().nullable(),
 });
@@ -40,9 +42,13 @@ export default function EndpointForm({
   onSuccess,
 }: EndpointFormProps) {
   const { createEndpoint, updateEndpoint, isMutating } = useEndpoint();
+  const { fetchSchemas, schemas, isLoading: isLoadingSchema } = useSchema();
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
-  const [useWrapper, setUseWrapper] = useState(!!endpoint?.responseWrapperId);
+  const [isUseWrapper, setIsUseWrapper] = useState(
+    !!endpoint?.responseWrapperId
+  );
+  const [isUseSchema, setIsUseSchema] = useState(!!endpoint?.schemaId);
   const {
     fetchResponseWrappers,
     responseWrappers,
@@ -50,6 +56,7 @@ export default function EndpointForm({
   } = useResponseWrapper();
 
   useEffect(() => {
+    fetchSchemas();
     fetchResponseWrappers();
   }, []);
 
@@ -125,26 +132,48 @@ export default function EndpointForm({
     }
   };
 
-  const handleUseWrapperChange = (checked: boolean) => {
-    if(checked) {
-      form.setValue("responseWrapperId", (endpoint?.responseWrapperId || null) || (defaultWrapperId || null));
+  const handleUseSchemaChange = (checked: boolean) => {
+    if (checked) {
+      form.setValue(
+        "schemaId",
+        endpoint?.schemaId || null || defaultSchemaId || null
+      );
     }
-    if(!checked) {
-      form.setValue("responseWrapperId", null);
+    if (!checked) {
+      form.setValue("schemaId", null);
     }
-    setUseWrapper(checked);
+    setIsUseSchema(checked);
   };
 
+  const handleUseWrapperChange = (checked: boolean) => {
+    if (checked) {
+      form.setValue(
+        "responseWrapperId",
+        endpoint?.responseWrapperId || null || defaultWrapperId || null
+      );
+    }
+    if (!checked) {
+      form.setValue("responseWrapperId", null);
+    }
+    setIsUseWrapper(checked);
+  };
+
+  const defaultSchemaId = useMemo(() => {
+    if ((endpoint && endpoint.schemaId) || schemas.length === 0)
+      return undefined;
+    return schemas[0].id;
+  }, [schemas]);
+
   const defaultWrapperId = useMemo(() => {
-    if((endpoint && endpoint.responseWrapperId) || responseWrappers.length === 0) return undefined;
+    if (
+      (endpoint && endpoint.responseWrapperId) ||
+      responseWrappers.length === 0
+    )
+      return undefined;
     return responseWrappers[0].id;
   }, [responseWrappers]);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  if (isLoadingResponseWrapper) {
-    return <Skeleton className="h-[200px]" />;
-  }
 
   return (
     <ZodForm form={form} onSubmit={onSubmit}>
@@ -188,63 +217,89 @@ export default function EndpointForm({
         />
       </div>
 
-      {/* TODO: add a switch to let user choose between static response and schema response */}
-      <GenericFormField
-        control={form.control}
-        type="custom"
-        name="staticResponse"
-        label="Static Response (JSON)"
-        customChildren={
-          <JsonEditor
-            value={form.watch("staticResponse") || ""}
-            onChange={(value) => form.setValue("staticResponse", value)}
-          />
-        }
-        topEndContent={
-          <DialogButton
-            variant="secondary"
-            size="sm"
-            className="flex items-center gap-2 rounded-full"
-            title="Generate Response with AI"
-            description="Describe the response you want to generate"
-            content={(close) => (
-              <div className="flex flex-col gap-4">
-                <AutoResizeTextarea
-                  placeholder="Generate a user profile response with fields for id, name, email, role, and status"
-                  minRows={5}
-                  value={aiPrompt}
-                  onChange={handlePromptChange}
-                />
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => close()}
-                    disabled={isGenerating}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={() => handleGenerateResponseByAI(close)}
-                    disabled={isGenerating}
-                  >
-                    {isGenerating ? "Generating..." : "Generate"}
-                  </Button>
+      {/* SCHEMA */}
+      <div className="flex items-center gap-2">
+        <Switch checked={isUseSchema} onCheckedChange={handleUseSchemaChange} />
+        <Label htmlFor="use-wrapper">Use Schema</Label>
+      </div>
+
+      {isUseSchema && (
+        <GenericFormField
+          control={form.control}
+          type="select"
+          name="schemaId"
+          label="Schema"
+          placeholder="Select schema"
+          options={schemas.map((schema) => ({
+            value: schema.id.toString(),
+            label: schema.name,
+          }))}
+          defaultValue={defaultSchemaId?.toString()}
+          disabled={isLoadingSchema}
+        />
+      )}
+
+      {!isUseSchema && (
+        <GenericFormField
+          control={form.control}
+          type="custom"
+          name="staticResponse"
+          label="Static Response (JSON)"
+          customChildren={
+            <JsonEditor
+              value={form.watch("staticResponse") || ""}
+              onChange={(value) => form.setValue("staticResponse", value)}
+            />
+          }
+          topEndContent={
+            <DialogButton
+              variant="secondary"
+              size="sm"
+              className="flex items-center gap-2 rounded-full"
+              title="Generate Response with AI"
+              description="Describe the response you want to generate"
+              content={(close) => (
+                <div className="flex flex-col gap-4">
+                  <AutoResizeTextarea
+                    placeholder="Generate a user profile response with fields for id, name, email, role, and status"
+                    minRows={5}
+                    value={aiPrompt}
+                    onChange={handlePromptChange}
+                  />
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => close()}
+                      disabled={isGenerating}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={() => handleGenerateResponseByAI(close)}
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? "Generating..." : "Generate"}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-          >
-            <Sparkles size={16} />
-            Generate with AI
-          </DialogButton>
-        }
-      />
+              )}
+            >
+              <Sparkles size={16} />
+              Generate with AI
+            </DialogButton>
+          }
+        />
+      )}
 
       {/* RESPONSE WRAPPER */}
       <div className="flex items-center gap-2">
-        <Switch checked={useWrapper} onCheckedChange={handleUseWrapperChange} />
+        <Switch
+          checked={isUseWrapper}
+          onCheckedChange={handleUseWrapperChange}
+        />
         <Label htmlFor="use-wrapper">Use Response Wrapper</Label>
       </div>
-      {useWrapper && (
+      {isUseWrapper && (
         <GenericFormField
           control={form.control}
           type="select"
@@ -256,9 +311,10 @@ export default function EndpointForm({
             label: wrapper.name,
           }))}
           defaultValue={defaultWrapperId?.toString()}
+          disabled={isLoadingResponseWrapper}
         />
       )}
-      {useWrapper && (
+      {isUseWrapper && (
         <ResponseWrapperView
           wrapper={
             responseWrappers.find(
@@ -268,7 +324,7 @@ export default function EndpointForm({
           }
         />
       )}
-      
+
       <FormButton isLoading={isMutating}>
         {endpoint ? "Update" : "Create"} Endpoint
       </FormButton>

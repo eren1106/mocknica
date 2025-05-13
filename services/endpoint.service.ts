@@ -46,17 +46,8 @@ export class EndpointService {
 
   static getEndpointResponse(endpoint: Endpoint) {
     let response;
-    if (endpoint.responseGen === ResponseGeneration.STATIC) {
-      response = endpoint.responseWrapper
-        ? ResponseWrapperService.generateResponseWrapperJson({
-            response: endpoint.staticResponse,
-            wrapper: endpoint.responseWrapper,
-          })
-        : endpoint.staticResponse;
-    } else if (
-      endpoint.responseGen === ResponseGeneration.SCHEMA &&
-      endpoint.schema
-    ) {
+    // WITH SCHEMA
+    if (endpoint.schemaId && endpoint.schema) {
       response = endpoint.responseWrapper
         ? ResponseWrapperService.generateResponseWrapperJson({
             response: SchemaService.generateResponseFromSchema(
@@ -70,9 +61,15 @@ export class EndpointService {
             // shouldReturnArray
           );
     }
-    // else {
-    //   response = shouldReturnArray ? [] : "no data";
-    // }
+    // WITH STATIC RESPONSE
+    else {
+      response = endpoint.responseWrapper
+        ? ResponseWrapperService.generateResponseWrapperJson({
+            response: endpoint.staticResponse,
+            wrapper: endpoint.responseWrapper,
+          })
+        : endpoint.staticResponse;
+    }
     return response;
   }
 }
