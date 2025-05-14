@@ -13,7 +13,6 @@ model Endpoint {
   description       String?
   method            HttpMethod         @default(GET)
   path              String
-  responseGen       ResponseGeneration @default(STATIC) // TODO: remove this, response generation method can be determine by schema field
   staticResponse    Json? // For hardcoded responses
   schemaId          Int?
   schema            Schema?            @relation(fields: [schemaId], references: [id])
@@ -89,12 +88,6 @@ enum HttpMethod {
   PUT
   PATCH
   DELETE
-}
-
-enum ResponseGeneration {
-  STATIC
-  SCHEMA
-  LLM
 }
 
 enum IdFieldType {

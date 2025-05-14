@@ -1,12 +1,10 @@
 // app/api/mock/[...path]/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { HttpMethod, ResponseGeneration } from "@prisma/client";
+import { HttpMethod } from "@prisma/client";
 // import { Ollama } from 'ollama';
-import { SchemaService } from "@/services/schema.service";
 import { errorResponse } from "../../_helpers/api-response";
 import { Endpoint } from "@/models/endpoint.model";
 import { EndpointData } from "@/data/endpoint.data";
-import { ResponseWrapperService } from "@/services/response-wrapper.service";
 import { EndpointService } from "@/services/endpoint.service";
 
 export async function GET(

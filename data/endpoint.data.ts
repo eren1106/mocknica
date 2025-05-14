@@ -8,7 +8,6 @@ export class EndpointData {
     description?: string;
     method: string;
     path: string;
-    responseGen: string;
     staticResponse?: string | null;
     schemaId?: number | null;
     responseWrapperId?: number | null;
@@ -19,7 +18,6 @@ export class EndpointData {
         description: data.description,
         method: data.method as any,
         path: data.path,
-        responseGen: data.responseGen as any,
         staticResponse: data.staticResponse
           ? (JSON.parse(data.staticResponse) as Prisma.InputJsonValue)
           : Prisma.JsonNull,

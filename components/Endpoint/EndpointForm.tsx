@@ -74,7 +74,6 @@ export default function EndpointForm({
           description: "",
           path: "",
           method: HttpMethod.GET,
-          // responseGen: ResponseGeneration.STATIC,
           staticResponse: JSON.stringify(
             {
               id: 1,

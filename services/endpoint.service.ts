@@ -1,6 +1,5 @@
 import { apiRequest } from "@/helpers/api-request";
 import { Endpoint } from "@/models/endpoint.model";
-import { ResponseGeneration } from "@prisma/client";
 import { ResponseWrapperService } from "./response-wrapper.service";
 import { SchemaService } from "./schema.service";
 
@@ -15,7 +14,6 @@ export class EndpointService {
     description?: string;
     method: string;
     path: string;
-    responseGen: string;
     staticResponse?: string | null;
     schemaId?: number | null;
   }): Promise<Endpoint> {
