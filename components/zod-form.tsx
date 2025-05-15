@@ -12,9 +12,13 @@ interface ZodFormProps<T extends FieldValues> {
 }
 
 const ZodForm = <T extends FieldValues>({ form, onSubmit, onError, children, className }: ZodFormProps<T>) => {
+  const handleError = (errors: any) => {
+    console.error("FORM ERROR:", errors);
+    onError?.(errors);
+  };
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, onError)} className={cn("flex flex-col gap-5", className)}>
+      <form onSubmit={form.handleSubmit(onSubmit, handleError)} className={cn("flex flex-col gap-5", className)}>
         {children}
       </form>
     </Form>

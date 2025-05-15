@@ -42,6 +42,8 @@ interface BaseField {
   optional?: boolean; // add asterisk (*) on label if not optional
   useFormNameAsLabel?: boolean;
   topEndContent?: React.ReactNode;
+  className?: string;
+  contentClassName?: string;
 }
 
 interface InputField {
@@ -357,8 +359,8 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (
         }
 
         return (
-          <FormItem className="flex flex-col items-start w-full">
-            <div className="flex items-center gap-2 justify-between w-full">
+          <FormItem className={cn("flex flex-col items-start w-full", props.className)}>
+            <div className={cn("flex items-center gap-2 justify-between w-full", props.contentClassName)}>
               {(label || useFormNameAsLabel) && (
                 <FormLabel className="font-medium text-sm flex gap-1 items-center">
                   {label || convertCamelCaseToTitle(name)}{" "}

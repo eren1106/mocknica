@@ -73,6 +73,8 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
         placeholder="data base path"
       />
 
+      {/* TODO: add wrapper field */}
+
       <p className="text-sm">Preview:</p>
       <p className="text-sm">
         <span className="font-medium text-primary mr-2">GET</span>/{basePath}

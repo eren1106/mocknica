@@ -9,14 +9,7 @@ export class EndpointService {
     return res.data;
   }
 
-  static async createEndpoint(data: {
-    name: string;
-    description?: string;
-    method: string;
-    path: string;
-    staticResponse?: string | null;
-    schemaId?: number | null;
-  }): Promise<Endpoint> {
+  static async createEndpoint(data: Partial<Endpoint>): Promise<Endpoint> {
     const res = await apiRequest.post("endpoints", data);
     return res.data;
   }
@@ -42,6 +35,11 @@ export class EndpointService {
     return res.data;
   }
 
+  static async deleteEndpoint(id: string): Promise<void> {
+    await apiRequest.delete(`endpoints/${id}`);
+  }
+  
+  // display what the endpoint should return when user request the mock data
   static getEndpointResponse(endpoint: Endpoint) {
     let response;
     // WITH SCHEMA
@@ -49,14 +47,14 @@ export class EndpointService {
       response = endpoint.responseWrapper
         ? ResponseWrapperService.generateResponseWrapperJson({
             response: SchemaService.generateResponseFromSchema(
-              endpoint.schema
-              // shouldReturnArray
+              endpoint.schema,
+              endpoint.isDataList
             ),
             wrapper: endpoint.responseWrapper,
           })
         : SchemaService.generateResponseFromSchema(
-            endpoint.schema
-            // shouldReturnArray
+            endpoint.schema,
+            endpoint.isDataList
           );
     }
     // WITH STATIC RESPONSE

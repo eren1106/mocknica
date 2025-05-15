@@ -8,19 +8,19 @@ datasource db {
 }
 
 model Endpoint {
-  id                String             @id @default(cuid())
+  id                String           @id @default(cuid())
   name              String
   description       String?
-  method            HttpMethod         @default(GET)
+  method            HttpMethod       @default(GET)
   path              String
   staticResponse    Json? // For hardcoded responses
   schemaId          Int?
-  schema            Schema?            @relation(fields: [schemaId], references: [id])
+  schema            Schema?          @relation(fields: [schemaId], references: [id])
   responseWrapperId Int?
-  responseWrapper   ResponseWrapper?   @relation(fields: [responseWrapperId], references: [id])
-  // isDataList    Boolean?           @default(false) // if schema is used in the endpoint, then will need to check the data is return in list or not
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  responseWrapper   ResponseWrapper? @relation(fields: [responseWrapperId], references: [id])
+  isDataList        Boolean         @default(false) // if schema is used in the endpoint, then will need to check the data is return in list or not
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 }
 
 model Schema {
@@ -73,11 +73,11 @@ model ArrayType {
 }
 
 model ResponseWrapper {
-  id       Int        @id @default(autoincrement())
-  name     String     @db.VarChar(255)
+  id        Int        @id @default(autoincrement())
+  name      String     @db.VarChar(255)
   // TODO: change json to response
-  json     Json
-  Endpoint Endpoint[]
+  json      Json
+  Endpoint  Endpoint[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 }

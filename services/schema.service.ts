@@ -83,6 +83,7 @@ export class SchemaService {
       case SchemaFieldType.DATE:
         return new Date();
       case SchemaFieldType.ID:
+        // TODO: dont use number if the idType is UUID
         return dataId ?? 1;
       default:
         return null;
@@ -91,11 +92,11 @@ export class SchemaService {
 
   static generateResponseFromSchema(
     schema: Schema,
-    isCollection: boolean = false
+    isList: boolean = false
   ) {
-    if (isCollection) {
+    if (isList) {
       // TODO: allow user to set the count
-      // Generate array of 5-10 items for collection endpoints
+      // Generate array of 5-10 items for list endpoints
       const count = Math.floor(Math.random() * 6) + 5;
       const response = [];
       for (let i = 0; i < count; i++) {

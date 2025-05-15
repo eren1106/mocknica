@@ -1,5 +1,6 @@
 import prisma from "@/lib/db";
 import { NextResponse } from "next/server";
+import { EndpointData } from "@/data/endpoint.data";
 
 export async function PUT(
   req: Request,
@@ -9,10 +10,7 @@ export async function PUT(
     const body = await req.json();
     const { id } = await params;
 
-    const endpoint = await prisma.endpoint.update({
-      where: { id },
-      data: body,
-    });
+    const endpoint = await EndpointData.updateEndpoint(id, body);
 
     return NextResponse.json(endpoint);
   } catch (error) {
@@ -28,9 +26,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    await prisma.endpoint.delete({
-      where: { id },
-    });
+    await EndpointData.deleteEndpoint(id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

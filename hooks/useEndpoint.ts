@@ -34,16 +34,10 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
   createEndpoint: async (data) => {
     try {
       set({ isMutating: true });
-      // TODO: use service
-      const response = await fetch('/api/endpoints', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
+      const response = await EndpointService.createEndpoint(data);
+      
       // TODO: fix update state not working
-      set((state) => ({ endpoints: [...state.endpoints, result] }));
+      set((state) => ({ endpoints: [...state.endpoints, response] }));
       toast.success('Endpoint created successfully');
     } catch (error) {
       console.error('Error creating endpoint:', error);
@@ -80,11 +74,7 @@ export const useEndpoint = create<EndpointStore>((set, get) => ({
   deleteEndpoint: async (id) => {
     try {
       set({ isMutating: true });
-      const response = await fetch(`/api/endpoints/${id}`, {
-        method: 'DELETE',
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
+      await EndpointService.deleteEndpoint(id);
 
       set((state) => ({
         endpoints: state.endpoints.filter((endpoint) => endpoint.id !== id),

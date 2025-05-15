@@ -16,6 +16,9 @@ export async function POST(req: NextRequest) {
             method: HttpMethod.GET,
             path: basePath,
             schemaId,
+            isDataList: true,
+            staticResponse: null,
+            responseWrapperId: null,
         });
         const getById = await EndpointData.createEndpoint({
             name: `GET ${basePath}/:id`,
@@ -23,6 +26,9 @@ export async function POST(req: NextRequest) {
             method: HttpMethod.GET,
             path: `${basePath}/:id`,
             schemaId,
+            isDataList: false,
+            staticResponse: null,
+            responseWrapperId: null,
         });
         const post = await EndpointData.createEndpoint({
             name: `POST ${basePath}`,
@@ -30,6 +36,9 @@ export async function POST(req: NextRequest) {
             method: HttpMethod.POST,
             path: basePath,
             schemaId,
+            isDataList: false,
+            staticResponse: null,
+            responseWrapperId: null,
         });
         const putById = await EndpointData.createEndpoint({
             name: `PUT ${basePath}/:id`,
@@ -37,6 +46,9 @@ export async function POST(req: NextRequest) {
             method: HttpMethod.PUT,
             path: `${basePath}/:id`,
             schemaId,
+            isDataList: false,
+            staticResponse: null,
+            responseWrapperId: null,
         });
         const deleteById = await EndpointData.createEndpoint({
             name: `DELETE ${basePath}/:id`,
@@ -44,6 +56,9 @@ export async function POST(req: NextRequest) {
             method: HttpMethod.DELETE,
             path: `${basePath}/:id`,
             schemaId,
+            isDataList: false,
+            staticResponse: null,
+            responseWrapperId: null,
         });
         return apiResponse(req, { data: [get, getById, post, putById, deleteById] });
       } catch (error) {

@@ -1,18 +1,12 @@
 // app/api/endpoints/route.ts
 import { NextRequest } from 'next/server';
-import prisma from '@/lib/db';
 import { EndpointData } from '@/data/endpoint.data';
 import { apiResponse, errorResponse } from '../_helpers/api-response';
 
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-
-    // Convert string JSON fields to actual JSON
-    const endpoint = await prisma.endpoint.create({
-      data,
-    });
-
+    const endpoint = await EndpointData.createEndpoint(data);
     return apiResponse(req, { data: endpoint });
   } catch (error) {
     console.error('Error creating endpoint:', error);

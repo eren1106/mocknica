@@ -17,7 +17,6 @@ import { EndpointService } from "@/services/endpoint.service";
 import JsonEditor from "../json-editor";
 import { Switch } from "../ui/switch";
 import { useResponseWrapper } from "@/hooks/useResponseWrapper";
-import { Skeleton } from "../ui/skeleton";
 import { Label } from "../ui/label";
 import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
 import { useSchema } from "@/hooks/useSchema";
@@ -27,8 +26,11 @@ const EndPointSchema = z.object({
   description: z.string().nullable(),
   method: z.nativeEnum(HttpMethod),
   path: z.string().min(1, "Path is required"),
-  schemaId: z.coerce.number().nullable(),
-  responseWrapperId: z.coerce.number().nullable(),
+  // schemaId: z.coerce.number().nullable(),
+  schemaId: z.union([z.coerce.number().int().positive(), z.literal(null)]),
+  isDataList: z.boolean().transform((val) => val ?? false),
+  // responseWrapperId: z.coerce.number().nullable(),
+  responseWrapperId: z.union([z.coerce.number().int().positive(), z.literal(null)]),
   staticResponse: z.string().nullable(),
 });
 
@@ -74,6 +76,7 @@ export default function EndpointForm({
           description: "",
           path: "",
           method: HttpMethod.GET,
+          isDataList: false,
           staticResponse: JSON.stringify(
             {
               id: 1,
@@ -82,6 +85,8 @@ export default function EndpointForm({
             null,
             4
           ),
+          schemaId: null,
+          responseWrapperId: null,
         }
   );
 
@@ -223,19 +228,30 @@ export default function EndpointForm({
       </div>
 
       {isUseSchema && (
-        <GenericFormField
-          control={form.control}
-          type="select"
-          name="schemaId"
-          label="Schema"
-          placeholder="Select schema"
-          options={schemas.map((schema) => ({
-            value: schema.id.toString(),
-            label: schema.name,
-          }))}
-          defaultValue={defaultSchemaId?.toString()}
-          disabled={isLoadingSchema}
-        />
+        <>
+          <GenericFormField
+            control={form.control}
+            type="select"
+            name="schemaId"
+            label="Schema"
+            placeholder="Select schema"
+            options={schemas.map((schema) => ({
+              value: schema.id.toString(),
+              label: schema.name,
+            }))}
+            defaultValue={defaultSchemaId?.toString()}
+            disabled={isLoadingSchema}
+          />
+          <GenericFormField
+            control={form.control}
+            type="switch"
+            name="isDataList"
+            label="Is Data List"
+            className="flex-row-reverse items-center w-auto justify-end"
+            contentClassName="items-center w-auto"
+            optional
+          />
+        </>
       )}
 
       {!isUseSchema && (
