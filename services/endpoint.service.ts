@@ -17,6 +17,7 @@ export class EndpointService {
   static async createEndpointsBySchema(data: {
     schemaId: number;
     basePath: string;
+    responseWrapperId?: number;
   }): Promise<Endpoint[]> {
     const res = await apiRequest.post("endpoints/schema", data);
     return res.data;

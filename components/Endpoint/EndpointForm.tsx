@@ -140,7 +140,7 @@ export default function EndpointForm({
     if (checked) {
       form.setValue(
         "schemaId",
-        endpoint?.schemaId || null || defaultSchemaId || null
+        endpoint?.schemaId || defaultSchemaId || null
       );
     }
     if (!checked) {

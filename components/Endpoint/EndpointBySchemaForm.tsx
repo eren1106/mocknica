@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ZodForm from "../zod-form";
 import * as z from "zod";
 import GenericFormField from "../generic-form-field";
@@ -9,12 +9,17 @@ import { useZodForm } from "@/hooks/useZodForm";
 import { Card } from "../ui/card";
 import { InfoIcon } from "lucide-react";
 import { useSchema } from "@/hooks/useSchema";
-import Spinner from "../spinner";
 import { EndpointService } from "@/services/endpoint.service";
+import { Switch } from "../ui/switch";
+import { useResponseWrapper } from "@/hooks/useResponseWrapper";
+import { Label } from "../ui/label";
+import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
+import { toast } from "sonner";
 
 const EndpointBySchemaSchema = z.object({
   schemaId: z.coerce.number().min(1, "Schema is required"),
   basePath: z.string().min(1, "Base path is required"),
+  responseWrapperId: z.union([z.coerce.number().int().positive(), z.literal(undefined)]),
 });
 
 interface EndpointBySchemaFormProps {
@@ -22,11 +27,19 @@ interface EndpointBySchemaFormProps {
 }
 
 const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
-  const { schemas, fetchSchemas, isLoading, isMutating } = useSchema();
+  const { schemas, fetchSchemas, isLoading: isLoadingSchema, isMutating } = useSchema();
+  const {
+      fetchResponseWrappers,
+      responseWrappers,
+      isLoading: isLoadingResponseWrapper,
+    } = useResponseWrapper();
 
   useEffect(() => {
     fetchSchemas();
+    fetchResponseWrappers();
   }, []);
+
+  const [isUseWrapper, setIsUseWrapper] = useState(false);
 
   const form = useZodForm(EndpointBySchemaSchema, {
     // schemaId: 1,
@@ -36,21 +49,37 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
   const onSubmit = async (data: z.infer<typeof EndpointBySchemaSchema>) => {
     try {
       await EndpointService.createEndpointsBySchema(data);
+      toast.success("Endpoints created successfully");
     } catch (e) {
       console.error(e);
+      toast.error("Failed to create endpoints");
     }
     onSuccess?.();
   };
 
-  const basePath = form.watch("basePath");
+  const handleUseWrapperChange = (checked: boolean) => {
+    if (checked) {
+      form.setValue(
+        "responseWrapperId",
+        responseWrappers[0].id
+      );
+    }
+    if (!checked) {
+      form.setValue("responseWrapperId", undefined);
+    }
+    setIsUseWrapper(checked);
+  };
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-40">
-        <Spinner />
-      </div>
-    );
-  }
+  const basePath = form.watch("basePath");
+  const responseWrapperId = form.watch("responseWrapperId");
+
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex justify-center items-center h-40">
+  //       <Spinner />
+  //     </div>
+  //   );
+  // }
 	
   return (
     <ZodForm form={form} onSubmit={onSubmit}>
@@ -64,6 +93,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
           value: schema.id.toString(),
           label: schema.name,
         }))}
+        disabled={isLoadingSchema}
       />
       <GenericFormField
         control={form.control}
@@ -73,7 +103,39 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
         placeholder="data base path"
       />
 
-      {/* TODO: add wrapper field */}
+      {/* RESPONSE WRAPPER */}
+      <div className="flex items-center gap-2">
+        <Switch
+          checked={isUseWrapper}
+          onCheckedChange={handleUseWrapperChange}
+        />
+        <Label htmlFor="use-wrapper">Use Response Wrapper</Label>
+      </div>
+      {isUseWrapper && (
+        <GenericFormField
+          control={form.control}
+          type="select"
+          name="responseWrapperId"
+          label="Response Wrapper"
+          placeholder="Select response wrapper"
+          options={responseWrappers.map((wrapper) => ({
+            value: wrapper.id.toString(),
+            label: wrapper.name,
+          }))}
+          defaultValue={responseWrappers[0].id?.toString()}
+          disabled={isLoadingResponseWrapper}
+        />
+      )}
+      {isUseWrapper && (
+        <ResponseWrapperView
+          wrapper={
+            responseWrappers.find(
+              (wrapper) =>
+                wrapper.id === Number(responseWrapperId)
+            )!
+          }
+        />
+      )}
 
       <p className="text-sm">Preview:</p>
       <p className="text-sm">

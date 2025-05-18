@@ -4,11 +4,22 @@ import { Endpoint as EndpointPrisma } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 
 export class EndpointData {
-  static async createEndpoint(
-    data: Prisma.EndpointCreateInput
-  ): Promise<EndpointPrisma> {
+  static async createEndpoint(data: Omit<EndpointPrisma, "id" | "updatedAt" | "createdAt">): Promise<EndpointPrisma> {
+    const { schemaId, responseWrapperId, staticResponse, ...restData } = data;
+    
     return prisma.endpoint.create({
-      data,
+      data: {
+        ...restData,
+        ...(schemaId && { schema: { connect: { id: schemaId } } }),
+        ...(responseWrapperId && {
+          responseWrapper: {
+            connect: { id: responseWrapperId },
+          },
+        }),
+        staticResponse: staticResponse === null 
+        ? Prisma.JsonNull 
+        : staticResponse as Prisma.InputJsonValue,
+      },
     });
   }
 
@@ -80,13 +91,26 @@ export class EndpointData {
 
   static async updateEndpoint(
     id: string,
-    data: Prisma.EndpointUpdateInput,
+    data: Partial<EndpointPrisma>
   ): Promise<EndpointPrisma> {
+    const { schemaId, responseWrapperId, staticResponse, ...restData } = data;
+    
     return prisma.endpoint.update({
       where: {
         id,
       },
-      data,
+      data: {
+        ...restData,
+        ...(schemaId && { schema: { connect: { id: schemaId } } }),
+        ...(responseWrapperId && {
+          responseWrapper: {
+            connect: { id: responseWrapperId },
+          },
+        }),
+        staticResponse: staticResponse === null 
+        ? Prisma.JsonNull 
+        : staticResponse as Prisma.InputJsonValue,
+      },
     });
   }
 

@@ -107,13 +107,6 @@ async function handleRequest(
       });
     }
 
-    // TODO: should return array or not is not check like this, need add a flag in endpoint (isDataList)
-    // Check if this is a GET request and if it's a collection endpoint (no ID parameter)
-    // const isCollectionEndpoint =
-    //   !matchingEndpoint.path.includes("/:") &&
-    //   !matchingEndpoint.path.includes("/{");
-    // const shouldReturnArray = method === "GET" && isCollectionEndpoint;
-
     const response = EndpointService.getEndpointResponse(matchingEndpoint);
 
     return NextResponse.json(response);
