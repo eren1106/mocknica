@@ -56,3 +56,7 @@ export function formatJSON (jsonData: any): string {
     return String(jsonData);
   }
 };
+
+export function generateUUID (): string {
+  return crypto.randomUUID();
+};

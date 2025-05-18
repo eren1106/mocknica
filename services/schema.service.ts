@@ -2,8 +2,9 @@ import { apiRequest } from "@/helpers/api-request";
 import { SchemaField } from "@/models/schema-field.model";
 import { Schema } from "@/models/schema.model";
 import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
-import { SchemaFieldType } from "@prisma/client";
+import { IdFieldType, SchemaFieldType } from "@prisma/client";
 import { FakerService } from "./faker.service";
+import { generateUUID } from "@/lib/utils";
 
 export class SchemaService {
   static async getAllSchemas(): Promise<Schema[]> {
@@ -83,8 +84,8 @@ export class SchemaService {
       case SchemaFieldType.DATE:
         return new Date();
       case SchemaFieldType.ID:
-        // TODO: dont use number if the idType is UUID
-        return dataId ?? 1;
+        const defaultValue = field.idFieldType === IdFieldType.UUID ? generateUUID() : 1;
+        return dataId ?? defaultValue;
       default:
         return null;
     }
@@ -104,7 +105,7 @@ export class SchemaService {
         for (const field of schema.fields) {
           item[field.name] = this.generateSchemaFieldValue(
             field as SchemaField,
-            i + 1
+            field.idFieldType === IdFieldType.UUID ? generateUUID() : i + 1
           );
         }
         response.push(item);
