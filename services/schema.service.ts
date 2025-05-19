@@ -93,12 +93,12 @@ export class SchemaService {
 
   static generateResponseFromSchema(
     schema: Schema,
-    isList: boolean = false
+    isList: boolean = false,
+    numberOfData?: number,
   ) {
     if (isList) {
-      // TODO: allow user to set the count
       // Generate array of 5-10 items for list endpoints
-      const count = Math.floor(Math.random() * 6) + 5;
+      const count = numberOfData ?? 3;
       const response = [];
       for (let i = 0; i < count; i++) {
         const item: any = {};

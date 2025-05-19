@@ -18,7 +18,8 @@ model Endpoint {
   schema            Schema?          @relation(fields: [schemaId], references: [id])
   responseWrapperId Int?
   responseWrapper   ResponseWrapper? @relation(fields: [responseWrapperId], references: [id])
-  isDataList        Boolean         @default(false) // if schema is used in the endpoint, then will need to check the data is return in list or not
+  isDataList        Boolean          @default(false) // if schema is used in the endpoint, then will need to check the data is return in list or not
+  numberOfData      Int? // if isDataList is true, then this field will be used to determine the number of data to return
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 }

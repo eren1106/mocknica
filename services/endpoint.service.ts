@@ -45,18 +45,17 @@ export class EndpointService {
     let response;
     // WITH SCHEMA
     if (endpoint.schemaId && endpoint.schema) {
-      response = endpoint.responseWrapper
-        ? ResponseWrapperService.generateResponseWrapperJson({
-            response: SchemaService.generateResponseFromSchema(
-              endpoint.schema,
-              endpoint.isDataList
-            ),
-            wrapper: endpoint.responseWrapper,
-          })
-        : SchemaService.generateResponseFromSchema(
-            endpoint.schema,
-            endpoint.isDataList
-          );
+      response = SchemaService.generateResponseFromSchema(
+        endpoint.schema,
+        endpoint.isDataList,
+        endpoint.numberOfData ?? undefined,
+      );
+      if(endpoint.responseWrapper) {
+        response = ResponseWrapperService.generateResponseWrapperJson({
+          response,
+          wrapper: endpoint.responseWrapper,
+        });
+      }
     }
     // WITH STATIC RESPONSE
     else {

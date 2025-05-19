@@ -18,6 +18,7 @@ export async function POST(req: NextRequest) {
             path: basePath,
             schemaId,
             isDataList: true,
+            numberOfData: 3,
             staticResponse: null,
             responseWrapperId,
         });
@@ -28,6 +29,7 @@ export async function POST(req: NextRequest) {
             path: `${basePath}/:id`,
             schemaId,
             isDataList: false,
+            numberOfData: null,
             staticResponse: null,
             responseWrapperId,
         });
@@ -38,6 +40,7 @@ export async function POST(req: NextRequest) {
             path: basePath,
             schemaId,
             isDataList: false,
+            numberOfData: null,
             staticResponse: null,
             responseWrapperId,
         });
@@ -48,6 +51,7 @@ export async function POST(req: NextRequest) {
             path: `${basePath}/:id`,
             schemaId,
             isDataList: false,
+            numberOfData: null,
             staticResponse: null,
             responseWrapperId,
         });
@@ -58,6 +62,7 @@ export async function POST(req: NextRequest) {
             path: `${basePath}/:id`,
             schemaId,
             isDataList: false,
+            numberOfData: null,
             staticResponse: null,
             responseWrapperId,
         });

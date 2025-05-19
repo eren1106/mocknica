@@ -26,10 +26,9 @@ const EndPointSchema = z.object({
   description: z.string().nullable(),
   method: z.nativeEnum(HttpMethod),
   path: z.string().min(1, "Path is required"),
-  // schemaId: z.coerce.number().nullable(),
   schemaId: z.union([z.coerce.number().int().positive(), z.literal(null)]),
   isDataList: z.boolean().transform((val) => val ?? false),
-  // responseWrapperId: z.coerce.number().nullable(),
+  numberOfData: z.coerce.number().int().positive().nullable(),
   responseWrapperId: z.union([z.coerce.number().int().positive(), z.literal(null)]),
   staticResponse: z.string().nullable(),
 });
@@ -77,6 +76,7 @@ export default function EndpointForm({
           path: "",
           method: HttpMethod.GET,
           isDataList: false,
+          numberOfData: null,
           staticResponse: JSON.stringify(
             {
               id: 1,
@@ -251,6 +251,17 @@ export default function EndpointForm({
             contentClassName="items-center w-auto"
             optional
           />
+          {form.watch("isDataList") && (
+            <GenericFormField
+              control={form.control}
+              type="number"
+              name="numberOfData"
+              label="Number of Data"
+              placeholder="Number of data"
+              optional
+              description="Number of data to generate, if not set, it will generate 3 data"
+            />
+          )}
         </>
       )}
 
