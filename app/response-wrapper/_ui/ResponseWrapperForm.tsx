@@ -27,7 +27,7 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
       ? {
           name: responseWrapper.name,
           // Replace "WRAPPER_DATA_STR" with WRAPPER_DATA_STR, so that the system will detect it and display it in primary color
-          json: responseWrapper.json ? JSON.stringify(responseWrapper.json, null, 2).replaceAll(`"${WRAPPER_DATA_STR}"`, WRAPPER_DATA_STR) : null,
+          json: responseWrapper.json ? JSON.stringify(responseWrapper.json, undefined, 2).replaceAll(`"${WRAPPER_DATA_STR}"`, WRAPPER_DATA_STR) : undefined,
         }
       : {
           name: "",

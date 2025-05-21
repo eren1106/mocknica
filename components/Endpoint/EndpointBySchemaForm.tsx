@@ -15,6 +15,7 @@ import { useResponseWrapper } from "@/hooks/useResponseWrapper";
 import { Label } from "../ui/label";
 import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
 import { toast } from "sonner";
+import { useMutationEndpoint } from "@/hooks/useEndpoint";
 
 const EndpointBySchemaSchema = z.object({
   schemaId: z.coerce.number().min(1, "Schema is required"),
@@ -27,6 +28,7 @@ interface EndpointBySchemaFormProps {
 }
 
 const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
+  const { createEndpointsBySchema } = useMutationEndpoint();
   const { schemas, fetchSchemas, isLoading: isLoadingSchema, isMutating } = useSchema();
   const {
       fetchResponseWrappers,
@@ -48,7 +50,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
 
   const onSubmit = async (data: z.infer<typeof EndpointBySchemaSchema>) => {
     try {
-      await EndpointService.createEndpointsBySchema(data);
+      await createEndpointsBySchema(data);
       toast.success("Endpoints created successfully");
     } catch (e) {
       console.error(e);
