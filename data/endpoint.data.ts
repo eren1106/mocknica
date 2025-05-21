@@ -53,6 +53,9 @@ export class EndpointData {
         },
         responseWrapper: true,
       },
+      orderBy: {
+        path: "asc",
+      },
     });
   }
 
