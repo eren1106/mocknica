@@ -107,6 +107,7 @@ async function handleRequest(
       });
     }
 
+    // TODO: make this function into utils instead of using service
     const response = EndpointService.getEndpointResponse(matchingEndpoint);
 
     return NextResponse.json(response);

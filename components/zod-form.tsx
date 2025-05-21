@@ -13,7 +13,7 @@ interface ZodFormProps<T extends FieldValues> {
 
 const ZodForm = <T extends FieldValues>({ form, onSubmit, onError, children, className }: ZodFormProps<T>) => {
   const handleError = (errors: any) => {
-    console.error("FORM ERROR:", errors);
+    console.log("FORM ERROR:", errors);
     onError?.(errors);
   };
   return (

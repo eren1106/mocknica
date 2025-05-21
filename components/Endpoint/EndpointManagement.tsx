@@ -1,25 +1,16 @@
-"use client";
+'use client'
 
-import { useEffect } from "react";
 import DialogButton from "../dialog-button";
 import { Plus } from "lucide-react";
-import { useEndpoint } from "@/hooks/useEndpoint";
-import { Skeleton } from "../ui/skeleton";
 import EndpointsList from "./EndpointList";
 import EndpointCreationTabs from "./EndpointCreationTabs";
 
 const EndpointManagement = () => {
-  const { endpoints, fetchEndpoints, isLoading } = useEndpoint();
-
-  useEffect(() => {
-    fetchEndpoints();
-  }, []);
-
   return (
     <div className="flex flex-col">
       <div className="flex justify-end gap-2 items-center">
         <DialogButton
-          content={(close) => <EndpointCreationTabs onSuccess={close} />}
+          content={(close) => <EndpointCreationTabs onSuccess={close} />} // need 'use client' for this
           className="w-fit"
         >
           <Plus className="size-6 mr-2" />
@@ -27,14 +18,7 @@ const EndpointManagement = () => {
         </DialogButton>
       </div>
       <h2 className="text-2xl font-bold mb-3">Available Endpoints</h2>
-      {isLoading ? (
-        <div className="space-y-4">
-          <Skeleton className="w-full h-40" />
-          <Skeleton className="w-full h-40" />
-        </div>
-      ) : (
-        <EndpointsList endpoints={endpoints} />
-      )}
+      <EndpointsList />
     </div>
   );
 };

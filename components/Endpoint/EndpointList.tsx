@@ -2,7 +2,6 @@
 
 import { Edit, Trash } from "lucide-react";
 import DialogButton from "../dialog-button";
-import { useEndpoint } from "@/hooks/useEndpoint";
 import EndpointForm from "./EndpointForm";
 import {
   Accordion,
@@ -11,25 +10,31 @@ import {
   AccordionTrigger,
 } from "../ui/accordion";
 import DeleteConfirmationDialog from "../delete-confirmation";
-import { Endpoint } from "@/models/endpoint.model";
-import { SchemaService } from "@/services/schema.service";
 import { formatJSON } from "@/lib/utils";
 import { EndpointService } from "@/services/endpoint.service";
+import { useEndpoints, useMutationEndpoint } from "@/hooks/useEndpoint";
+import { Skeleton } from "../ui/skeleton";
 
-interface EndpointsListProps {
-  endpoints: Endpoint[];
-}
+export default function EndpointsList() {
+  const { data: endpoints, isLoading: isLoadingEndpoints } = useEndpoints();
+  const { deleteEndpoint, isPending: isMutatingEndpoints } = useMutationEndpoint();
 
-export default function EndpointsList({ endpoints }: EndpointsListProps) {
-  const { deleteEndpoint, isMutating } = useEndpoint();
+  if (isLoadingEndpoints) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="w-full h-40" />
+        <Skeleton className="w-full h-40" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      {endpoints.length < 1 ? (
+      {(endpoints?.length ?? 0) < 1 ? (
         <p className="text-muted-foreground">No endpoints available</p>
       ) : (
         <Accordion type="multiple" className="w-full">
-          {endpoints.map((endpoint) => (
+          {endpoints?.map((endpoint) => (
             // Endpoint Item
             <AccordionItem value={endpoint.id} key={endpoint.id}>
               <AccordionTrigger className="hover:no-underline">
@@ -59,7 +64,7 @@ export default function EndpointsList({ endpoints }: EndpointsListProps) {
                         description="Are you sure you want to delete this endpoint?"
                         onConfirm={() => deleteEndpoint(endpoint.id)}
                         onCancel={close}
-                        isLoading={isMutating}
+                        isLoading={isMutatingEndpoints}
                       />
                     )}
                     className="size-10 p-2"
@@ -68,15 +73,18 @@ export default function EndpointsList({ endpoints }: EndpointsListProps) {
                     <Trash size={20} />
                   </DialogButton>
                 </div>
-                <p className="">{endpoint.description}</p>
-                <p className="">{endpoint.path}</p>
+                <p className="">Name: {endpoint.name}</p>
+                <p className="">Description: {endpoint.description}</p>
+                <p className="">Path: {endpoint.path}</p>
                 {
                   <>
-                  {endpoint.schema && <p>Schema: {endpoint.schema.name}</p>}
-                  <p>Response:</p>
-                  <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
+                    {endpoint.schema && <p>Schema: {endpoint.schema.name}</p>}
+                    <p>Response:</p>
+                    <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
                       <code className="">
-                        {formatJSON(EndpointService.getEndpointResponse(endpoint))}
+                        {formatJSON(
+                          EndpointService.getEndpointResponse(endpoint)
+                        )}
                       </code>
                     </pre>
                   </>

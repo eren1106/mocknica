@@ -39,7 +39,7 @@ export class EndpointService {
   static async deleteEndpoint(id: string): Promise<void> {
     await apiRequest.delete(`endpoints/${id}`);
   }
-  
+
   // display what the endpoint should return when user request the mock data
   static getEndpointResponse(endpoint: Endpoint) {
     let response;
@@ -48,9 +48,9 @@ export class EndpointService {
       response = SchemaService.generateResponseFromSchema(
         endpoint.schema,
         endpoint.isDataList,
-        endpoint.numberOfData ?? undefined,
+        endpoint.numberOfData ?? undefined
       );
-      if(endpoint.responseWrapper) {
+      if (endpoint.responseWrapper) {
         response = ResponseWrapperService.generateResponseWrapperJson({
           response,
           wrapper: endpoint.responseWrapper,

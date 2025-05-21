@@ -1,6 +1,5 @@
 "use client";
 
-import { useEndpoint } from "@/hooks/useEndpoint";
 import { useZodForm } from "@/hooks/useZodForm";
 import { Endpoint, HttpMethod } from "@prisma/client";
 import { toast } from "sonner";
@@ -20,16 +19,22 @@ import { useResponseWrapper } from "@/hooks/useResponseWrapper";
 import { Label } from "../ui/label";
 import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
 import { useSchema } from "@/hooks/useSchema";
+import {
+  useMutationEndpoint,
+} from "@/hooks/useEndpoint";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().nullable(),
   method: z.nativeEnum(HttpMethod),
   path: z.string().min(1, "Path is required"),
-  schemaId: z.union([z.coerce.number().int().positive(), z.literal(null)]),
+  schemaId: z.union([z.coerce.number().int().positive(), z.literal(undefined)]),
   isDataList: z.boolean().transform((val) => val ?? false),
-  numberOfData: z.coerce.number().int().positive().nullable(),
-  responseWrapperId: z.union([z.coerce.number().int().positive(), z.literal(null)]),
+  numberOfData: z.coerce.number().int().positive(),
+  responseWrapperId: z.union([
+    z.coerce.number().int().positive(),
+    z.literal(undefined),
+  ]),
   staticResponse: z.string().nullable(),
 });
 
@@ -42,7 +47,11 @@ export default function EndpointForm({
   endpoint,
   onSuccess,
 }: EndpointFormProps) {
-  const { createEndpoint, updateEndpoint, isMutating } = useEndpoint();
+  const {
+    createEndpoint,
+    updateEndpoint,
+    isPending: isMutatingEndpoint,
+  } = useMutationEndpoint();
   const { fetchSchemas, schemas, isLoading: isLoadingSchema } = useSchema();
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -66,8 +75,11 @@ export default function EndpointForm({
     endpoint
       ? {
           ...endpoint,
+          schemaId: endpoint.schemaId || undefined,
+          responseWrapperId: endpoint.responseWrapperId || undefined,
+          numberOfData: endpoint.numberOfData || 3,
           staticResponse: endpoint.staticResponse
-            ? JSON.stringify(endpoint.staticResponse, null, 4)
+            ? JSON.stringify(endpoint.staticResponse, undefined, 4)
             : "",
         }
       : {
@@ -76,17 +88,17 @@ export default function EndpointForm({
           path: "",
           method: HttpMethod.GET,
           isDataList: false,
-          numberOfData: null,
+          numberOfData: 3,
           staticResponse: JSON.stringify(
             {
               id: 1,
               name: "John Doe",
             },
-            null,
+            undefined,
             4
           ),
-          schemaId: null,
-          responseWrapperId: null,
+          schemaId: undefined,
+          responseWrapperId: undefined,
         }
   );
 
@@ -95,12 +107,15 @@ export default function EndpointForm({
     try {
       // TODO: fix fields order not same after parse
       if (endpoint) {
-        await updateEndpoint(endpoint.id, {
-          ...values,
-          // cannot send stringify format, need send in object format, because the stringify process will be conducted automatically when send data via api
-          staticResponse: values.staticResponse
-            ? JSON.parse(values.staticResponse)
-            : undefined,
+        await updateEndpoint({
+          id: endpoint.id,
+          data: {
+            ...values,
+            // cannot send stringify format, need send in object format, because the stringify process will be conducted automatically when send data via api
+            staticResponse: values.staticResponse
+              ? JSON.parse(values.staticResponse)
+              : undefined,
+          },
         });
       } else {
         await createEndpoint({
@@ -126,7 +141,7 @@ export default function EndpointForm({
     setIsGenerating(true);
     try {
       const res = await EndpointService.generateResponseByAI(aiPrompt);
-      form.setValue("staticResponse", JSON.stringify(res, null, 4));
+      form.setValue("staticResponse", JSON.stringify(res, undefined, 4));
     } catch (error) {
       console.error("Error generating response:", error);
       toast.error("Failed to generate response");
@@ -138,13 +153,10 @@ export default function EndpointForm({
 
   const handleUseSchemaChange = (checked: boolean) => {
     if (checked) {
-      form.setValue(
-        "schemaId",
-        endpoint?.schemaId || defaultSchemaId || null
-      );
+      form.setValue("schemaId", endpoint?.schemaId || defaultSchemaId || undefined);
     }
     if (!checked) {
-      form.setValue("schemaId", null);
+      form.setValue("schemaId", undefined);
     }
     setIsUseSchema(checked);
   };
@@ -153,11 +165,11 @@ export default function EndpointForm({
     if (checked) {
       form.setValue(
         "responseWrapperId",
-        endpoint?.responseWrapperId || null || defaultWrapperId || null
+        endpoint?.responseWrapperId || defaultWrapperId || undefined
       );
     }
     if (!checked) {
-      form.setValue("responseWrapperId", null);
+      form.setValue("responseWrapperId", undefined);
     }
     setIsUseWrapper(checked);
   };
@@ -351,7 +363,7 @@ export default function EndpointForm({
         />
       )}
 
-      <FormButton isLoading={isMutating}>
+      <FormButton isLoading={isMutatingEndpoint}>
         {endpoint ? "Update" : "Create"} Endpoint
       </FormButton>
     </ZodForm>

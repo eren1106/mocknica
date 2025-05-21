@@ -59,6 +59,9 @@ importers:
       '@radix-ui/react-toggle':
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.0.4(@types/react@19.0.10))(@types/react@19.0.10)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@tanstack/react-query':
+        specifier: ^5.76.1
+        version: 5.76.1(react@19.0.0)
       '@tiptap/react':
         specifier: ^2.11.5
         version: 2.11.5(@tiptap/core@2.11.5(@tiptap/pm@2.11.5))(@tiptap/pm@2.11.5)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -1275,6 +1278,14 @@ packages:
 
   '@tailwindcss/postcss@4.0.8':
     resolution: {integrity: sha512-SUwlrXjn1ycmUbA0o0n3Y0LqlXqxN5R8HR+ti+OBbRS79wl2seDmiypEs3xJCuQXe07ol81s1AmRMitBmPveJA==}
+
+  '@tanstack/query-core@5.76.0':
+    resolution: {integrity: sha512-FN375hb8ctzfNAlex5gHI6+WDXTNpe0nbxp/d2YJtnP+IBM6OUm7zcaoCW6T63BawGOYZBbKC0iPvr41TteNVg==}
+
+  '@tanstack/react-query@5.76.1':
+    resolution: {integrity: sha512-YxdLZVGN4QkT5YT1HKZQWiIlcgauIXEIsMOTSjvyD5wLYK8YVvKZUPAysMqossFJJfDpJW3pFn7WNZuPOqq+fw==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@tiptap/core@2.11.5':
     resolution: {integrity: sha512-jb0KTdUJaJY53JaN7ooY3XAxHQNoMYti/H6ANo707PsLXVeEqJ9o8+eBup1JU5CuwzrgnDc2dECt2WIGX9f8Jw==}
@@ -4207,6 +4218,13 @@ snapshots:
       lightningcss: 1.29.1
       postcss: 8.5.3
       tailwindcss: 4.0.8
+
+  '@tanstack/query-core@5.76.0': {}
+
+  '@tanstack/react-query@5.76.1(react@19.0.0)':
+    dependencies:
+      '@tanstack/query-core': 5.76.0
+      react: 19.0.0
 
   '@tiptap/core@2.11.5(@tiptap/pm@2.11.5)':
     dependencies:
