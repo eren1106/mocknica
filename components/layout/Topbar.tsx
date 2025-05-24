@@ -1,5 +1,6 @@
 import Link from "next/link";
 import SidebarSheet from "./SidebarSheet";
+import { ModeToggle } from "../mode-toggle";
 
 const Topbar = () => {
   return (
@@ -18,6 +19,7 @@ const Topbar = () => {
           {`${process.env.NEXT_PUBLIC_APP_URL}/api/mock/:endpoint`}
         </Link>
       </div>
+      <ModeToggle className="ml-auto"/>
     </div>
   );
 };
