@@ -17,7 +17,8 @@ import { Skeleton } from "../ui/skeleton";
 
 export default function EndpointsList() {
   const { data: endpoints, isLoading: isLoadingEndpoints } = useEndpoints();
-  const { deleteEndpoint, isPending: isMutatingEndpoints } = useMutationEndpoint();
+  const { deleteEndpoint, isPending: isMutatingEndpoints } =
+    useMutationEndpoint();
 
   if (isLoadingEndpoints) {
     return (
@@ -51,27 +52,23 @@ export default function EndpointsList() {
         <Accordion type="multiple" className="w-full">
           {endpoints?.map((endpoint) => (
             // Endpoint Item
-            <AccordionItem value={endpoint.id} key={endpoint.id}>
-              <AccordionTrigger className="hover:no-underline">
-                <div className="flex items-center gap-3">
-                  <p className={cn("w-20 p-2 rounded-[2px] font-semibold text-center text-white", getMethodColor(endpoint.method))}>
+            <AccordionItem
+              value={endpoint.id}
+              key={endpoint.id}
+              className="border-none"
+            >
+              <AccordionTrigger className="hover:no-underline border border-muted rounded-md p-4 data-[state=open]:rounded-b-none data-[state=open]:border-b-0">
+                <div className="flex items-center gap-2 w-full mr-3">
+                  <p
+                    className={cn(
+                      "w-20 p-2 rounded-[2px] font-semibold text-center text-white",
+                      getMethodColor(endpoint.method)
+                    )}
+                  >
                     {endpoint.method}
                   </p>
                   <p>{endpoint.path}</p>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="flex flex-col gap-2">
-                <div className="flex items-center gap-2 justify-end">
-                  <DialogButton
-                    content={(close) => (
-                      <EndpointForm onSuccess={close} endpoint={endpoint} />
-                    )}
-                    contentClassName="min-w-[40rem]"
-                    className="size-10 p-2"
-                    variant="outline"
-                  >
-                    <Edit size={20} />
-                  </DialogButton>
+                  <p className="text-muted-foreground">{endpoint.name}</p>
                   <DialogButton
                     content={(close) => (
                       <DeleteConfirmationDialog
@@ -82,19 +79,29 @@ export default function EndpointsList() {
                         isLoading={isMutatingEndpoints}
                       />
                     )}
-                    className="size-10 p-2"
+                    className="size-10 p-2 ml-auto"
                     variant="outline"
                   >
                     <Trash size={20} />
                   </DialogButton>
+                  <DialogButton
+                    content={(close) => (
+                      <EndpointForm onSuccess={close} endpoint={endpoint} />
+                    )}
+                    contentClassName="min-w-[40rem]"
+                    className="size-10 p-2"
+                    variant="outline"
+                  >
+                    <Edit size={20} />
+                  </DialogButton>
                 </div>
-                <p className="">Name: {endpoint.name}</p>
-                <p className="">Description: {endpoint.description}</p>
-                <p className="">Path: {endpoint.path}</p>
+              </AccordionTrigger>
+              <AccordionContent className="flex flex-col gap-2 border border-muted rounded-md p-4 border-t-0 rounded-t-none -mt-px">
+                <p>{endpoint.description}</p>
                 {
                   <>
                     {endpoint.schema && <p>Schema: {endpoint.schema.name}</p>}
-                    <p>Response:</p>
+                    {/* <p>Response:</p> */}
                     <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
                       <code className="">
                         {formatJSON(
