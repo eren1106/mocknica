@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import ZodForm from "../zod-form";
 import * as z from "zod";
 import GenericFormField from "../generic-form-field";
@@ -9,7 +9,7 @@ import { useZodForm } from "@/hooks/useZodForm";
 import { Card } from "../ui/card";
 import { InfoIcon } from "lucide-react";
 import { Switch } from "../ui/switch";
-import { useResponseWrapper } from "@/hooks/useResponseWrapper";
+import { useResponseWrappers } from "@/hooks/useResponseWrapper";
 import { Label } from "../ui/label";
 import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
 import { toast } from "sonner";
@@ -19,7 +19,10 @@ import { useSchemas } from "@/hooks/useSchema";
 const EndpointBySchemaSchema = z.object({
   schemaId: z.coerce.number().min(1, "Schema is required"),
   basePath: z.string().min(1, "Base path is required"),
-  responseWrapperId: z.union([z.coerce.number().int().positive(), z.literal(undefined)]),
+  responseWrapperId: z.union([
+    z.coerce.number().int().positive(),
+    z.literal(undefined),
+  ]),
 });
 
 interface EndpointBySchemaFormProps {
@@ -29,15 +32,8 @@ interface EndpointBySchemaFormProps {
 const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
   const { createEndpointsBySchema, isPending } = useMutationEndpoint();
   const { data: schemas, isLoading: isLoadingSchema } = useSchemas();
-  const {
-      fetchResponseWrappers,
-      responseWrappers,
-      isLoading: isLoadingResponseWrapper,
-    } = useResponseWrapper();
-
-  useEffect(() => {
-    fetchResponseWrappers();
-  }, []);
+  const { data: responseWrappers, isLoading: isLoadingResponseWrapper } =
+    useResponseWrappers();
 
   const [isUseWrapper, setIsUseWrapper] = useState(false);
 
@@ -59,10 +55,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
 
   const handleUseWrapperChange = (checked: boolean) => {
     if (checked) {
-      form.setValue(
-        "responseWrapperId",
-        responseWrappers[0].id
-      );
+      form.setValue("responseWrapperId", responseWrappers?.[0].id);
     }
     if (!checked) {
       form.setValue("responseWrapperId", undefined);
@@ -73,14 +66,13 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
   const basePath = form.watch("basePath");
   const responseWrapperId = form.watch("responseWrapperId");
 
-  // if (isLoading) {
-  //   return (
-  //     <div className="flex justify-center items-center h-40">
-  //       <Spinner />
-  //     </div>
-  //   );
-  // }
-	
+  const selectedWrapper = useMemo(() => {
+    if (!responseWrapperId) return undefined;
+    return responseWrappers?.find(
+      (wrapper) => wrapper.id === Number(responseWrapperId)
+    );
+  }, [responseWrappers, responseWrapperId]);
+
   return (
     <ZodForm form={form} onSubmit={onSubmit}>
       <GenericFormField
@@ -89,10 +81,12 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
         name="schemaId"
         label="Schema"
         placeholder="Select a schema"
-        options={schemas?.map((schema) => ({
-          value: schema.id.toString(),
-          label: schema.name,
-        })) || []}
+        options={
+          schemas?.map((schema) => ({
+            value: schema.id.toString(),
+            label: schema.name,
+          })) || []
+        }
         disabled={isLoadingSchema}
       />
       <GenericFormField
@@ -118,23 +112,18 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
           name="responseWrapperId"
           label="Response Wrapper"
           placeholder="Select response wrapper"
-          options={responseWrappers.map((wrapper) => ({
-            value: wrapper.id.toString(),
-            label: wrapper.name,
-          }))}
-          defaultValue={responseWrappers[0].id?.toString()}
+          options={
+            responseWrappers?.map((wrapper) => ({
+              value: wrapper.id.toString(),
+              label: wrapper.name,
+            })) || []
+          }
+          defaultValue={responseWrappers?.[0].id?.toString()}
           disabled={isLoadingResponseWrapper}
         />
       )}
-      {isUseWrapper && (
-        <ResponseWrapperView
-          wrapper={
-            responseWrappers.find(
-              (wrapper) =>
-                wrapper.id === Number(responseWrapperId)
-            )!
-          }
-        />
+      {isUseWrapper && selectedWrapper && (
+        <ResponseWrapperView wrapper={selectedWrapper} />
       )}
 
       <p className="text-sm">Preview:</p>
@@ -158,9 +147,11 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
       </p>
 
       <Card className="flex flex-row items-center gap-2 p-3 bg-muted">
-				<InfoIcon className="size-5 text-muted-foreground" />
-				<p className="text-sm text-muted-foreground">You can modify the endpoint later.</p>
-			</Card>
+        <InfoIcon className="size-5 text-muted-foreground" />
+        <p className="text-sm text-muted-foreground">
+          You can modify the endpoint later.
+        </p>
+      </Card>
       <FormButton isLoading={isPending}>Create Endpoint</FormButton>
     </ZodForm>
   );

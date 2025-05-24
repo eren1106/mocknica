@@ -1,31 +1,18 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { useResponseWrapper } from "@/hooks/useResponseWrapper";
-import { useCallback, useEffect, useMemo } from "react";
 import DialogButton from "@/components/dialog-button";
 import ResponseWrapperForm from "./ResponseWrapperForm";
 import { Edit, Plus, Trash } from "lucide-react";
 import DeleteConfirmationDialog from "@/components/delete-confirmation";
-import { formatJSON } from "@/lib/utils";
-import { DATA_STR, WRAPPER_DATA_STR } from "@/constants";
 import ResponseWrapperView from "./ResponseWrapperView";
+import { useResponseWrappers } from "@/hooks/useResponseWrapper";
+import { useMutationResponseWrapper } from "@/hooks/useResponseWrapper";
 
 const ResponseWrappersPageContainer = () => {
-  const {
-    responseWrappers,
-    fetchResponseWrappers,
-    isLoading,
-    deleteResponseWrapper,
-    isMutating,
-  } = useResponseWrapper();
-
-  useEffect(() => {
-    fetchResponseWrappers();
-  }, []);
+  const { data: responseWrappers, isLoading } = useResponseWrappers();
+  const { deleteResponseWrapper, isPending } = useMutationResponseWrapper();
 
   return (
     <div className="container flex flex-col gap-4">
@@ -47,7 +34,7 @@ const ResponseWrappersPageContainer = () => {
         {isLoading ? (
           <Skeleton className="h-10" />
         ) : (
-          responseWrappers.map((wrapper) => (
+          responseWrappers?.map((wrapper) => (
             <Card key={wrapper.id} className="gap-3">
               <div className="flex justify-between items-center">
                 <h2>{wrapper.name}</h2>
@@ -71,7 +58,7 @@ const ResponseWrappersPageContainer = () => {
                         description="Are you sure you want to delete this endpoint?"
                         onConfirm={() => deleteResponseWrapper(wrapper.id)}
                         onCancel={close}
-                        isLoading={isMutating}
+                        isLoading={isPending}
                       />
                     )}
                     className="size-10 p-2"

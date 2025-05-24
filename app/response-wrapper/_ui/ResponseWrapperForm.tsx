@@ -1,7 +1,7 @@
 import React from "react";
 import ZodForm from "@/components/zod-form";
 import GenericFormField from "@/components/generic-form-field";
-import { useResponseWrapper } from "@/hooks/useResponseWrapper";
+import { useMutationResponseWrapper, useResponseWrapper } from "@/hooks/useResponseWrapper";
 import { useZodForm } from "@/hooks/useZodForm";
 import {
   ResponseWrapperSchema,
@@ -19,8 +19,7 @@ interface ResponseWrapperFormProps {
   onSuccess?: () => void;
 }
 const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormProps) => {
-  const { createResponseWrapper, updateResponseWrapper, isMutating } =
-    useResponseWrapper();
+  const { createResponseWrapper, updateResponseWrapper, isPending } = useMutationResponseWrapper();
   const form = useZodForm<ResponseWrapperSchemaType>(
     ResponseWrapperSchema,
     responseWrapper
@@ -43,9 +42,12 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
         data.json = data.json.replace(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`)
       }
       if (responseWrapper) {
-        await updateResponseWrapper(responseWrapper.id, {
-          ...data,
-          json: data.json ? JSON.parse(data.json) : undefined,
+        await updateResponseWrapper({
+          id: responseWrapper.id,
+          data: {
+            ...data,
+            json: data.json ? JSON.parse(data.json) : undefined,
+          },
         });
       } else {
         await createResponseWrapper({
@@ -70,6 +72,7 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
         name={formFields.name}
         control={form.control}
       />
+      {/* TODO: show error if json is in invalid format */}
       <GenericFormField
         type="custom"
         name="json"
@@ -83,7 +86,7 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
           />
         }
       />
-      <FormButton isLoading={isMutating}>
+      <FormButton isLoading={isPending}>
         {responseWrapper ? "Update" : "Create"} Response Wrapper
       </FormButton>
     </ZodForm>

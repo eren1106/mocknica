@@ -1,78 +1,60 @@
-import { ResponseWrapperService } from "@/services/response-wrapper.service";
-import { ResponseWrapper } from "@prisma/client";
-import { toast } from "sonner";
-import { create } from "zustand";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ResponseWrapperService } from '@/services/response-wrapper.service';
+import { ResponseWrapper } from '@prisma/client';
+import { toast } from 'sonner';
 
-interface ResponseWrapperStore {
-    responseWrappers: ResponseWrapper[];
-    isLoading: boolean;
-    isMutating: boolean;
-    fetchResponseWrappers: () => Promise<void>;
-    createResponseWrapper: (data: Partial<ResponseWrapper>) => Promise<void>;
-    updateResponseWrapper: (id: number, data: Partial<ResponseWrapper>) => Promise<void>;
-    deleteResponseWrapper: (id: number) => Promise<void>;
+const RESPONSE_WRAPPERS_QUERY_KEY = 'response-wrappers';
+
+export const useResponseWrappers = () => {
+  return useQuery<ResponseWrapper[]>({
+    queryKey: [RESPONSE_WRAPPERS_QUERY_KEY],
+    queryFn: ResponseWrapperService.getAllResponseWrappers,
+    staleTime: 1 * 60 * 1000, // 1 minute
+  });
+};
+
+export const useResponseWrapper = (id: number) => {
+  return useQuery<ResponseWrapper>({
+    queryKey: [RESPONSE_WRAPPERS_QUERY_KEY, id],
+    queryFn: () => ResponseWrapperService.getResponseWrapperById(id),
+    staleTime: 1 * 60 * 1000, // 1 minute
+    enabled: !!id,
+  });
+};
+
+export const useMutationResponseWrapper = () => {
+  const queryClient = useQueryClient();
+  const invalidateQueries = () => queryClient.invalidateQueries({ queryKey: [RESPONSE_WRAPPERS_QUERY_KEY] });
+
+  const createResponseWrapper = useMutation({ 
+    mutationFn: (data: Partial<ResponseWrapper>) => ResponseWrapperService.createResponseWrapper(data),
+    onSuccess: () => {
+      invalidateQueries();
+      toast.success("Response wrapper created successfully");
+    },
+  });
+
+  const updateResponseWrapper = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<ResponseWrapper> }) =>
+      ResponseWrapperService.updateResponseWrapper(id, data),
+    onSuccess: () => {
+      invalidateQueries();
+      toast.success("Response wrapper updated successfully");
+    },
+  });
+
+  const deleteResponseWrapper = useMutation({
+    mutationFn: (id: number) => ResponseWrapperService.deleteResponseWrapper(id),
+    onSuccess: () => {
+      invalidateQueries();
+      toast.success("Response wrapper deleted successfully");
+    },
+  });
+
+  return {
+    createResponseWrapper: createResponseWrapper.mutateAsync,
+    updateResponseWrapper: updateResponseWrapper.mutateAsync,
+    deleteResponseWrapper: deleteResponseWrapper.mutateAsync,
+    isPending: createResponseWrapper.isPending || updateResponseWrapper.isPending || deleteResponseWrapper.isPending,
+  }
 }
-
-export const useResponseWrapper = create<ResponseWrapperStore>((set, get) => ({ 
-    responseWrappers: [],
-    isLoading: false,
-    isMutating: false,
-    // TODO: make all fetch function of hook call automatically on load (can just apply tanstack lol)
-    fetchResponseWrappers: async () => {
-        try {
-            set({ isLoading: true });
-            const responseWrappers = await ResponseWrapperService.getAllResponseWrappers();
-            set({ responseWrappers });
-        } catch (error) {
-            console.error('Error fetching response wrappers:', error);
-            toast.error('Failed to fetch response wrappers');
-        } finally {
-            set({ isLoading: false });
-        }
-    },
-    
-    createResponseWrapper: async (data) => {
-        try {
-            set({ isMutating: true });
-            const responseWrapper = await ResponseWrapperService.createResponseWrapper(data);
-            set({ responseWrappers: [...get().responseWrappers, responseWrapper] });
-            toast.success('Response wrapper created successfully');
-        } catch (error) {
-            console.error('Error creating response wrapper:', error);
-            toast.error('Failed to create response wrapper');
-        } finally {
-            set({ isMutating: false });
-        }
-    },
-
-    updateResponseWrapper: async (id, data) => {
-        try {
-            set({ isMutating: true });
-            await ResponseWrapperService.updateResponseWrapper(id, data);
-            set((state) => ({
-                responseWrappers: state.responseWrappers.map((responseWrapper) => responseWrapper.id === id ? { ...responseWrapper, ...data } : responseWrapper)
-            }))
-            toast.success('Response wrapper updated successfully');
-        } catch (error) {
-            console.error('Error updating response wrapper:', error);
-            toast.error('Failed to update response wrapper');
-        } finally {
-            set({ isMutating: false });
-        }
-    },
-
-    deleteResponseWrapper: async (id) => {
-        try {
-            set({ isMutating: true });
-            await ResponseWrapperService.deleteResponseWrapper(id);
-            set((state) => ({ responseWrappers: state.responseWrappers.filter((responseWrapper) => responseWrapper.id !== id) }));
-            toast.success('Response wrapper deleted successfully');
-        } catch (error) {
-            console.error('Error deleting response wrapper:', error);
-            toast.error('Failed to delete response wrapper');
-        } finally {
-            set({ isMutating: false });
-        }
-    },
-}));
-  

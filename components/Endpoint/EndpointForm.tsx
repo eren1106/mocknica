@@ -15,12 +15,10 @@ import { useEffect, useMemo, useState } from "react";
 import { EndpointService } from "@/services/endpoint.service";
 import JsonEditor from "../json-editor";
 import { Switch } from "../ui/switch";
-import { useResponseWrapper } from "@/hooks/useResponseWrapper";
+import { useResponseWrappers } from "@/hooks/useResponseWrapper";
 import { Label } from "../ui/label";
 import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
-import {
-  useMutationEndpoint,
-} from "@/hooks/useEndpoint";
+import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
 
 const EndPointSchema = z.object({
@@ -59,15 +57,9 @@ export default function EndpointForm({
     !!endpoint?.responseWrapperId
   );
   const [isUseSchema, setIsUseSchema] = useState(!!endpoint?.schemaId);
-  const {
-    fetchResponseWrappers,
-    responseWrappers,
-    isLoading: isLoadingResponseWrapper,
-  } = useResponseWrapper();
 
-  useEffect(() => {
-    fetchResponseWrappers();
-  }, []);
+  const { data: responseWrappers, isLoading: isLoadingResponseWrapper } =
+    useResponseWrappers();
 
   const form = useZodForm(
     EndPointSchema,
@@ -152,7 +144,10 @@ export default function EndpointForm({
 
   const handleUseSchemaChange = (checked: boolean) => {
     if (checked) {
-      form.setValue("schemaId", endpoint?.schemaId || defaultSchemaId || undefined);
+      form.setValue(
+        "schemaId",
+        endpoint?.schemaId || defaultSchemaId || undefined
+      );
     }
     if (!checked) {
       form.setValue("schemaId", undefined);
@@ -182,11 +177,18 @@ export default function EndpointForm({
   const defaultWrapperId = useMemo(() => {
     if (
       (endpoint && endpoint.responseWrapperId) ||
-      responseWrappers.length === 0
+      responseWrappers?.length === 0
     )
       return undefined;
-    return responseWrappers[0].id;
+    return responseWrappers?.[0].id;
   }, [responseWrappers]);
+
+  const selectedWrapper = useMemo(() => {
+    if (!form.watch("responseWrapperId")) return undefined;
+    return responseWrappers?.find(
+      (wrapper) => wrapper.id === Number(form.watch("responseWrapperId"))
+    );
+  }, [form.watch("responseWrapperId"), responseWrappers]);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -246,10 +248,12 @@ export default function EndpointForm({
             name="schemaId"
             label="Schema"
             placeholder="Select schema"
-            options={schemas?.map((schema) => ({
-              value: schema.id.toString(),
-              label: schema.name,
-            })) || []}
+            options={
+              schemas?.map((schema) => ({
+                value: schema.id.toString(),
+                label: schema.name,
+              })) || []
+            }
             defaultValue={defaultSchemaId?.toString()}
             disabled={isLoadingSchema}
           />
@@ -343,24 +347,17 @@ export default function EndpointForm({
           name="responseWrapperId"
           label="Response Wrapper"
           placeholder="Select response wrapper"
-          options={responseWrappers.map((wrapper) => ({
-            value: wrapper.id.toString(),
-            label: wrapper.name,
-          }))}
+          options={
+            responseWrappers?.map((wrapper) => ({
+              value: wrapper.id.toString(),
+              label: wrapper.name,
+            })) || []
+          }
           defaultValue={defaultWrapperId?.toString()}
           disabled={isLoadingResponseWrapper}
         />
       )}
-      {isUseWrapper && (
-        <ResponseWrapperView
-          wrapper={
-            responseWrappers.find(
-              (wrapper) =>
-                wrapper.id === Number(form.watch("responseWrapperId"))
-            )!
-          }
-        />
-      )}
+      {(isUseWrapper && selectedWrapper) && <ResponseWrapperView wrapper={selectedWrapper} />}
 
       <FormButton isLoading={isMutatingEndpoint}>
         {endpoint ? "Update" : "Create"} Endpoint
