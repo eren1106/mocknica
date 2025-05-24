@@ -48,7 +48,7 @@ async function handleRequest(
   method: HttpMethod
 ) {
   try {
-    const fullPath = params?.path?.join("/");
+    const fullPath = `${params?.path?.join("/")}`;
 
     if (!fullPath) {
       return errorResponse(req, { message: "Invalid path", statusCode: 400 });
@@ -66,8 +66,8 @@ async function handleRequest(
     // let extractedId: string | null = null;
 
     for (const endpoint of endpoints) {
-      const endpointParts = endpoint.path.split("/");
-      const requestParts = fullPath.split("/");
+      const endpointParts = endpoint.path.split("/").filter((part) => part); // filter out empty strings
+      const requestParts = fullPath.split("/").filter((part) => part); // filter out empty strings
 
       if (endpointParts.length !== requestParts.length) continue;
 

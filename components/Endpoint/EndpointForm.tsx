@@ -208,6 +208,7 @@ export default function EndpointForm({
         name="description"
         label="Description"
         placeholder="API endpoint description"
+        optional
       />
 
       <div className="flex gap-4">
