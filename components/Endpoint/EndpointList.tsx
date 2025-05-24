@@ -10,7 +10,7 @@ import {
   AccordionTrigger,
 } from "../ui/accordion";
 import DeleteConfirmationDialog from "../delete-confirmation";
-import { formatJSON } from "@/lib/utils";
+import { cn, formatJSON } from "@/lib/utils";
 import { EndpointService } from "@/services/endpoint.service";
 import { useEndpoints, useMutationEndpoint } from "@/hooks/useEndpoint";
 import { Skeleton } from "../ui/skeleton";
@@ -28,6 +28,21 @@ export default function EndpointsList() {
     );
   }
 
+  const getMethodColor = (method: string) => {
+    switch (method) {
+      case "GET":
+        return "bg-green-500 dark:bg-green-600";
+      case "POST":
+        return "bg-yellow-500 dark:bg-yellow-600";
+      case "PUT":
+        return "bg-blue-500 dark:bg-blue-600";
+      case "DELETE":
+        return "bg-red-500 dark:bg-red-600";
+      default:
+        return "bg-muted";
+    }
+  };
+
   return (
     <div className="space-y-4">
       {(endpoints?.length ?? 0) < 1 ? (
@@ -39,7 +54,7 @@ export default function EndpointsList() {
             <AccordionItem value={endpoint.id} key={endpoint.id}>
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center gap-3">
-                  <p className="w-20 bg-secondary text-secondary-foreground p-2 rounded-[2px] font-semibold text-center">
+                  <p className={cn("w-20 p-2 rounded-[2px] font-semibold text-center text-white", getMethodColor(endpoint.method))}>
                     {endpoint.method}
                   </p>
                   <p>{endpoint.path}</p>
