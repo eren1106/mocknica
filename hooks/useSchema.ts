@@ -1,76 +1,52 @@
-import { Schema } from "@/models/schema.model";
-import { SchemaService } from "@/services/schema.service";
-import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
-import { toast } from "sonner";
-import { create } from "zustand";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { SchemaService } from '@/services/schema.service';
+import { Schema } from '@/models/schema.model';
+import { SchemaSchemaType } from '@/zod-schemas/schema.schema';
+import { toast } from 'sonner';
 
-interface SchemaStore {
-  schemas: Schema[];
-  isLoading: boolean;
-  isMutating: boolean;
-  fetchSchemas: () => Promise<void>;
-  createSchema: (data: SchemaSchemaType) => Promise<void>;
-  updateSchema: (id: number, data: SchemaSchemaType) => Promise<void>;
-  deleteSchema: (id: number) => Promise<void>;
-}
+const SCHEMAS_QUERY_KEY = 'schemas';
 
-export const useSchema = create<SchemaStore>((set, get) => ({
-  schemas: [],
-  isLoading: false,
-  isMutating: false,
+export const useSchemas = () => {
+  return useQuery<Schema[]>({
+    queryKey: [SCHEMAS_QUERY_KEY],
+    queryFn: SchemaService.getAllSchemas,
+    staleTime: 1 * 60 * 1000, // 1 minute
+  });
+};
 
-  fetchSchemas: async () => {
-    try {
-      set({ isLoading: true });
-      const schemas = await SchemaService.getAllSchemas();
-      set({ schemas });
-    } catch (error) {
-      console.error('Error fetching schemas:', error);
-      toast.error('Failed to fetch schemas');
-    } finally {
-      set({ isLoading: false });
-    }
-  },
+export const useMutationSchema = () => {
+  const queryClient = useQueryClient();
+  const invalidateQueries = () => queryClient.invalidateQueries({ queryKey: [SCHEMAS_QUERY_KEY] });
 
-  createSchema: async (data: SchemaSchemaType) => {
-    try {
-      set({ isMutating: true });
-      const newSchema = await SchemaService.createSchema(data);
-      set((state) => ({ schemas: [...state.schemas, newSchema] }));
-      toast.success('Schema created successfully');
-    } catch (error) {
-      console.error('Error creating schema:', error);
-      toast.error('Failed to create schema');
-    } finally {
-      set({ isMutating: false });
-    }
-  },
+  const createSchema = useMutation({ 
+    mutationFn: (data: SchemaSchemaType) => SchemaService.createSchema(data),
+    onSuccess: () => {
+      invalidateQueries();
+      toast.success("Schema created successfully");
+    },
+  });
 
-  updateSchema: async (id: number, data: SchemaSchemaType) => {
-    try {
-      set({ isMutating: true });
-      await SchemaService.updateSchema(id, data);
-      set((state) => ({ schemas: state.schemas.map((s) => (s.id === id ? { ...s, ...data } : s)) }));
-      toast.success('Schema updated successfully');
-    } catch (error) {
-      console.error('Error updating schema:', error);
-      toast.error('Failed to update schema');
-    } finally {
-      set({ isMutating: false });
-    }
-  },
+  const updateSchema = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: SchemaSchemaType }) =>
+      SchemaService.updateSchema(id, data),
+    onSuccess: () => {
+      invalidateQueries();
+      toast.success("Schema updated successfully");
+    },
+  });
 
-  deleteSchema: async (id: number) => {
-    try {
-      set({ isMutating: true });
-      await SchemaService.deleteSchema(id);
-      set((state) => ({ schemas: state.schemas.filter((s) => s.id !== id) }));
-      toast.success('Schema deleted successfully');
-    } catch (error) {
-      console.error('Error deleting schema:', error);
-      toast.error('Failed to delete schema');
-    } finally {
-      set({ isMutating: false });
-    }
+  const deleteSchema = useMutation({
+    mutationFn: (id: number) => SchemaService.deleteSchema(id),
+    onSuccess: () => {
+      invalidateQueries();
+      toast.success("Schema deleted successfully");
+    },
+  });
+
+  return {
+    createSchema: createSchema.mutateAsync,
+    updateSchema: updateSchema.mutateAsync,
+    deleteSchema: deleteSchema.mutateAsync,
+    isPending: createSchema.isPending || updateSchema.isPending || deleteSchema.isPending,
   }
-}))
+}

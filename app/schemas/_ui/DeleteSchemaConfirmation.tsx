@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useSchema } from "@/hooks/useSchema";
 import { toast } from "sonner";
+import { useMutationSchema } from "@/hooks/useSchema";
 
 interface DeleteSchemaConfirmationProps {
   id: number; // schema id
@@ -13,7 +13,7 @@ export default function DeleteSchemaConfirmation({
   id,
   onClose,
 }: DeleteSchemaConfirmationProps) {
-	const { deleteSchema, isMutating } = useSchema();
+	const { deleteSchema, isPending } = useMutationSchema();
 
 	const handleDeleteSchema = async () => {
 		try {
@@ -28,8 +28,8 @@ export default function DeleteSchemaConfirmation({
 
   return (
     <div className="flex gap-2 items-center justify-between">
-      <Button variant="secondary" onClick={onClose} disabled={isMutating}>Cancel</Button>
-      <Button variant="destructive" onClick={handleDeleteSchema} disabled={isMutating}>Delete</Button>
+      <Button variant="secondary" onClick={onClose} disabled={isPending}>Cancel</Button>
+      <Button variant="destructive" onClick={handleDeleteSchema} disabled={isPending}>Delete</Button>
     </div>
   );
 }

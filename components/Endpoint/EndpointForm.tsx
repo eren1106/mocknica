@@ -18,10 +18,10 @@ import { Switch } from "../ui/switch";
 import { useResponseWrapper } from "@/hooks/useResponseWrapper";
 import { Label } from "../ui/label";
 import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
-import { useSchema } from "@/hooks/useSchema";
 import {
   useMutationEndpoint,
 } from "@/hooks/useEndpoint";
+import { useSchemas } from "@/hooks/useSchema";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -52,7 +52,7 @@ export default function EndpointForm({
     updateEndpoint,
     isPending: isMutatingEndpoint,
   } = useMutationEndpoint();
-  const { fetchSchemas, schemas, isLoading: isLoadingSchema } = useSchema();
+  const { data: schemas, isLoading: isLoadingSchema } = useSchemas();
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUseWrapper, setIsUseWrapper] = useState(
@@ -66,7 +66,6 @@ export default function EndpointForm({
   } = useResponseWrapper();
 
   useEffect(() => {
-    fetchSchemas();
     fetchResponseWrappers();
   }, []);
 
@@ -175,9 +174,9 @@ export default function EndpointForm({
   };
 
   const defaultSchemaId = useMemo(() => {
-    if ((endpoint && endpoint.schemaId) || schemas.length === 0)
+    if ((endpoint && endpoint.schemaId) || schemas?.length === 0)
       return undefined;
-    return schemas[0].id;
+    return schemas?.[0].id;
   }, [schemas]);
 
   const defaultWrapperId = useMemo(() => {
@@ -247,10 +246,10 @@ export default function EndpointForm({
             name="schemaId"
             label="Schema"
             placeholder="Select schema"
-            options={schemas.map((schema) => ({
+            options={schemas?.map((schema) => ({
               value: schema.id.toString(),
               label: schema.name,
-            }))}
+            })) || []}
             defaultValue={defaultSchemaId?.toString()}
             disabled={isLoadingSchema}
           />

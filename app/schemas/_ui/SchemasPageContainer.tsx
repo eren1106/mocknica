@@ -1,26 +1,22 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSchema } from "@/hooks/useSchema";
 import { useEffect, useMemo, useState } from "react";
 import SchemaCard from "./SchemaCard";
 import DialogButton from "@/components/dialog-button";
 import SchemaForm from "@/components/schema/SchemaForm";
 import { Plus } from "lucide-react";
 import SearchBar from "@/components/searchbar";
+import { useSchemas } from "@/hooks/useSchema";
 
 const SchemasPageContainer = () => {
-  const { schemas, fetchSchemas, isLoading } = useSchema();
+  const { data: schemas, isLoading } = useSchemas();
   const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    fetchSchemas();
-  }, []);
-
   const filteredSchemas = useMemo(() => {
-    return schemas.filter((schema) => {
+    return schemas?.filter((schema) => {
       return schema.name.toLowerCase().includes(searchQuery.toLowerCase());
-    });
+    }) || [];
   }, [schemas, searchQuery]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

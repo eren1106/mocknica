@@ -72,6 +72,9 @@ export class SchemaData {
                         }
                     }
                 }
+            },
+            orderBy: {
+                name: "asc"
             }
         });
     }

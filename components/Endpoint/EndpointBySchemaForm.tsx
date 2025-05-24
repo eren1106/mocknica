@@ -8,14 +8,13 @@ import FormButton from "../form-button";
 import { useZodForm } from "@/hooks/useZodForm";
 import { Card } from "../ui/card";
 import { InfoIcon } from "lucide-react";
-import { useSchema } from "@/hooks/useSchema";
-import { EndpointService } from "@/services/endpoint.service";
 import { Switch } from "../ui/switch";
 import { useResponseWrapper } from "@/hooks/useResponseWrapper";
 import { Label } from "../ui/label";
 import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
 import { toast } from "sonner";
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
+import { useSchemas } from "@/hooks/useSchema";
 
 const EndpointBySchemaSchema = z.object({
   schemaId: z.coerce.number().min(1, "Schema is required"),
@@ -28,8 +27,8 @@ interface EndpointBySchemaFormProps {
 }
 
 const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
-  const { createEndpointsBySchema } = useMutationEndpoint();
-  const { schemas, fetchSchemas, isLoading: isLoadingSchema, isMutating } = useSchema();
+  const { createEndpointsBySchema, isPending } = useMutationEndpoint();
+  const { data: schemas, isLoading: isLoadingSchema } = useSchemas();
   const {
       fetchResponseWrappers,
       responseWrappers,
@@ -37,7 +36,6 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
     } = useResponseWrapper();
 
   useEffect(() => {
-    fetchSchemas();
     fetchResponseWrappers();
   }, []);
 
@@ -91,10 +89,10 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
         name="schemaId"
         label="Schema"
         placeholder="Select a schema"
-        options={schemas.map((schema) => ({
+        options={schemas?.map((schema) => ({
           value: schema.id.toString(),
           label: schema.name,
-        }))}
+        })) || []}
         disabled={isLoadingSchema}
       />
       <GenericFormField
@@ -163,7 +161,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
 				<InfoIcon className="size-5 text-muted-foreground" />
 				<p className="text-sm text-muted-foreground">You can modify the endpoint later.</p>
 			</Card>
-      <FormButton isLoading={isMutating}>Create Endpoint</FormButton>
+      <FormButton isLoading={isPending}>Create Endpoint</FormButton>
     </ZodForm>
   );
 };

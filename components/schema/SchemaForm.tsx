@@ -16,8 +16,8 @@ import { Button } from "../ui/button";
 import { Plus, X } from "lucide-react";
 import { SchemaField } from "@/models/schema-field.model";
 import { SchemaSchema, SchemaSchemaType } from "@/zod-schemas/schema.schema";
-import { useSchema } from "@/hooks/useSchema";
 import { Schema } from "@/models/schema.model";
+import { useMutationSchema, useSchemas } from "@/hooks/useSchema";
 
 const formFields = getZodFieldNames(SchemaSchema);
 interface SchemaFormProps {
@@ -25,7 +25,8 @@ interface SchemaFormProps {
   onSuccess?: () => void;
 }
 const SchemaForm = (props: SchemaFormProps) => {
-  const { schemas, createSchema, updateSchema, isMutating } = useSchema();
+  const { data: schemas } = useSchemas();
+  const { createSchema, updateSchema, isPending } = useMutationSchema();
 
   const form = useZodForm<SchemaSchemaType>(
     SchemaSchema,
@@ -58,19 +59,17 @@ const SchemaForm = (props: SchemaFormProps) => {
     console.log("DATA:", data);
     try {
       if (props.schema) {
-        await updateSchema(props.schema.id, data);
+        await updateSchema({
+          id: props.schema.id,
+          data,
+        });
       } else {
         await createSchema(data);
       }
       props.onSuccess?.();
     } catch (e) {
-      console.error(e);
+      console.log(e);
     }
-  };
-  const onError = (errors: any) => {
-    console.error("Validation errors:", errors);
-    const data = form.getValues(); // Retrieve all form values.
-    console.log("Form values:", data);
   };
 
   const fields = form.watch("fields") as SchemaField[];
@@ -113,7 +112,7 @@ const SchemaForm = (props: SchemaFormProps) => {
   };
 
   return (
-    <ZodForm form={form} onSubmit={onSubmit} onError={onError}>
+    <ZodForm form={form} onSubmit={onSubmit}>
       <GenericFormField
         type="input"
         name={formFields.name}
@@ -198,10 +197,10 @@ const SchemaForm = (props: SchemaFormProps) => {
                           label: "Empty Object",
                           value: "0",
                         },
-                        ...schemas.map((schema) => ({
+                        ...(schemas?.map((schema) => ({
                           label: schema.name,
                           value: schema.id.toString(),
-                        })),
+                        })) || []),
                       ]}
                       value={field.objectSchemaId?.toString()}
                       onChange={(value) => {
@@ -250,10 +249,10 @@ const SchemaForm = (props: SchemaFormProps) => {
                               label: "Empty Object",
                               value: "0",
                             },
-                            ...schemas.map((schema) => ({
+                            ...(schemas?.map((schema) => ({
                               label: schema.name,
                               value: schema.id.toString(),
-                            })),
+                            })) || []),
                           ]}
                           value={field.objectSchemaId?.toString()}
                           onChange={(value) => {
@@ -294,7 +293,7 @@ const SchemaForm = (props: SchemaFormProps) => {
       <Button size="icon" onClick={addField}>
         <Plus className="size-6" />
       </Button>
-      <FormButton isLoading={isMutating} disabled={isMutating}>
+      <FormButton isLoading={isPending} disabled={isPending}>
         Submit
       </FormButton>
     </ZodForm>
