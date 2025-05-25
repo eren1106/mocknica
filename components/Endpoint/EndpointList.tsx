@@ -69,6 +69,10 @@ export default function EndpointsList() {
                   </p>
                   <p>{endpoint.path}</p>
                   <p className="text-muted-foreground">{endpoint.name}</p>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="flex flex-col gap-2 border border-muted rounded-md p-4 border-t-0 rounded-t-none -mt-px">
+                <div className="flex items-center justify-end gap-2">
                   <DialogButton
                     content={(close) => (
                       <DeleteConfirmationDialog
@@ -79,7 +83,7 @@ export default function EndpointsList() {
                         isLoading={isMutatingEndpoints}
                       />
                     )}
-                    className="size-10 p-2 ml-auto"
+                    className="size-10 p-2"
                     variant="outline"
                   >
                     <Trash size={20} />
@@ -95,9 +99,7 @@ export default function EndpointsList() {
                     <Edit size={20} />
                   </DialogButton>
                 </div>
-              </AccordionTrigger>
-              <AccordionContent className="flex flex-col gap-2 border border-muted rounded-md p-4 border-t-0 rounded-t-none -mt-px">
-                <p>{endpoint.description}</p>
+                {endpoint.description && <p>{endpoint.description}</p>}
                 {
                   <>
                     {endpoint.schema && <p>Schema: {endpoint.schema.name}</p>}
