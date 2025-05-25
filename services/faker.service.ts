@@ -13,7 +13,7 @@ export class FakerService {
       
           // Internet
           case FakerType.EMAIL: return faker.internet.email();
-          case FakerType.USER_NAME: return faker.internet.userName();
+          case FakerType.USER_NAME: return faker.internet.username();
           case FakerType.PASSWORD: return faker.internet.password();
           case FakerType.URL: return faker.internet.url();
           case FakerType.IP_ADDRESS: return faker.internet.ip();

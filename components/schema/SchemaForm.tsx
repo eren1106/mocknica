@@ -30,30 +30,32 @@ const SchemaForm = (props: SchemaFormProps) => {
 
   const form = useZodForm<SchemaSchemaType>(
     SchemaSchema,
-    props.schema ? {
-      name: props.schema.name,
-      fields: props.schema.fields.map((field) => ({
-        name: field.name,
-        type: field.type,
-        idFieldType: field.idFieldType,
-        fakerType: field.fakerType,
-        objectSchemaId: field.objectSchemaId,
-        arrayType: field.arrayType
-      }))
-    } : {
-      name: "",
-      fields: [
-        {
-          name: "id",
-          type: SchemaFieldType.ID,
-          idFieldType: IdFieldType.AUTOINCREMENT,
-        },
-        {
-          name: "name",
-          type: SchemaFieldType.STRING,
-        },
-      ],
-    }
+    props.schema
+      ? {
+          name: props.schema.name,
+          fields: props.schema.fields.map((field) => ({
+            name: field.name,
+            type: field.type,
+            idFieldType: field.idFieldType,
+            fakerType: field.fakerType,
+            objectSchemaId: field.objectSchemaId,
+            arrayType: field.arrayType,
+          })),
+        }
+      : {
+          name: "",
+          fields: [
+            {
+              name: "id",
+              type: SchemaFieldType.ID,
+              idFieldType: IdFieldType.AUTOINCREMENT,
+            },
+            {
+              name: "name",
+              type: SchemaFieldType.STRING,
+            },
+          ],
+        }
   );
   const onSubmit = async (data: SchemaSchemaType) => {
     console.log("DATA:", data);
@@ -172,10 +174,12 @@ const SchemaForm = (props: SchemaFormProps) => {
                   {field.type === SchemaFieldType.FAKER && (
                     <DynamicSelect
                       options={
-                        Object.values(FakerType).map((type) => ({
-                          label: convertEnumToTitleCase(type),
-                          value: type,
-                        })) as any
+                        Object.values(FakerType)
+                          .map((type) => ({
+                            label: convertEnumToTitleCase(type),
+                            value: type,
+                          }))
+                          .sort((a, b) => a.label.localeCompare(b.label)) as any
                       }
                       value={`${field.fakerType}`}
                       onChange={(value) => {
