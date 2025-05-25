@@ -94,7 +94,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
         type="input"
         name="basePath"
         label="Base Path"
-        placeholder="data base path"
+        placeholder="/data"
       />
 
       {/* RESPONSE WRAPPER */}
@@ -128,21 +128,21 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
 
       <p className="text-sm">Preview:</p>
       <p className="text-sm">
-        <span className="font-medium text-primary mr-2">GET</span>/{basePath}
+        <span className="font-medium text-primary mr-2">GET</span>{basePath}
       </p>
       <p className="text-sm">
-        <span className="font-medium text-primary mr-2">GET</span>/{basePath}
+        <span className="font-medium text-primary mr-2">GET</span>{basePath}
         /:id
       </p>
       <p className="text-sm">
-        <span className="font-medium text-primary mr-2">POST</span>/{basePath}
+        <span className="font-medium text-primary mr-2">POST</span>{basePath}
       </p>
       <p className="text-sm">
-        <span className="font-medium text-primary mr-2">PUT</span>/{basePath}
+        <span className="font-medium text-primary mr-2">PUT</span>{basePath}
         /:id
       </p>
       <p className="text-sm">
-        <span className="font-medium text-primary mr-2">DELETE</span>/{basePath}
+        <span className="font-medium text-primary mr-2">DELETE</span>{basePath}
         /:id
       </p>
 

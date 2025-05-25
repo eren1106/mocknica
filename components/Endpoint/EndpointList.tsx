@@ -45,11 +45,11 @@ export default function EndpointsList() {
   };
 
   return (
-    <div className="space-y-4">
+    <div>
       {(endpoints?.length ?? 0) < 1 ? (
         <p className="text-muted-foreground">No endpoints available</p>
       ) : (
-        <Accordion type="multiple" className="w-full">
+        <Accordion type="multiple" className="w-full flex flex-col gap-2">
           {endpoints?.map((endpoint) => (
             // Endpoint Item
             <AccordionItem
