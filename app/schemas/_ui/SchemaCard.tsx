@@ -8,6 +8,8 @@ import { Edit, Trash } from "lucide-react";
 import DialogButton from "@/components/dialog-button";
 import SchemaForm from "@/components/schema/SchemaForm";
 import DeleteSchemaConfirmation from "./DeleteSchemaConfirmation";
+import { formatJSON } from "@/lib/utils";
+import { SchemaService } from "@/services/schema.service";
 
 const SchemaCard = ({ schema }: { schema: Schema }) => {
   return (
@@ -37,30 +39,37 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
           </DialogButton>
         </div>
       </CardHeader>
-      <CardContent>
-        {schema.fields.map((field, index) => (
-          <div className="flex items-center gap-2" key={index}>
-            <p>{field.name}</p>
-            <p>{field.type}</p>
-            {field.type === SchemaFieldType.ID && <p>{field.idFieldType}</p>}
-            {field.type === SchemaFieldType.FAKER && <p>{field.fakerType}</p>}
-            {field.type === SchemaFieldType.OBJECT && (
-              <p>{field.objectSchema ? field.objectSchema.name : "{}"}</p>
-            )}
-            {field.type === SchemaFieldType.ARRAY &&
-              field.arrayType?.elementType === SchemaFieldType.OBJECT && (
-                <p>
-                  {field.arrayType?.objectSchema
-                    ? field.arrayType.objectSchema.name
-                    : "{}"}
-                </p>
+      <CardContent className="flex flex-col gap-3">
+        <div>
+          {schema.fields.map((field, index) => (
+            <div className="flex items-center gap-2" key={index}>
+              <p>{field.name}</p>
+              <p>{field.type}</p>
+              {field.type === SchemaFieldType.ID && <p>{field.idFieldType}</p>}
+              {field.type === SchemaFieldType.FAKER && <p>{field.fakerType}</p>}
+              {field.type === SchemaFieldType.OBJECT && (
+                <p>{field.objectSchema ? field.objectSchema.name : "{}"}</p>
               )}
-            {field.type === SchemaFieldType.ARRAY &&
-              field.arrayType?.elementType === SchemaFieldType.FAKER && (
-                <p>{field.arrayType?.fakerType}</p>
-              )}
-          </div>
-        ))}
+              {field.type === SchemaFieldType.ARRAY &&
+                field.arrayType?.elementType === SchemaFieldType.OBJECT && (
+                  <p>
+                    {field.arrayType?.objectSchema
+                      ? field.arrayType.objectSchema.name
+                      : "{}"}
+                  </p>
+                )}
+              {field.type === SchemaFieldType.ARRAY &&
+                field.arrayType?.elementType === SchemaFieldType.FAKER && (
+                  <p>{field.arrayType?.fakerType}</p>
+                )}
+            </div>
+          ))}
+        </div>
+        <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
+          <code className="">
+            {formatJSON(SchemaService.generateResponseFromSchema(schema))}
+          </code>
+        </pre>
       </CardContent>
     </Card>
   );

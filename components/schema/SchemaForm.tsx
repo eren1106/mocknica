@@ -114,7 +114,7 @@ const SchemaForm = (props: SchemaFormProps) => {
   };
 
   return (
-    <ZodForm form={form} onSubmit={onSubmit}>
+    <ZodForm form={form} onSubmit={onSubmit} className="min-w-[36rem]">
       <GenericFormField
         type="input"
         name={formFields.name}
@@ -258,7 +258,7 @@ const SchemaForm = (props: SchemaFormProps) => {
                               value: schema.id.toString(),
                             })) || []),
                           ]}
-                          value={field.objectSchemaId?.toString()}
+                          value={field.arrayType?.objectSchemaId?.toString()}
                           onChange={(value) => {
                             const currentFields = form.getValues("fields");
                             const updatedFields = [...currentFields];

@@ -41,7 +41,7 @@ const SchemasPageContainer = () => {
         <DialogButton
           content={(close) => <SchemaForm onSuccess={close} />}
           className="w-fit"
-          contentClassName="min-w-[40rem]"
+          // contentClassName="min-w-[40rem]"
           title="Create Schema"
           description="Create a new schema"
         >
@@ -52,7 +52,7 @@ const SchemasPageContainer = () => {
       {isLoading ? (
         <Skeleton className="h-10" />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredSchemas.map((schema) => (
             <SchemaCard key={schema.id} schema={schema} />
           ))}

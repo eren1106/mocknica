@@ -67,7 +67,7 @@ const DialogButton = ({
           {children}
         </Button>
       </DialogTrigger>
-      <DialogContent className={cn("p-0", contentClassName)}>
+      <DialogContent className={cn("p-0 w-fit max-w-[90vw] min-w-[30rem]", contentClassName)}>
         {/* the dialog content need dialog title component no matter what */}
         {!title && <DialogTitle className="hidden"/>}
 
