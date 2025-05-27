@@ -71,7 +71,7 @@ export default function EndpointsList() {
                   <p className="text-muted-foreground">{endpoint.name}</p>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="flex flex-col gap-2 border border-muted rounded-md p-4 border-t-0 rounded-t-none -mt-px">
+              <AccordionContent className="flex flex-col gap-2 border border-muted rounded-md p-4 pt-0 border-t-0 rounded-t-none -mt-px">
                 <div className="flex items-center justify-end gap-2">
                   <DialogButton
                     content={(close) => (
@@ -99,7 +99,7 @@ export default function EndpointsList() {
                     <Edit size={20} />
                   </DialogButton>
                 </div>
-                {endpoint.description && <p>{endpoint.description}</p>}
+                {endpoint.description && <p className="text-muted-foreground">{endpoint.description}</p>}
                 {
                   <>
                     {endpoint.schema && <p>Schema: {endpoint.schema.name}</p>}
