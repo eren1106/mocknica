@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 import Topbar from "@/components/layout/Topbar";
 import Sidebar from "@/components/layout/Sidebar";
 import QueryProvider from "@/components/providers/query-povider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,22 +40,20 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {/* <Topbar />
-          <main>
-            {children}
-          </main> */}
-            <div className="flex">
-              <div className="w-[--sidebar-width] fixed h-screen border-r hidden md:block">
-                <Sidebar />
-              </div>
-              <div className="flex flex-col ml-0 md:ml-[--sidebar-width] w-full">
-                <Topbar />
-                <div className="flex-1 flex flex-col items-center pt-16">
-                  <main className="container p-6">{children}</main>
+            <TooltipProvider>
+              <div className="flex">
+                <div className="w-[--sidebar-width] fixed h-screen border-r hidden md:block">
+                  <Sidebar />
+                </div>
+                <div className="flex flex-col ml-0 md:ml-[--sidebar-width] w-full">
+                  <Topbar />
+                  <div className="flex-1 flex flex-col items-center pt-16">
+                    <main className="container p-6">{children}</main>
+                  </div>
                 </div>
               </div>
-            </div>
-            <Toaster />
+              <Toaster />
+            </TooltipProvider>
           </ThemeProvider>
         </QueryProvider>
       </body>

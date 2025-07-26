@@ -7,9 +7,11 @@ import { SchemaFieldType } from "@prisma/client";
 import { Edit, Trash } from "lucide-react";
 import DialogButton from "@/components/dialog-button";
 import SchemaForm from "@/components/schema/SchemaForm";
+import SchemaTooltip from "./SchemaTooltip";
 import DeleteSchemaConfirmation from "./DeleteSchemaConfirmation";
-import { formatJSON } from "@/lib/utils";
+import { convertEnumToTitleCase, formatJSON } from "@/lib/utils";
 import { SchemaService } from "@/services/schema.service";
+import { Badge } from "@/components/ui/badge";
 
 const SchemaCard = ({ schema }: { schema: Schema }) => {
   return (
@@ -44,20 +46,32 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
           {schema.fields.map((field, index) => (
             <div className="flex items-center gap-2" key={index}>
               <p>{field.name}</p>
-              <p>{field.type}</p>
-              {field.type === SchemaFieldType.ID && <p>{field.idFieldType}</p>}
-              {field.type === SchemaFieldType.FAKER && <p>{field.fakerType}</p>}
-              {field.type === SchemaFieldType.OBJECT && (
-                <p>{field.objectSchema ? field.objectSchema.name : "{}"}</p>
+              <Badge variant="secondary">
+                {convertEnumToTitleCase(field.type)}
+              </Badge>
+              {field.type === SchemaFieldType.ID && field.idFieldType && (
+                <Badge variant="secondary">
+                  {convertEnumToTitleCase(field.idFieldType)}
+                </Badge>
               )}
+              {field.type === SchemaFieldType.FAKER && field.fakerType && (
+                <Badge variant="secondary">
+                  {convertEnumToTitleCase(field.fakerType)}
+                </Badge>
+              )}
+              {field.type === SchemaFieldType.OBJECT &&
+                (field.objectSchema ? (
+                  <SchemaTooltip objectSchema={field.objectSchema} />
+                ) : (
+                  <Badge variant="secondary">{"{}"}</Badge>
+                ))}
               {field.type === SchemaFieldType.ARRAY &&
-                field.arrayType?.elementType === SchemaFieldType.OBJECT && (
-                  <p>
-                    {field.arrayType?.objectSchema
-                      ? field.arrayType.objectSchema.name
-                      : "{}"}
-                  </p>
-                )}
+                field.arrayType?.elementType === SchemaFieldType.OBJECT &&
+                (field.arrayType?.objectSchema ? (
+                  <SchemaTooltip objectSchema={field.arrayType.objectSchema} />
+                ) : (
+                  <Badge variant="secondary">{"{}"}</Badge>
+                ))}
               {field.type === SchemaFieldType.ARRAY &&
                 field.arrayType?.elementType === SchemaFieldType.FAKER && (
                   <p>{field.arrayType?.fakerType}</p>

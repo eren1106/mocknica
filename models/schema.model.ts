@@ -4,10 +4,18 @@ export type Schema = Prisma.SchemaGetPayload<{
     include: { 
       fields: {
         include: {
-          objectSchema: true;
+          objectSchema: {
+            include: {
+              fields: true;
+            }
+          };
           arrayType: {
             include: {
-              objectSchema: true;
+              objectSchema: {
+                include: {
+                  fields: true;
+                }
+              };
             }
           }
         }

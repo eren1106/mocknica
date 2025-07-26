@@ -29,10 +29,18 @@ export class SchemaData {
             include: {
                 fields: {
                     include: {
-                        objectSchema: true,
+                        objectSchema: {
+                            include: {
+                                fields: true
+                            }
+                        },
                         arrayType: {
                             include: {
-                                objectSchema: true
+                                objectSchema: {
+                                    include: {
+                                        fields: true
+                                    }
+                                }
                             }
                         }
                     }
@@ -47,10 +55,18 @@ export class SchemaData {
             include: {
                 fields: {
                     include: {
-                        objectSchema: true,
+                        objectSchema: {
+                            include: {
+                                fields: true
+                            }
+                        },
                         arrayType: {
                             include: {
-                                objectSchema: true
+                                objectSchema: {
+                                    include: {
+                                        fields: true
+                                    }
+                                }
                             }
                         }
                     }
@@ -64,10 +80,18 @@ export class SchemaData {
             include: {
                 fields: {
                     include: {
-                        objectSchema: true,
+                        objectSchema: {
+                            include: {
+                                fields: true
+                            }
+                        },
                         arrayType: {
                             include: {
-                                objectSchema: true
+                                objectSchema: {
+                                    include: {
+                                        fields: true
+                                    }
+                                }
                             }
                         }
                     }
@@ -110,10 +134,18 @@ export class SchemaData {
             include: {
                 fields: {
                     include: {
-                        objectSchema: true,
+                        objectSchema: {
+                            include: {
+                                fields: true
+                            }
+                        },
                         arrayType: {
                             include: {
-                                objectSchema: true
+                                objectSchema: {
+                                    include: {
+                                        fields: true
+                                    }
+                                }
                             }
                         }
                     }

@@ -34,6 +34,9 @@ export function convertFirstLetterToUpperCase(input: string): string {
 }
 
 export function convertEnumToTitleCase(input: string): string {
+  const noNeedConvertList = ["ID","UUID"];
+  if (noNeedConvertList.includes(input)) return input;
+
   return input
       .toLowerCase()                 // Convert the string to lowercase
       .split('_')                    // Split by underscores
