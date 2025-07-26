@@ -4,10 +4,7 @@ import { ModeToggle } from "../mode-toggle";
 
 const Topbar = () => {
   return (
-    // <div className="p-3 border-b text-">
-    //   <Link href="/" className="text-xl font-bold text">MockA</Link>
-    // </div>
-    <div className="w-full md:w-[calc(100vw-var(--sidebar-width))] fixed top-0 z-50 h-[--topbar-height] border-b bg-card flex px-6 items-center gap-3">
+    <div className="w-full md:w-[calc(100vw-var(--sidebar-width))] fixed top-0 z-50 h-[--topbar-height] border-b flex px-6 items-center gap-3"> {/* INTERESTING ISSUE: if put bg-card here, the progressbar will have weird behavior (it will load with width of 100vw + sidebar width, which stop at the sidebar border) */}
       <SidebarSheet />
       <div className="flex items-center gap-3">
         <span className="hidden sm:block">API endpoint:</span>

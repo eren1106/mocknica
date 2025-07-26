@@ -33,7 +33,7 @@ const Sidebar = (props: SidebarProps) => {
       <div className="flex justify-between mt-3 mb-5 items-center flex-wrap gap-3">
         <div className="flex gap-3 items-center">
           {/* <NextImage src={APP_LOGO} alt="app logo" className="size-12" /> */}
-          <Link href="/dashboard">
+          <Link href="/">
             <h1>MockA</h1>
           </Link>
         </div>
