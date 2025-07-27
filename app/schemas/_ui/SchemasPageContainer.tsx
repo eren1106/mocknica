@@ -41,9 +41,7 @@ const SchemasPageContainer = () => {
         <DialogButton
           content={(close) => <SchemaForm onSuccess={close} />}
           className="w-fit"
-          // contentClassName="min-w-[40rem]"
           title="Create Schema"
-          description="Create a new schema"
         >
           <Plus className="size-6 mr-2" />
           Create Schema

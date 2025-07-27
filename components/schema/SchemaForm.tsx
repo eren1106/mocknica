@@ -13,11 +13,14 @@ import { FakerType, IdFieldType, SchemaFieldType } from "@prisma/client";
 import { Input } from "../ui/input";
 import DynamicSelect from "../dynamic-select";
 import { Button } from "../ui/button";
-import { Plus, X } from "lucide-react";
+import { Plus, Sparkles, X } from "lucide-react";
 import { SchemaField } from "@/models/schema-field.model";
 import { SchemaSchema, SchemaSchemaType } from "@/zod-schemas/schema.schema";
 import { Schema } from "@/models/schema.model";
 import { useMutationSchema, useSchemas } from "@/hooks/useSchema";
+import DialogButton from "../dialog-button";
+import AutoResizeTextarea from "../auto-resize-textarea";
+import { AIService } from "@/services/ai.service";
 
 const formFields = getZodFieldNames(SchemaSchema);
 interface SchemaFormProps {
@@ -111,6 +114,26 @@ const SchemaForm = (props: SchemaFormProps) => {
     const updatedFields = [...currentFields];
     updatedFields[index] = { ...updatedFields[index], type: newType };
     form.setValue("fields", updatedFields);
+  };
+
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setAiPrompt(e.target.value);
+  };
+
+  const handleGenerateSchemaByAI = async (close: () => void) => {
+    setIsGenerating(true);
+    try {
+      const response = await AIService.generateSchemaByAI(aiPrompt);
+      form.setValue("fields", response);
+      close();
+    } catch (error) {
+      console.error("Error generating response:", error);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -297,6 +320,41 @@ const SchemaForm = (props: SchemaFormProps) => {
       <Button size="icon" onClick={addField}>
         <Plus className="size-6" />
       </Button>
+      <DialogButton
+        variant="secondary"
+        size="sm"
+        className="flex items-center gap-2 rounded-full"
+        title="Generate Response with AI"
+        description="Describe the response you want to generate"
+        content={(close) => (
+          <div className="flex flex-col gap-4">
+            <AutoResizeTextarea
+              placeholder="Generate a user profile response with fields for id, name, email, role, and status"
+              minRows={5}
+              value={aiPrompt}
+              onChange={handlePromptChange}
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => close()}
+                disabled={isGenerating}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => handleGenerateSchemaByAI(close)}
+                disabled={isGenerating}
+              >
+                {isGenerating ? "Generating..." : "Generate"}
+              </Button>
+            </div>
+          </div>
+        )}
+      >
+        <Sparkles size={16} />
+        Generate with AI
+      </DialogButton>
       <FormButton isLoading={isPending} disabled={isPending}>
         Submit
       </FormButton>

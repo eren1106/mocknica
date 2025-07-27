@@ -23,11 +23,6 @@ export class EndpointService {
     return res.data;
   }
 
-  static async generateResponseByAI(prompt: string): Promise<any> {
-    const res = await apiRequest.post("generate-response-ai", { prompt });
-    return res.data;
-  }
-
   static async updateEndpoint(
     id: string,
     data: Partial<Endpoint>

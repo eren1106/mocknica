@@ -11,8 +11,7 @@ import { Button } from "../ui/button";
 import { Sparkles } from "lucide-react";
 import DialogButton from "../dialog-button";
 import AutoResizeTextarea from "../auto-resize-textarea";
-import { useEffect, useMemo, useState } from "react";
-import { EndpointService } from "@/services/endpoint.service";
+import { useMemo, useState } from "react";
 import JsonEditor from "../json-editor";
 import { Switch } from "../ui/switch";
 import { useResponseWrappers } from "@/hooks/useResponseWrapper";
@@ -20,6 +19,7 @@ import { Label } from "../ui/label";
 import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
+import { AIService } from "@/services/ai.service";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -131,7 +131,7 @@ export default function EndpointForm({
   const handleGenerateResponseByAI = async (callback: () => void) => {
     setIsGenerating(true);
     try {
-      const res = await EndpointService.generateResponseByAI(aiPrompt);
+      const res = await AIService.generateResponseByAI(aiPrompt);
       form.setValue("staticResponse", JSON.stringify(res, undefined, 4));
     } catch (error) {
       console.error("Error generating response:", error);

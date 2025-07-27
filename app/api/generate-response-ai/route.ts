@@ -1,11 +1,6 @@
 import { apiResponse, errorResponse } from "../_helpers/api-response";
 import { NextRequest } from "next/server";
-import { Ollama } from "ollama";
-
-// Initialize the Ollama client
-const ollama = new Ollama({
-  host: process.env.OLLAMA_HOST || "http://localhost:11434",
-});
+import ollama from "@/lib/ollama";
 
 export async function POST(req: NextRequest) {
   try {
