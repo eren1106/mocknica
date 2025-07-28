@@ -11,7 +11,7 @@ import { InfoIcon } from "lucide-react";
 import { Switch } from "../ui/switch";
 import { useResponseWrappers } from "@/hooks/useResponseWrapper";
 import { Label } from "../ui/label";
-import ResponseWrapperView from "@/app/response-wrapper/_ui/ResponseWrapperView";
+import ResponseWrapperView from "@/app/(main)/response-wrapper/_ui/ResponseWrapperView";
 import { toast } from "sonner";
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
