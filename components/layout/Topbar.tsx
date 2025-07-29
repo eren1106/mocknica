@@ -1,10 +1,11 @@
 import Link from "next/link";
 import SidebarSheet from "./SidebarSheet";
-import { ModeToggle } from "../mode-toggle";
+import { UserNav } from "../user-nav";
 
 const Topbar = () => {
   return (
-    <div className="w-full md:w-[calc(100vw-var(--sidebar-width))] fixed top-0 z-50 h-[--topbar-height] border-b flex px-6 items-center gap-3"> {/* INTERESTING ISSUE: if put bg-card here, the progressbar will have weird behavior (it will load with width of 100vw + sidebar width, which stop at the sidebar border) */}
+    // INTERESTING ISSUE: if put bg-card here, the progressbar will have weird behavior (it will load with width of 100vw + sidebar width, which stop at the sidebar border)
+    <div className="bg-card w-full md:w-[calc(100vw-var(--sidebar-width))] fixed top-0 z-50 h-[--topbar-height] border-b flex px-6 items-center gap-3">
       <SidebarSheet />
       <div className="flex items-center gap-3">
         <span className="hidden sm:block">API endpoint:</span>
@@ -16,7 +17,9 @@ const Topbar = () => {
           {`${process.env.NEXT_PUBLIC_APP_URL}/api/mock/:endpoint`}
         </Link>
       </div>
-      <ModeToggle className="ml-auto"/>
+      <div className="ml-auto">
+        <UserNav />
+      </div>
     </div>
   );
 };
