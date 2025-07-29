@@ -12,37 +12,39 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { FaGoogle } from "react-icons/fa6"
-import { signIn } from "@/lib/auth-client"
+import { signUp, signIn } from "@/lib/auth-client"
 import { useState } from "react"
 import { toast } from "sonner"
 
-export function LoginForm({
+export function SignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
+  const handleEmailSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
-      const result = await signIn.email({
+      const result = await signUp.email({
         email,
         password,
+        name,
       })
 
       if (result.error) {
         toast.error(result.error.message)
       } else {
-        toast.success("Signed in successfully!")
+        toast.success("Account created successfully!")
         // Redirect to main page or wherever you want
         window.location.href = "/"
       }
     } catch (error) {
-      toast.error("An error occurred during sign in")
+      toast.error("An error occurred during sign up")
     } finally {
       setIsLoading(false)
     }
@@ -56,21 +58,22 @@ export function LoginForm({
         callbackURL: "/", // Where to redirect after successful sign in
       })
     } catch (error) {
-      toast.error("An error occurred during Google sign in")
+      toast.error("An error occurred during Google sign up")
       setIsLoading(false)
     }
   }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
-          {/* <CardDescription>
-            Login with your Apple or Google account
-          </CardDescription> */}
+          <CardTitle className="text-xl">Create an account</CardTitle>
+          <CardDescription>
+            Enter your information to create an account
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleEmailSignIn}>
+          <form onSubmit={handleEmailSignUp}>
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
                 <Button 
@@ -81,7 +84,7 @@ export function LoginForm({
                   disabled={isLoading}
                 >
                   <FaGoogle />
-                  Login with Google
+                  Sign up with Google
                 </Button>
               </div>
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
@@ -90,6 +93,18 @@ export function LoginForm({
                 </span>
               </div>
               <div className="grid gap-6">
+                <div className="grid gap-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    disabled={isLoading}
+                  />
+                </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -103,15 +118,7 @@ export function LoginForm({
                   />
                 </div>
                 <div className="grid gap-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Password</Label>
-                    <a
-                      href="#"
-                      className="ml-auto text-sm underline-offset-4 hover:underline"
-                    >
-                      Forgot your password?
-                    </a>
-                  </div>
+                  <Label htmlFor="password">Password</Label>
                   <Input 
                     id="password" 
                     type="password" 
@@ -119,16 +126,17 @@ export function LoginForm({
                     onChange={(e) => setPassword(e.target.value)}
                     required 
                     disabled={isLoading}
+                    minLength={6}
                   />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Login"}
+                  {isLoading ? "Creating account..." : "Create account"}
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <a href="/signup" className="underline underline-offset-4">
-                  Sign up
+                Already have an account?{" "}
+                <a href="/login" className="underline underline-offset-4">
+                  Sign in
                 </a>
               </div>
             </div>
