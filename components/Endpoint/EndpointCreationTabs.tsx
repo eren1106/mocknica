@@ -4,14 +4,15 @@ import EndpointForm from "./EndpointForm"
 
 interface EndpointCreationTabsProps {
   onSuccess: () => void;
+  projectId?: string;
 }
 
-const EndpointCreationTabs = ({ onSuccess }: EndpointCreationTabsProps) => {
+const EndpointCreationTabs = ({ onSuccess, projectId }: EndpointCreationTabsProps) => {
   return (
     <DynamicTabs
       tabs={[
-        { value: "custom", label: "Custom", content: <EndpointForm onSuccess={onSuccess} /> },
-        { value: "create-by-schema", label: "Create by Schema", content: <EndpointBySchemaForm onSuccess={onSuccess} /> },
+        { value: "custom", label: "Custom", content: <EndpointForm onSuccess={onSuccess} projectId={projectId} /> },
+        { value: "create-by-schema", label: "Create by Schema", content: <EndpointBySchemaForm onSuccess={onSuccess} projectId={projectId} /> },
       ]}
     />
   )

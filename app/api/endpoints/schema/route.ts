@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
             schemaId,
             basePath,
             responseWrapperId,
+            projectId,
         } = await req.json();
         // create GET, GET/:id, POST, PUT, DELETE endpoints
         const get = await EndpointData.createEndpoint({
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
             numberOfData: 3,
             staticResponse: null,
             responseWrapperId,
+            projectId,
         });
         const getById = await EndpointData.createEndpoint({
             name: `GET ${basePath}/:id`,
@@ -32,6 +34,7 @@ export async function POST(req: NextRequest) {
             numberOfData: null,
             staticResponse: null,
             responseWrapperId,
+            projectId,
         });
         const post = await EndpointData.createEndpoint({
             name: `POST ${basePath}`,
@@ -43,6 +46,7 @@ export async function POST(req: NextRequest) {
             numberOfData: null,
             staticResponse: null,
             responseWrapperId,
+            projectId,
         });
         const putById = await EndpointData.createEndpoint({
             name: `PUT ${basePath}/:id`,
@@ -54,6 +58,7 @@ export async function POST(req: NextRequest) {
             numberOfData: null,
             staticResponse: null,
             responseWrapperId,
+            projectId,
         });
         const deleteById = await EndpointData.createEndpoint({
             name: `DELETE ${basePath}/:id`,
@@ -65,6 +70,7 @@ export async function POST(req: NextRequest) {
             numberOfData: null,
             staticResponse: null,
             responseWrapperId,
+            projectId,
         });
         return apiResponse(req, { data: [get, getById, post, putById, deleteById] });
       } catch (error) {

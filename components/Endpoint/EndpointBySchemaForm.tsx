@@ -23,15 +23,17 @@ const EndpointBySchemaSchema = z.object({
     z.coerce.number().int().positive(),
     z.literal(undefined),
   ]),
+  projectId: z.string().min(1, "Project is required"),
 });
 
 interface EndpointBySchemaFormProps {
   onSuccess?: () => void;
+  projectId?: string;
 }
 
-const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
+const EndpointBySchemaForm = ({ onSuccess, projectId }: EndpointBySchemaFormProps) => {
   const { createEndpointsBySchema, isPending } = useMutationEndpoint();
-  const { data: schemas, isLoading: isLoadingSchema } = useSchemas();
+  const { data: schemas, isLoading: isLoadingSchema } = useSchemas(projectId);
   const { data: responseWrappers, isLoading: isLoadingResponseWrapper } =
     useResponseWrappers();
 
@@ -40,6 +42,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
   const form = useZodForm(EndpointBySchemaSchema, {
     // schemaId: 1,
     basePath: "data",
+    projectId: projectId || "",
   });
 
   const onSubmit = async (data: z.infer<typeof EndpointBySchemaSchema>) => {

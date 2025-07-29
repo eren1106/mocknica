@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
 
 export class EndpointData {
   static async createEndpoint(data: Omit<EndpointPrisma, "id" | "updatedAt" | "createdAt">): Promise<EndpointPrisma> {
-    const { schemaId, responseWrapperId, staticResponse, ...restData } = data;
+    const { schemaId, responseWrapperId, staticResponse, projectId, ...restData } = data;
     
     return prisma.endpoint.create({
       data: {
@@ -16,6 +16,7 @@ export class EndpointData {
             connect: { id: responseWrapperId },
           },
         }),
+        project: { connect: { id: projectId } },
         staticResponse: staticResponse === null 
         ? Prisma.JsonNull 
         : staticResponse as Prisma.InputJsonValue,
@@ -96,7 +97,7 @@ export class EndpointData {
     id: string,
     data: Partial<EndpointPrisma>
   ): Promise<EndpointPrisma> {
-    const { schemaId, responseWrapperId, staticResponse, ...restData } = data;
+    const { schemaId, responseWrapperId, staticResponse, projectId, ...restData } = data;
     
     return prisma.endpoint.update({
       where: {
@@ -110,6 +111,7 @@ export class EndpointData {
             connect: { id: responseWrapperId },
           },
         }),
+        ...(projectId && { project: { connect: { id: projectId } } }),
         staticResponse: staticResponse === null 
         ? Prisma.JsonNull 
         : staticResponse as Prisma.InputJsonValue,

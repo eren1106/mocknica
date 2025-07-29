@@ -9,8 +9,12 @@ import { Plus } from "lucide-react";
 import SearchBar from "@/components/searchbar";
 import { useSchemas } from "@/hooks/useSchema";
 
-const SchemasPageContainer = () => {
-  const { data: schemas, isLoading } = useSchemas();
+interface SchemasPageContainerProps {
+  projectId?: string;
+}
+
+const SchemasPageContainer = ({ projectId }: SchemasPageContainerProps) => {
+  const { data: schemas, isLoading } = useSchemas(projectId);
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredSchemas = useMemo(() => {
@@ -39,7 +43,7 @@ const SchemasPageContainer = () => {
           onClear={handleClearSearch}
         />
         <DialogButton
-          content={(close) => <SchemaForm onSuccess={close} />}
+          content={(close) => <SchemaForm onSuccess={close} projectId={projectId} />}
           className="w-fit"
           title="Create Schema"
         >

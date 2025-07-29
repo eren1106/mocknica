@@ -4,7 +4,9 @@ import { SchemaData } from "@/data/schema.data";
 
 export async function GET(req: NextRequest) {
   try {
-    const schemas = await SchemaData.getAllSchemas();
+    const { searchParams } = new URL(req.url);
+    const projectId = searchParams.get('projectId');
+    const schemas = await SchemaData.getAllSchemas(projectId || undefined);
     return apiResponse(req, { data: schemas });
   } catch (error) {
     return errorResponse(req, { error });
