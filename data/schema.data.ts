@@ -4,10 +4,11 @@ import { SchemaField } from '@prisma/client';
 import { SchemaSchemaType } from '@/zod-schemas/schema.schema';
 
 export class SchemaData {
-    static async createSchema(data: SchemaSchemaType): Promise<Schema> {
+    static async createSchema(data: SchemaSchemaType & { projectId?: string }): Promise<Schema> {
         return prisma.schema.create({
             data: {
                 name: data.name,
+                ...(data.projectId && { project: { connect: { id: data.projectId } } }),
                 fields: {
                     create: data.fields.map(field => ({
                         name: field.name,
@@ -75,8 +76,9 @@ export class SchemaData {
         });
     }
 
-    static async getAllSchemas(): Promise<Schema[]> {
+    static async getAllSchemas(projectId?: string): Promise<Schema[]> {
         return prisma.schema.findMany({
+            where: projectId ? { projectId } : undefined,
             include: {
                 fields: {
                     include: {

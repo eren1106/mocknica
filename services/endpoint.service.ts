@@ -4,8 +4,9 @@ import { ResponseWrapperService } from "./response-wrapper.service";
 import { SchemaService } from "./schema.service";
 
 export class EndpointService {
-  static async getAllEndpoints(): Promise<Endpoint[]> {
-    const res = await apiRequest.get("endpoints");
+  static async getAllEndpoints(projectId?: string): Promise<Endpoint[]> {
+    const url = projectId ? `endpoints?projectId=${projectId}` : "endpoints";
+    const res = await apiRequest.get(url);
     return res.data;
   }
 

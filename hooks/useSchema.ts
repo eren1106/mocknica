@@ -6,10 +6,10 @@ import { toast } from 'sonner';
 
 const SCHEMAS_QUERY_KEY = 'schemas';
 
-export const useSchemas = () => {
+export const useSchemas = (projectId?: string) => {
   return useQuery<Schema[]>({
-    queryKey: [SCHEMAS_QUERY_KEY],
-    queryFn: SchemaService.getAllSchemas,
+    queryKey: [SCHEMAS_QUERY_KEY, projectId],
+    queryFn: () => SchemaService.getAllSchemas(projectId),
     staleTime: 1 * 60 * 1000, // 1 minute
   });
 };
@@ -19,7 +19,7 @@ export const useMutationSchema = () => {
   const invalidateQueries = () => queryClient.invalidateQueries({ queryKey: [SCHEMAS_QUERY_KEY] });
 
   const createSchema = useMutation({ 
-    mutationFn: (data: SchemaSchemaType) => SchemaService.createSchema(data),
+    mutationFn: (data: SchemaSchemaType & { projectId?: string }) => SchemaService.createSchema(data),
     onSuccess: () => {
       invalidateQueries();
       toast.success("Schema created successfully");

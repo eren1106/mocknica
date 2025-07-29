@@ -16,7 +16,11 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const endpoints = await EndpointData.getEndpoints();
+    const { searchParams } = new URL(req.url);
+    const projectId = searchParams.get('projectId');
+    
+    const where = projectId ? { projectId } : undefined;
+    const endpoints = await EndpointData.getEndpoints({ where });
     return apiResponse(req, { data: endpoints });
   } catch (error) {
     console.error('Error fetching endpoints:', error);

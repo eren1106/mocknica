@@ -15,8 +15,12 @@ import { EndpointService } from "@/services/endpoint.service";
 import { useEndpoints, useMutationEndpoint } from "@/hooks/useEndpoint";
 import { Skeleton } from "../ui/skeleton";
 
-export default function EndpointsList() {
-  const { data: endpoints, isLoading: isLoadingEndpoints } = useEndpoints();
+interface EndpointsListProps {
+  projectId?: string;
+}
+
+export default function EndpointsList({ projectId }: EndpointsListProps) {
+  const { data: endpoints, isLoading: isLoadingEndpoints } = useEndpoints(projectId);
   const { deleteEndpoint, isPending: isMutatingEndpoints } =
     useMutationEndpoint();
 

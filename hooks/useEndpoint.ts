@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 
 const ENDPOINTS_QUERY_KEY = 'endpoints';
 
-export const useEndpoints = () => {
+export const useEndpoints = (projectId?: string) => {
   return useQuery<Endpoint[]>({
-    queryKey: [ENDPOINTS_QUERY_KEY],
-    queryFn: EndpointService.getAllEndpoints,
+    queryKey: [ENDPOINTS_QUERY_KEY, projectId],
+    queryFn: () => EndpointService.getAllEndpoints(projectId),
     staleTime: 1 * 60 * 1000, // 1 minute
   });
 };

@@ -26,9 +26,10 @@ const formFields = getZodFieldNames(SchemaSchema);
 interface SchemaFormProps {
   schema?: Schema;
   onSuccess?: () => void;
+  projectId?: string;
 }
 const SchemaForm = (props: SchemaFormProps) => {
-  const { data: schemas } = useSchemas();
+  const { data: schemas } = useSchemas(props.projectId);
   const { createSchema, updateSchema, isPending } = useMutationSchema();
 
   const form = useZodForm<SchemaSchemaType>(
@@ -69,7 +70,10 @@ const SchemaForm = (props: SchemaFormProps) => {
           data,
         });
       } else {
-        await createSchema(data);
+        await createSchema({
+          ...data,
+          projectId: props.projectId,
+        });
       }
       props.onSuccess?.();
     } catch (e) {

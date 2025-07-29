@@ -7,6 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  permission  ProjectPermission @default(PUBLIC)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoints   Endpoint[]
+  schemas     Schema[]
+  responseWrappers ResponseWrapper[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Endpoint {
   id                String           @id @default(cuid())
   name              String
@@ -20,6 +34,8 @@ model Endpoint {
   responseWrapper   ResponseWrapper? @relation(fields: [responseWrapperId], references: [id])
   isDataList        Boolean          @default(false) // if schema is used in the endpoint, then will need to check the data is return in list or not
   numberOfData      Int? // if isDataList is true, then this field will be used to determine the number of data to return
+  projectId         String
+  project           Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
 }
@@ -28,6 +44,8 @@ model Schema {
   id        Int           @id @default(autoincrement())
   name      String
   fields    SchemaField[] @relation("FieldToParentSchema")
+  projectId String?
+  project   Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
@@ -78,6 +96,8 @@ model ResponseWrapper {
   name      String     @db.VarChar(255)
   // TODO: change json to response
   json      Json
+  projectId String?
+  project   Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   Endpoint  Endpoint[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -89,6 +109,11 @@ enum HttpMethod {
   PUT
   PATCH
   DELETE
+}
+
+enum ProjectPermission {
+  PUBLIC
+  PRIVATE
 }
 
 enum IdFieldType {
@@ -177,6 +202,7 @@ model User {
 
   accounts Account[]
   sessions Session[]
+  projects Project[]
 }
 
 model Session {

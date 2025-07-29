@@ -34,23 +34,26 @@ const EndPointSchema = z.object({
     z.literal(undefined),
   ]),
   staticResponse: z.string().nullable(),
+  projectId: z.string().min(1, "Project is required"),
 });
 
 interface EndpointFormProps {
   endpoint?: Endpoint;
   onSuccess?: () => void;
+  projectId?: string;
 }
 
 export default function EndpointForm({
   endpoint,
   onSuccess,
+  projectId,
 }: EndpointFormProps) {
   const {
     createEndpoint,
     updateEndpoint,
     isPending: isMutatingEndpoint,
   } = useMutationEndpoint();
-  const { data: schemas, isLoading: isLoadingSchema } = useSchemas();
+  const { data: schemas, isLoading: isLoadingSchema } = useSchemas(projectId);
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUseWrapper, setIsUseWrapper] = useState(
@@ -72,6 +75,7 @@ export default function EndpointForm({
           staticResponse: endpoint.staticResponse
             ? JSON.stringify(endpoint.staticResponse, undefined, 4)
             : "",
+          projectId: endpoint.projectId,
         }
       : {
           name: "",
@@ -90,6 +94,7 @@ export default function EndpointForm({
           ),
           schemaId: undefined,
           responseWrapperId: undefined,
+          projectId: projectId || "",
         }
   );
 

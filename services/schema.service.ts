@@ -7,12 +7,13 @@ import { FakerService } from "./faker.service";
 import { generateUUID } from "@/lib/utils";
 
 export class SchemaService {
-  static async getAllSchemas(): Promise<Schema[]> {
-    const res = await apiRequest.get("schema");
+  static async getAllSchemas(projectId?: string): Promise<Schema[]> {
+    const url = projectId ? `schema?projectId=${projectId}` : "schema";
+    const res = await apiRequest.get(url);
     return res.data;
   }
 
-  static async createSchema(data: SchemaSchemaType): Promise<Schema> {
+  static async createSchema(data: SchemaSchemaType & { projectId?: string }): Promise<Schema> {
     const res = await apiRequest.post("schema", data);
     return res.data;
   }
