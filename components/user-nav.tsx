@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/hooks/useAuth"
 import { signOut } from "@/lib/auth-client"
+import { useTheme } from "next-themes"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -12,9 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Moon, Sun, Monitor, Check } from "lucide-react"
 
 export function UserNav() {
   const { user, isAuthenticated } = useAuth()
+  const { setTheme, theme } = useTheme()
 
   if (!isAuthenticated || !user) {
     return (
@@ -60,7 +63,28 @@ export function UserNav() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut}>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex items-center space-x-2">
+            <span className="text-sm">Theme</span>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuItem onClick={() => setTheme("light")} className="cursor-pointer">
+          <Sun className="mr-2 h-4 w-4" />
+          <span>Light</span>
+          {theme === "light" && <Check className="ml-auto h-4 w-4" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")} className="cursor-pointer">
+          <Moon className="mr-2 h-4 w-4" />
+          <span>Dark</span>
+          {theme === "dark" && <Check className="ml-auto h-4 w-4" />}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")} className="cursor-pointer">
+          <Monitor className="mr-2 h-4 w-4" />
+          <span>System</span>
+          {theme === "system" && <Check className="ml-auto h-4 w-4" />}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
           Sign out
         </DropdownMenuItem>
       </DropdownMenuContent>
