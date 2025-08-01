@@ -11,10 +11,10 @@ import { InfoIcon } from "lucide-react";
 import { Switch } from "../ui/switch";
 import { useResponseWrappers } from "@/hooks/useResponseWrapper";
 import { Label } from "../ui/label";
-import ResponseWrapperView from "@/app/(main)/response-wrapper/_ui/ResponseWrapperView";
 import { toast } from "sonner";
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
+import ResponseWrapperView from "@/app/(main)/projects/[id]/response-wrappers/_ui/ResponseWrapperView";
 
 const EndpointBySchemaSchema = z.object({
   schemaId: z.coerce.number().min(1, "Schema is required"),

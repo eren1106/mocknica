@@ -1,7 +1,9 @@
+'use client'
+
 import React from "react";
 import ZodForm from "@/components/zod-form";
 import GenericFormField from "@/components/generic-form-field";
-import { useMutationResponseWrapper, useResponseWrapper } from "@/hooks/useResponseWrapper";
+import { useMutationResponseWrapper } from "@/hooks/useResponseWrapper";
 import { useZodForm } from "@/hooks/useZodForm";
 import {
   ResponseWrapperSchema,
@@ -12,6 +14,8 @@ import { ResponseWrapper } from "@prisma/client";
 import JsonEditor from "@/components/json-editor";
 import FormButton from "@/components/form-button";
 import { WRAPPER_DATA_STR } from "@/constants";
+import { FieldErrors } from "react-hook-form";
+import { useParams } from "next/navigation";
 
 const formFields = getZodFieldNames(ResponseWrapperSchema);
 interface ResponseWrapperFormProps {
@@ -19,6 +23,9 @@ interface ResponseWrapperFormProps {
   onSuccess?: () => void;
 }
 const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormProps) => {
+  const { id } = useParams();
+  const projectId = id as string;
+
   const { createResponseWrapper, updateResponseWrapper, isPending } = useMutationResponseWrapper();
   const form = useZodForm<ResponseWrapperSchemaType>(
     ResponseWrapperSchema,
@@ -35,6 +42,12 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
   );
   const onSubmit = async (data: ResponseWrapperSchemaType) => {
     console.log("DATA:", data);
+    console.log("ProjectId being sent:", projectId);
+
+    if (!projectId) {
+      console.error("Project ID is undefined");
+      return;
+    }
 
     try {
       if(data.json) {
@@ -53,6 +66,7 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
         await createResponseWrapper({
           ...data,
           json: data.json ? JSON.parse(data.json) : undefined,
+          projectId: projectId,
         });
       }
       onSuccess?.();
@@ -60,7 +74,7 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
       console.error(e);
     }
   };
-  const onError = (errors: any) => {
+  const onError = (errors: FieldErrors<ResponseWrapperSchemaType>) => {
     console.error("Validation errors:", errors);
     const data = form.getValues(); // Retrieve all form values.
     console.log("Form values:", data);

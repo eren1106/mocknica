@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 
 const RESPONSE_WRAPPERS_QUERY_KEY = 'response-wrappers';
 
-export const useResponseWrappers = () => {
+export const useResponseWrappers = (projectId?: string) => {
   return useQuery<ResponseWrapper[]>({
     queryKey: [RESPONSE_WRAPPERS_QUERY_KEY],
-    queryFn: ResponseWrapperService.getAllResponseWrappers,
+    queryFn: () => ResponseWrapperService.getAllResponseWrappers(projectId),
     staleTime: 1 * 60 * 1000, // 1 minute
   });
 };

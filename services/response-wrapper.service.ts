@@ -4,8 +4,9 @@ import { ResponseWrapper } from "@prisma/client";
 import { JsonValue } from "@prisma/client/runtime/library";
 
 export class ResponseWrapperService {
-  static async getAllResponseWrappers(): Promise<ResponseWrapper[]> {
-    const res = await apiRequest.get("response-wrappers");
+  static async getAllResponseWrappers(projectId?: string): Promise<ResponseWrapper[]> {
+    const url = projectId ? `response-wrappers?projectId=${projectId}` : "response-wrappers";
+    const res = await apiRequest.get(url);
     return res.data;
   }
 

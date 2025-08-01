@@ -1,63 +1,70 @@
-// app/api/mock/[...path]/route.ts
+// app/api/mock/[projectId]/[...path]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { HttpMethod } from "@prisma/client";
 // import { Ollama } from 'ollama';
-import { errorResponse } from "../../_helpers/api-response";
+import { errorResponse } from "../../../_helpers/api-response";
 import { Endpoint } from "@/models/endpoint.model";
 import { EndpointData } from "@/data/endpoint.data";
 import { EndpointService } from "@/services/endpoint.service";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: { projectId: string; path: string[] } }
 ) {
   return handleRequest(req, params, "GET");
 }
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: { projectId: string; path: string[] } }
 ) {
   return handleRequest(req, params, "POST");
 }
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: { projectId: string; path: string[] } }
 ) {
   return handleRequest(req, params, "PUT");
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: { projectId: string; path: string[] } }
 ) {
   return handleRequest(req, params, "DELETE");
 }
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: { projectId: string; path: string[] } }
 ) {
   return handleRequest(req, params, "PATCH");
 }
 
 async function handleRequest(
   req: NextRequest,
-  params: { path: string[] },
+  params: { projectId: string; path: string[] },
   method: HttpMethod
 ) {
   try {
-    const fullPath = `${params?.path?.join("/")}`;
+    const { projectId, path } = params;
+    const fullPath = `${path?.join("/")}`;
+
+    if (!projectId) {
+      return errorResponse(req, { message: "Project ID is required", statusCode: 400 });
+    }
 
     if (!fullPath) {
       return errorResponse(req, { message: "Invalid path", statusCode: 400 });
     }
 
     // Find matching endpoint by checking if the request path matches the endpoint path pattern
+    // and belongs to the specified project
     const endpoints = await EndpointData.getEndpoints({
       where: {
         method,
+        projectId,
       },
     });
 

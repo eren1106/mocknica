@@ -3,7 +3,7 @@
 import { useProject } from "@/hooks/useProject";
 import { useParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import SchemasPageContainer from "@/app/(main)/schemas/_ui/SchemasPageContainer";
+import SchemasPageContainer from "./_ui/SchemasPageContainer";
 
 export default function ProjectSchemasPage() {
   const params = useParams();

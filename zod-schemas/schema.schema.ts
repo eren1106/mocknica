@@ -1,13 +1,13 @@
 import { FakerType, IdFieldType, SchemaFieldType } from "@prisma/client";
 import { z } from "zod";
 
-const ArrayTypeSchema: z.ZodType<any> = z.lazy(() =>
+const ArrayTypeSchema: z.ZodType = z.lazy(() =>
     z.object({
       elementType: z.nativeEnum(SchemaFieldType).nullable(),
       objectSchemaId: z.number().int().nullable(),
     })
   );
-  const SchemaFieldSchema: z.ZodType<any> = z.lazy(() =>
+  const SchemaFieldSchema: z.ZodType = z.lazy(() =>
     z.object({
       name: z.string().min(1),
       type: z.nativeEnum(SchemaFieldType),

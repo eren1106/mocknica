@@ -10,8 +10,11 @@ import ResponseWrapperView from "./ResponseWrapperView";
 import { useResponseWrappers } from "@/hooks/useResponseWrapper";
 import { useMutationResponseWrapper } from "@/hooks/useResponseWrapper";
 
-const ResponseWrappersPageContainer = () => {
-  const { data: responseWrappers, isLoading } = useResponseWrappers();
+interface ResponseWrappersPageContainerProps {
+  projectId: string;
+}
+const ResponseWrappersPageContainer = ({ projectId }: ResponseWrappersPageContainerProps) => {
+  const { data: responseWrappers, isLoading } = useResponseWrappers(projectId);
   const { deleteResponseWrapper, isPending } = useMutationResponseWrapper();
 
   return (
