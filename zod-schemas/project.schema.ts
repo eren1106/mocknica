@@ -6,6 +6,7 @@ export const ProjectSchema = z.object({
   description: z.string().optional(),
   permission: z.nativeEnum(ProjectPermission),
   isNeedToken: z.boolean(),
+  corsOrigins: z.array(z.string().url("Please enter a valid URL")),
 });
 
 export type ProjectSchemaType = z.infer<typeof ProjectSchema>;

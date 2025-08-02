@@ -28,12 +28,14 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
           description: project.description || "",
           permission: project.permission,
           isNeedToken: project.isNeedToken || false,
+          corsOrigins: project.corsOrigins || [],
         }
       : {
           name: "",
           description: "",
           permission: ProjectPermission.PUBLIC,
           isNeedToken: false,
+          corsOrigins: [],
         }
   );
 
@@ -93,6 +95,15 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
         description="Enable this to require authentication for API access"
         className="flex-row-reverse items-center w-auto justify-end"
         contentClassName="items-center w-auto"
+        optional
+      />
+
+      <GenericFormField
+        control={form.control}
+        type="cors-origins" // TODO: dont hard code this, just use custom type 
+        name="corsOrigins"
+        label="CORS Allowed Origins"
+        description="List of origins that are allowed to make cross-origin requests to your API"
         optional
       />
 

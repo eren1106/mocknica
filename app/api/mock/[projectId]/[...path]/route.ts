@@ -43,6 +43,45 @@ export async function PATCH(
   return handleRequest(req, params, "PATCH");
 }
 
+// export async function OPTIONS(
+//   req: NextRequest,
+//   { params }: { params: { projectId: string; path: string[] } }
+// ) {
+//   try {
+//     const { projectId } = params;
+    
+//     // Check if project exists
+//     const project = await ProjectData.getProject(projectId);
+//     if (!project) {
+//       return new NextResponse("Project not found", { status: 404 });
+//     }
+
+//     const requestOrigin = req.headers.get("origin");
+//     const headers = new Headers();
+
+//     if (requestOrigin && project.corsOrigins && project.corsOrigins.includes(requestOrigin)) {
+//       headers.set("Access-Control-Allow-Origin", requestOrigin);
+//       headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+//       headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+//       headers.set("Access-Control-Max-Age", "86400");
+//     } else if (!project.corsOrigins || project.corsOrigins.length === 0) {
+//       // If no CORS origins are specified, allow all origins (default behavior)
+//       headers.set("Access-Control-Allow-Origin", "*");
+//       headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+//       headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+//       headers.set("Access-Control-Max-Age", "86400");
+//     } else {
+//       // Origin not allowed - return response without CORS headers so browser generates CORS error
+//       return new NextResponse(null, { status: 200 });
+//     }
+
+//     return new NextResponse(null, { status: 200, headers });
+//   } catch (error) {
+//     console.error("Error handling OPTIONS request:", error);
+//     return new NextResponse("Internal server error", { status: 500 });
+//   }
+// }
+
 async function handleRequest(
   req: NextRequest,
   params: { projectId: string; path: string[] },
@@ -58,6 +97,9 @@ async function handleRequest(
     // Check if project exists and requires token authentication
     const project = await ProjectData.getProject(projectId);
     if (!project) return errorResponse(req, { message: "Project not found", statusCode: 404 });
+
+    // Get origin once for CORS checks
+    const requestOrigin = req.headers.get("origin");
 
     // Validate token if required
     if (project.isNeedToken) {
@@ -139,7 +181,35 @@ async function handleRequest(
     // TODO: make this function into utils instead of using service
     const response = EndpointService.getEndpointResponse(matchingEndpoint);
 
-    return NextResponse.json(response);
+    // Create response with CORS headers only if origin is allowed
+    const headers = new Headers();
+    
+    // Only add CORS headers if the origin is allowed or no restrictions are set
+    if (requestOrigin && project.corsOrigins && project.corsOrigins.length > 0) {
+      console.log(`CORS Check: Origin "${requestOrigin}" against allowed origins:`, project.corsOrigins);
+      // Check if origin is allowed
+      if (!project.corsOrigins.includes(requestOrigin)) {
+        console.log(`CORS: Origin "${requestOrigin}" NOT ALLOWED - returning response without CORS headers`);
+        // Origin not allowed - return successful response but without CORS headers
+        // This will trigger browser CORS policy violation
+        return NextResponse.json(response);
+      }
+      console.log(`CORS: Origin "${requestOrigin}" ALLOWED - adding CORS headers`);
+      // Origin is allowed - add CORS headers
+      headers.set("Access-Control-Allow-Origin", requestOrigin);
+      headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+      headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    } else if (!project.corsOrigins || project.corsOrigins.length === 0) {
+      console.log("CORS: No restrictions set - allowing all origins");
+      // If no CORS origins are specified, allow all origins (default behavior)
+      headers.set("Access-Control-Allow-Origin", "*");
+      headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+      headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    } else {
+      console.log("CORS: No origin header in request");
+    }
+
+    return NextResponse.json(response, { headers });
   } catch (error) {
     console.error("Error handling mock request:", error);
     return NextResponse.json(

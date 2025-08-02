@@ -8,19 +8,20 @@ datasource db {
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  permission  ProjectPermission @default(PUBLIC)
-  isNeedToken Boolean  @default(false)
-  token       String?  @unique // Generated token for API access
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  endpoints   Endpoint[]
-  schemas     Schema[]
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  permission    ProjectPermission @default(PUBLIC)
+  isNeedToken   Boolean  @default(false)
+  token         String?  @unique // Generated token for API access
+  corsOrigins   String[] @default([]) // List of allowed CORS origins
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoints     Endpoint[]
+  schemas       Schema[]
   responseWrappers ResponseWrapper[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Endpoint {

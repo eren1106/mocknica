@@ -88,6 +88,26 @@ export default function ProjectOverviewContainer() {
               </Badge>
             </div>
           </div>
+          <div>
+            <label className="text-sm font-medium text-muted-foreground">
+              CORS Allowed Origins
+            </label>
+            <div>
+              {project.corsOrigins && project.corsOrigins.length > 0 ? (
+                <div className="space-y-1">
+                  {project.corsOrigins.map((origin, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <Badge variant="outline" className="text-xs font-mono">
+                        {origin}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <Badge variant="secondary">No restrictions (allows all origins)</Badge>
+              )}
+            </div>
+          </div>
           {projectWithToken.isNeedToken && projectWithToken.token && (
             <div>
               <div className="flex items-center justify-between mb-2">

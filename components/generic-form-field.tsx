@@ -27,6 +27,7 @@ import { SelectOption } from "@/types/select-option";
 import AutoResizeTextarea from "./auto-resize-textarea";
 import DatePicker from "./date-picker";
 import { InputTags } from "./input-tags";
+import { CorsOriginsInput } from "./cors-origins-input";
 import { Switch } from "./ui/switch";
 import RichTextEditor from "./rich-text-editor";
 import Combobox from "./combobox";
@@ -55,6 +56,7 @@ interface InputField {
     | "star"
     | "date"
     | "tags"
+    | "cors-origins" // TODO: dont hard code this, just use custom type 
     | "switch"
     | "rich-text"
     | "checkbox";
@@ -329,6 +331,16 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (
                 value={field.value}
                 onChange={field.onChange}
                 placeholder="Enter values, comma separated..."
+              />
+            );
+            break;
+          case "cors-origins":
+            res = (
+              <CorsOriginsInput
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="http://localhost:3000"
+                disabled={disabled}
               />
             );
             break;
