@@ -5,6 +5,7 @@ export const ProjectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
   description: z.string().optional(),
   permission: z.nativeEnum(ProjectPermission),
+  isNeedToken: z.boolean(),
 });
 
 export type ProjectSchemaType = z.infer<typeof ProjectSchema>;

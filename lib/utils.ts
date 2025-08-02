@@ -44,7 +44,7 @@ export function convertEnumToTitleCase(input: string): string {
       .join(' ');                    // Join the words with a space
 }
 
-export function removeUndefinedFields (obj: any): any {
+export function removeUndefinedFields (obj: any) {
   return Object.fromEntries(
     Object.entries(obj)
       .filter(([_, value]) => value !== undefined)
@@ -62,4 +62,11 @@ export function formatJSON (jsonData: any): string {
 
 export function generateUUID (): string {
   return crypto.randomUUID();
+};
+
+export function generateApiToken(): string {
+  // Generate a secure random token for API access
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 };

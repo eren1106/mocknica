@@ -1,18 +1,23 @@
-import prisma from '@/lib/db';
-import { Project } from '@/models/project.model';
-import { ProjectSchemaType } from '@/zod-schemas/project.schema';
+import prisma from "@/lib/db";
+import { Project } from "@/models/project.model";
+import { ProjectSchemaType } from "@/zod-schemas/project.schema";
+import { generateApiToken } from "@/lib/utils";
 
 export class ProjectData {
   static async createProject(
     data: ProjectSchemaType & { userId: string }
   ): Promise<Project> {
+    const projectData = {
+      name: data.name,
+      description: data.description,
+      permission: data.permission,
+      isNeedToken: data.isNeedToken || false,
+      userId: data.userId,
+      token: data.isNeedToken ? generateApiToken() : undefined,
+    };
+
     return prisma.project.create({
-      data: {
-        name: data.name,
-        description: data.description,
-        permission: data.permission,
-        userId: data.userId,
-      },
+      data: projectData,
       include: {
         user: true,
         endpoints: true,
@@ -115,13 +120,20 @@ export class ProjectData {
     id: string,
     data: Partial<ProjectSchemaType>
   ): Promise<Project> {
+    // Get current project to check if we need to generate/remove token
+    const currentProject = await prisma.project.findUnique({
+      where: { id },
+      select: { token: true, isNeedToken: true },
+    });
+
+    const updateData = {
+      ...data,
+      token: data.isNeedToken ? (currentProject?.token || generateApiToken()) : null,
+    };
+
     return prisma.project.update({
       where: { id },
-      data: {
-        ...(data.name && { name: data.name }),
-        ...(data.description !== undefined && { description: data.description }),
-        ...(data.permission && { permission: data.permission }),
-      },
+      data: updateData,
       include: {
         user: true,
         endpoints: true,

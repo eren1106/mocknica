@@ -10,6 +10,7 @@ import { Project } from "@/models/project.model";
 import { useMutationProject } from "@/hooks/useProject";
 import { ProjectPermission } from "@prisma/client";
 import { convertEnumToTitleCase } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
 interface ProjectFormProps {
   project?: Project;
@@ -26,13 +27,17 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
           name: project.name,
           description: project.description || "",
           permission: project.permission,
+          isNeedToken: project.isNeedToken || false,
         }
       : {
           name: "",
           description: "",
           permission: ProjectPermission.PUBLIC,
+          isNeedToken: false,
         }
   );
+
+  const isNeedToken = form.watch("isNeedToken");
 
   const onSubmit = async (data: ProjectSchemaType) => {
     try {
@@ -79,6 +84,25 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
           label: convertEnumToTitleCase(permission),
         }))}
       />
+
+      <GenericFormField
+        control={form.control}
+        type="switch"
+        name="isNeedToken"
+        label="Require API Token"
+        description="Enable this to require authentication for API access"
+        className="flex-row-reverse items-center w-auto justify-end"
+        contentClassName="items-center w-auto"
+        optional
+      />
+
+      {isNeedToken && (
+        <Card className="p-4 bg-muted/50">
+          <p className="text-sm text-muted-foreground">
+            <strong>Note:</strong> An API token will be generated and required for all API calls to this project&apos;s endpoints.
+          </p>
+        </Card>
+      )}
 
       <FormButton isLoading={isPending}>
         {project ? "Update Project" : "Create Project"}

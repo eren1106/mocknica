@@ -6,6 +6,7 @@ import { errorResponse } from "../../../_helpers/api-response";
 import { Endpoint } from "@/models/endpoint.model";
 import { EndpointData } from "@/data/endpoint.data";
 import { EndpointService } from "@/services/endpoint.service";
+import { ProjectData } from "@/data/project.data";
 
 export async function GET(
   req: NextRequest,
@@ -49,14 +50,35 @@ async function handleRequest(
 ) {
   try {
     const { projectId, path } = params;
-    const fullPath = `${path?.join("/")}`;
+    const fullPath = path?.join("/");
 
-    if (!projectId) {
-      return errorResponse(req, { message: "Project ID is required", statusCode: 400 });
-    }
+    if (!projectId) return errorResponse(req, { message: "Project ID is required", statusCode: 400 });
+    if (!fullPath) return errorResponse(req, { message: "Invalid path", statusCode: 400 });
 
-    if (!fullPath) {
-      return errorResponse(req, { message: "Invalid path", statusCode: 400 });
+    // Check if project exists and requires token authentication
+    const project = await ProjectData.getProject(projectId);
+    if (!project) return errorResponse(req, { message: "Project not found", statusCode: 404 });
+
+    // Validate token if required
+    if (project.isNeedToken) {
+      const authHeader = req.headers.get("authorization");
+      
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return errorResponse(req, { 
+          // message: "Authorization header with Bearer token is required", 
+          message: "Unauthorized",
+          statusCode: 401 
+        });
+      }
+
+      const token = authHeader.substring(7); // Remove "Bearer " prefix
+      
+      if (token !== project.token) {
+        return errorResponse(req, { 
+          message: "Invalid or expired token", 
+          statusCode: 401 
+        });
+      }
     }
 
     // Find matching endpoint by checking if the request path matches the endpoint path pattern

@@ -12,6 +12,8 @@ model Project {
   name        String
   description String?
   permission  ProjectPermission @default(PUBLIC)
+  isNeedToken Boolean  @default(false)
+  token       String?  @unique // Generated token for API access
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   endpoints   Endpoint[]
