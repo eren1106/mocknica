@@ -16,6 +16,7 @@ import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
 import ResponseWrapperView from "@/app/(main)/projects/[id]/response-wrappers/_ui/ResponseWrapperView";
 import { useParams } from "next/navigation";
+import LinkButton from "../link-button";
 
 const EndpointBySchemaSchema = z.object({
   schemaId: z.coerce.number().min(1, "Schema is required"),
@@ -81,84 +82,109 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
 
   return (
     <ZodForm form={form} onSubmit={onSubmit}>
-      <GenericFormField
-        control={form.control}
-        type="select"
-        name="schemaId"
-        label="Schema"
-        placeholder="Select a schema"
-        options={
-          schemas?.map((schema) => ({
-            value: schema.id.toString(),
-            label: schema.name,
-          })) || []
-        }
-        disabled={isLoadingSchema}
-      />
-      <GenericFormField
-        control={form.control}
-        type="input"
-        name="basePath"
-        label="Base Path"
-        placeholder="/data"
-      />
-
-      {/* RESPONSE WRAPPER */}
-      <div className="flex items-center gap-2">
-        <Switch
-          checked={isUseWrapper}
-          onCheckedChange={handleUseWrapperChange}
-        />
-        <Label htmlFor="use-wrapper">Use Response Wrapper</Label>
-      </div>
-      {isUseWrapper && (
+      {isLoadingSchema ? (
+        <div className="flex flex-col gap-3">
+          <div className="h-4 bg-muted animate-pulse rounded" />
+          <div className="h-10 bg-muted animate-pulse rounded" />
+        </div>
+      ) : schemas && schemas.length > 0 ? (
         <GenericFormField
           control={form.control}
           type="select"
-          name="responseWrapperId"
-          label="Response Wrapper"
-          placeholder="Select response wrapper"
+          name="schemaId"
+          label="Schema"
+          placeholder="Select a schema"
           options={
-            responseWrappers?.map((wrapper) => ({
-              value: wrapper.id.toString(),
-              label: wrapper.name,
+            schemas?.map((schema) => ({
+              value: schema.id.toString(),
+              label: schema.name,
             })) || []
           }
-          defaultValue={responseWrappers?.[0].id?.toString()}
-          disabled={isLoadingResponseWrapper}
+          disabled={isLoadingSchema}
         />
+      ) : (
+        <div className="flex flex-col gap-3 p-4 border border-dashed rounded-lg">
+          <p className="text-sm text-muted-foreground">
+            No schemas available for this project. Create a schema first to generate endpoints from schema.
+          </p>
+          <LinkButton
+            href={`/projects/${projectId}/schemas`}
+            variant="outline"
+            className="w-fit"
+          >
+            Go to Schemas
+          </LinkButton>
+        </div>
       )}
-      {isUseWrapper && selectedWrapper && (
-        <ResponseWrapperView wrapper={selectedWrapper} />
+      
+      {schemas && schemas.length > 0 && (
+        <>
+          <GenericFormField
+            control={form.control}
+            type="input"
+            name="basePath"
+            label="Base Path"
+            placeholder="/data"
+          />
+
+          {/* RESPONSE WRAPPER */}
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={isUseWrapper}
+              onCheckedChange={handleUseWrapperChange}
+            />
+            <Label htmlFor="use-wrapper">Use Response Wrapper</Label>
+          </div>
+          {isUseWrapper && (
+            <GenericFormField
+              control={form.control}
+              type="select"
+              name="responseWrapperId"
+              label="Response Wrapper"
+              placeholder="Select response wrapper"
+              options={
+                responseWrappers?.map((wrapper) => ({
+                  value: wrapper.id.toString(),
+                  label: wrapper.name,
+                })) || []
+              }
+              defaultValue={responseWrappers?.[0].id?.toString()}
+              disabled={isLoadingResponseWrapper}
+            />
+          )}
+          {isUseWrapper && selectedWrapper && (
+            <ResponseWrapperView wrapper={selectedWrapper} />
+          )}
+
+          <p className="text-sm">Preview:</p>
+          <p className="text-sm">
+            <span className="font-medium text-primary mr-2">GET</span>{basePath}
+          </p>
+          <p className="text-sm">
+            <span className="font-medium text-primary mr-2">GET</span>{basePath}
+            /:id
+          </p>
+          <p className="text-sm">
+            <span className="font-medium text-primary mr-2">POST</span>{basePath}
+          </p>
+          <p className="text-sm">
+            <span className="font-medium text-primary mr-2">PUT</span>{basePath}
+            /:id
+          </p>
+          <p className="text-sm">
+            <span className="font-medium text-primary mr-2">DELETE</span>{basePath}
+            /:id
+          </p>
+
+          <Card className="flex flex-row items-center gap-2 p-3 bg-muted">
+            <InfoIcon className="size-5 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              You can modify the endpoint later.
+            </p>
+          </Card>
+          <FormButton isLoading={isPending}>Create Endpoint</FormButton>
+        </>
       )}
-
-      <p className="text-sm">Preview:</p>
-      <p className="text-sm">
-        <span className="font-medium text-primary mr-2">GET</span>{basePath}
-      </p>
-      <p className="text-sm">
-        <span className="font-medium text-primary mr-2">GET</span>{basePath}
-        /:id
-      </p>
-      <p className="text-sm">
-        <span className="font-medium text-primary mr-2">POST</span>{basePath}
-      </p>
-      <p className="text-sm">
-        <span className="font-medium text-primary mr-2">PUT</span>{basePath}
-        /:id
-      </p>
-      <p className="text-sm">
-        <span className="font-medium text-primary mr-2">DELETE</span>{basePath}
-        /:id
-      </p>
-
-      <Card className="flex flex-row items-center gap-2 p-3 bg-muted">
-        <InfoIcon className="size-5 text-muted-foreground" />
-        <p className="text-sm text-muted-foreground">
-          You can modify the endpoint later.
-        </p>
-      </Card>
-      <FormButton isLoading={isPending}>Create Endpoint</FormButton>
     </ZodForm>
   );
 };

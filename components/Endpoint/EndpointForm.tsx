@@ -21,6 +21,7 @@ import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
 import { AIService } from "@/services/ai.service";
 import { useParams } from "next/navigation";
+import LinkButton from "../link-button";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -250,40 +251,62 @@ export default function EndpointForm({
 
       {isUseSchema && (
         <>
-          <GenericFormField
-            control={form.control}
-            type="select"
-            name="schemaId"
-            label="Schema"
-            placeholder="Select schema"
-            options={
-              schemas?.map((schema) => ({
-                value: schema.id.toString(),
-                label: schema.name,
-              })) || []
-            }
-            defaultValue={defaultSchemaId?.toString()}
-            disabled={isLoadingSchema}
-          />
-          <GenericFormField
-            control={form.control}
-            type="switch"
-            name="isDataList"
-            label="Is Data List"
-            className="flex-row-reverse items-center w-auto justify-end"
-            contentClassName="items-center w-auto"
-            optional
-          />
-          {form.watch("isDataList") && (
-            <GenericFormField
-              control={form.control}
-              type="number"
-              name="numberOfData"
-              label="Number of Data"
-              placeholder="Number of data"
-              optional
-              description="Number of data to generate, if not set, it will generate 3 data"
-            />
+          {isLoadingSchema ? (
+            <div className="flex flex-col gap-3">
+              <div className="h-4 bg-muted animate-pulse rounded" />
+              <div className="h-10 bg-muted animate-pulse rounded" />
+            </div>
+          ) : schemas && schemas.length > 0 ? (
+            <>
+              <GenericFormField
+                control={form.control}
+                type="select"
+                name="schemaId"
+                label="Schema"
+                placeholder="Select schema"
+                options={
+                  schemas?.map((schema) => ({
+                    value: schema.id.toString(),
+                    label: schema.name,
+                  })) || []
+                }
+                defaultValue={defaultSchemaId?.toString()}
+                disabled={isLoadingSchema}
+              />
+              <GenericFormField
+                control={form.control}
+                type="switch"
+                name="isDataList"
+                label="Is Data List"
+                className="flex-row-reverse items-center w-auto justify-end"
+                contentClassName="items-center w-auto"
+                optional
+              />
+              {form.watch("isDataList") && (
+                <GenericFormField
+                  control={form.control}
+                  type="number"
+                  name="numberOfData"
+                  label="Number of Data"
+                  placeholder="Number of data"
+                  optional
+                  description="Number of data to generate, if not set, it will generate 3 data"
+                />
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col gap-3 p-4 border border-dashed rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                No schemas available for this project. Create a schema first to use dynamic data generation.
+              </p>
+              <LinkButton
+                href={`/projects/${projectId}/schemas`}
+                variant="outline"
+                className="w-fit"
+              >
+                Go to Schemas
+              </LinkButton>
+            </div>
           )}
         </>
       )}

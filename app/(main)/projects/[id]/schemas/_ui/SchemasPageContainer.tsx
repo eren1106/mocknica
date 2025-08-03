@@ -1,7 +1,7 @@
 "use client";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import SchemaCard from "./SchemaCard";
 import DialogButton from "@/components/dialog-button";
 import SchemaForm from "@/components/schema/SchemaForm";
@@ -13,7 +13,7 @@ import { useParams } from "next/navigation";
 const SchemasPageContainer = () => {
   const params = useParams();
   const projectId = params.id as string;
-  
+
   const { data: schemas, isLoading } = useSchemas(projectId);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -55,9 +55,13 @@ const SchemasPageContainer = () => {
         <Skeleton className="h-10" />
       ) : (
         <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-4">
-          {filteredSchemas.map((schema) => (
-            <SchemaCard key={schema.id} schema={schema} />
-          ))}
+          {filteredSchemas.length === 0 ? (
+            <p className="text-muted-foreground italic">No schemas found. Create one now!</p>
+          ) : (
+            filteredSchemas.map((schema) => (
+              <SchemaCard key={schema.id} schema={schema} />
+            ))
+          )}
         </div>
       )}
     </div>
