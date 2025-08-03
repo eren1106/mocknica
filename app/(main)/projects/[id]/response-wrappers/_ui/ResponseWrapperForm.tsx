@@ -78,13 +78,9 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
       console.error(e);
     }
   };
-  const onError = (errors: FieldErrors<ResponseWrapperSchemaType>) => {
-    console.error("Validation errors:", errors);
-    const data = form.getValues(); // Retrieve all form values.
-    console.log("Form values:", data);
-  };
+  
   return (
-    <ZodForm form={form} onSubmit={onSubmit} onError={onError}>
+    <ZodForm form={form} onSubmit={onSubmit}>
       <GenericFormField
         type="input"
         name={formFields.name}
