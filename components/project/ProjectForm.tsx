@@ -80,7 +80,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
         control={form.control}
         type="select"
         name="permission"
-        label="Permission"
+        label="Visibility"
         options={Object.values(ProjectPermission).map((permission) => ({
           value: permission,
           label: convertEnumToTitleCase(permission),

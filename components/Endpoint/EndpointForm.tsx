@@ -20,6 +20,7 @@ import ResponseWrapperView from "@/app/(main)/projects/[id]/response-wrappers/_u
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
 import { AIService } from "@/services/ai.service";
+import { useParams } from "next/navigation";
 
 const EndPointSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -40,19 +41,20 @@ const EndPointSchema = z.object({
 interface EndpointFormProps {
   endpoint?: Endpoint;
   onSuccess?: () => void;
-  projectId?: string;
 }
 
 export default function EndpointForm({
   endpoint,
   onSuccess,
-  projectId,
 }: EndpointFormProps) {
   const {
     createEndpoint,
     updateEndpoint,
     isPending: isMutatingEndpoint,
   } = useMutationEndpoint();
+  const params = useParams();
+  const projectId = params.id as string;
+
   const { data: schemas, isLoading: isLoadingSchema } = useSchemas(projectId);
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);

@@ -70,7 +70,7 @@ export default function ProjectOverviewContainer() {
           )}
           <div>
             <label className="text-sm font-medium text-muted-foreground">
-              Permission
+              Visibility
             </label>
             <div>
               <Badge variant="secondary" className="capitalize">

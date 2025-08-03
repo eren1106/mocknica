@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
 import ResponseWrapperView from "@/app/(main)/projects/[id]/response-wrappers/_ui/ResponseWrapperView";
+import { useParams } from "next/navigation";
 
 const EndpointBySchemaSchema = z.object({
   schemaId: z.coerce.number().min(1, "Schema is required"),
@@ -28,10 +29,12 @@ const EndpointBySchemaSchema = z.object({
 
 interface EndpointBySchemaFormProps {
   onSuccess?: () => void;
-  projectId?: string;
 }
 
-const EndpointBySchemaForm = ({ onSuccess, projectId }: EndpointBySchemaFormProps) => {
+const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
+  const params = useParams();
+  const projectId = params.id as string;
+  
   const { createEndpointsBySchema, isPending } = useMutationEndpoint();
   const { data: schemas, isLoading: isLoadingSchema } = useSchemas(projectId);
   const { data: responseWrappers, isLoading: isLoadingResponseWrapper } =

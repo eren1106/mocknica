@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 
 const SCHEMAS_QUERY_KEY = 'schemas';
 
-export const useSchemas = (projectId?: string) => {
+export const useSchemas = (projectId: string) => {
   return useQuery<Schema[]>({
     queryKey: [SCHEMAS_QUERY_KEY, projectId],
     queryFn: () => SchemaService.getAllSchemas(projectId),

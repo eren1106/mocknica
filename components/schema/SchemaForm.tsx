@@ -21,6 +21,7 @@ import { useMutationSchema, useSchemas } from "@/hooks/useSchema";
 import DialogButton from "../dialog-button";
 import AutoResizeTextarea from "../auto-resize-textarea";
 import { AIService } from "@/services/ai.service";
+import { useParams } from "next/navigation";
 
 const formFields = getZodFieldNames(SchemaSchema);
 interface SchemaFormProps {
@@ -29,7 +30,10 @@ interface SchemaFormProps {
   projectId?: string;
 }
 const SchemaForm = (props: SchemaFormProps) => {
-  const { data: schemas } = useSchemas(props.projectId);
+  const params = useParams();
+  const projectId = params.id as string;
+  
+  const { data: schemas } = useSchemas(projectId);
   const { createSchema, updateSchema, isPending } = useMutationSchema();
 
   const form = useZodForm<SchemaSchemaType>(

@@ -8,12 +8,12 @@ import SchemaForm from "@/components/schema/SchemaForm";
 import { Plus } from "lucide-react";
 import SearchBar from "@/components/searchbar";
 import { useSchemas } from "@/hooks/useSchema";
+import { useParams } from "next/navigation";
 
-interface SchemasPageContainerProps {
-  projectId?: string;
-}
-
-const SchemasPageContainer = ({ projectId }: SchemasPageContainerProps) => {
+const SchemasPageContainer = () => {
+  const params = useParams();
+  const projectId = params.id as string;
+  
   const { data: schemas, isLoading } = useSchemas(projectId);
   const [searchQuery, setSearchQuery] = useState('');
 
