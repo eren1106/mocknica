@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 import { ProjectData } from "@/data/project.data";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -13,22 +13,18 @@ export default async function ProjectLayout({
   params,
 }: ProjectLayoutProps) {
   const { id } = await params;
-  
+
   // Check authentication at server level
   const session = await auth.api.getSession({
-    headers: await headers()
+    headers: await headers(),
   });
-  
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
+
+  if (!session?.user?.id) redirect("/login");
 
   // Get project only if user owns it
   const project = await ProjectData.getProjectByUserAndId(id, session.user.id);
 
-  if (!project) {
-    notFound();
-  }
+  if (!project) redirect("/");
 
   return children;
 }
