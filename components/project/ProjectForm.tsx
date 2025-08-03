@@ -93,8 +93,6 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
         name="isNeedToken"
         label="Require API Token"
         description="Enable this to require authentication for API access"
-        className="flex-row-reverse items-center w-auto justify-end"
-        contentClassName="items-center w-auto"
         optional
       />
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, Copy } from "lucide-react";
 import DialogButton from "../dialog-button";
 import EndpointForm from "./EndpointForm";
 import {
@@ -14,6 +14,8 @@ import { cn, formatJSON } from "@/lib/utils";
 import { EndpointService } from "@/services/endpoint.service";
 import { useEndpoints, useMutationEndpoint } from "@/hooks/useEndpoint";
 import { Skeleton } from "../ui/skeleton";
+import { Button } from "../ui/button";
+import { toast } from "sonner";
 
 interface EndpointsListProps {
   projectId?: string;
@@ -23,6 +25,18 @@ export default function EndpointsList({ projectId }: EndpointsListProps) {
   const { data: endpoints, isLoading: isLoadingEndpoints } = useEndpoints(projectId);
   const { deleteEndpoint, isPending: isMutatingEndpoints } =
     useMutationEndpoint();
+
+  const copyEndpointUrl = async (endpoint: any) => {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const fullUrl = `${baseUrl}/api/mock/${projectId}${endpoint.path}`;
+    
+    try {
+      await navigator.clipboard.writeText(fullUrl);
+      toast.success("Endpoint URL copied to clipboard!");
+    } catch (err) {
+      toast.error("Failed to copy URL");
+    }
+  };
 
   if (isLoadingEndpoints) {
     return (
@@ -77,6 +91,13 @@ export default function EndpointsList({ projectId }: EndpointsListProps) {
               </AccordionTrigger>
               <AccordionContent className="flex flex-col gap-2 border border-muted rounded-md p-4 pt-0 border-t-0 rounded-t-none -mt-px">
                 <div className="flex items-center justify-end gap-2">
+                  <Button
+                    onClick={() => copyEndpointUrl(endpoint)}
+                    className="size-10 p-2"
+                    variant="outline"
+                  >
+                    <Copy size={20} />
+                  </Button>
                   <DialogButton
                     content={(close) => (
                       <DeleteConfirmationDialog
