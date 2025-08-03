@@ -35,7 +35,17 @@ const EndPointSchema = z.object({
     z.coerce.number().int().positive(),
     z.literal(undefined),
   ]),
-  staticResponse: z.string().nullable(),
+  staticResponse: z.string().nullable().refine((val) => {
+    if (!val || val.trim() === "") return true; // Allow empty or null values
+    try {
+      JSON.parse(val);
+      return true;
+    } catch {
+      return false;
+    }
+  }, {
+    message: "Static response must be valid JSON"
+  }),
   projectId: z.string().min(1, "Project is required"),
 });
 
@@ -104,6 +114,12 @@ export default function EndpointForm({
   const onSubmit = async (values: z.infer<typeof EndPointSchema>) => {
     console.log("VALUES", values);
     try {
+      // Parse staticResponse safely since validation ensures it's valid JSON
+      let parsedStaticResponse;
+      if (values.staticResponse && values.staticResponse.trim() !== "") {
+        parsedStaticResponse = JSON.parse(values.staticResponse);
+      }
+
       // TODO: fix fields order not same after parse
       if (endpoint) {
         await updateEndpoint({
@@ -111,18 +127,14 @@ export default function EndpointForm({
           data: {
             ...values,
             // cannot send stringify format, need send in object format, because the stringify process will be conducted automatically when send data via api
-            staticResponse: values.staticResponse
-              ? JSON.parse(values.staticResponse)
-              : undefined,
+            staticResponse: parsedStaticResponse,
           },
         });
       } else {
         await createEndpoint({
           ...values,
           // cannot send stringify format, need send in object format, because the stringify process will be conducted automatically when send data via api
-          staticResponse: values.staticResponse
-            ? JSON.parse(values.staticResponse)
-            : undefined,
+          staticResponse: parsedStaticResponse,
         });
       }
       onSuccess?.();
@@ -180,7 +192,7 @@ export default function EndpointForm({
     if ((endpoint && endpoint.schemaId) || schemas?.length === 0)
       return undefined;
     return schemas?.[0].id;
-  }, [schemas]);
+  }, [schemas, endpoint]);
 
   const defaultWrapperId = useMemo(() => {
     if (
@@ -189,14 +201,15 @@ export default function EndpointForm({
     )
       return undefined;
     return responseWrappers?.[0].id;
-  }, [responseWrappers]);
+  }, [responseWrappers, endpoint]);
 
+  const responseWrapperId = form.watch("responseWrapperId");
   const selectedWrapper = useMemo(() => {
-    if (!form.watch("responseWrapperId")) return undefined;
+    if (!responseWrapperId) return undefined;
     return responseWrappers?.find(
-      (wrapper) => wrapper.id === Number(form.watch("responseWrapperId"))
+      (wrapper) => wrapper.id === Number(responseWrapperId)
     );
-  }, [form.watch("responseWrapperId"), responseWrappers]);
+  }, [responseWrapperId, responseWrappers]);
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

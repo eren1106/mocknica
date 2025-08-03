@@ -50,22 +50,26 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
     }
 
     try {
-      if(data.json) {
+      // Parse JSON safely since validation ensures it's valid JSON
+      let parsedJson;
+      if (data.json && data.json.trim() !== "") {
         // Replace WRAPPER_DATA_STR with "WRAPPER_DATA_STR" in the JSON string, so that it become valid JSON
-        data.json = data.json.replace(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`)
+        const processedJson = data.json.replace(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`);
+        parsedJson = JSON.parse(processedJson);
       }
+
       if (responseWrapper) {
         await updateResponseWrapper({
           id: responseWrapper.id,
           data: {
             ...data,
-            json: data.json ? JSON.parse(data.json) : undefined,
+            json: parsedJson,
           },
         });
       } else {
         await createResponseWrapper({
           ...data,
-          json: data.json ? JSON.parse(data.json) : undefined,
+          json: parsedJson,
           projectId: projectId,
         });
       }
@@ -86,7 +90,6 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
         name={formFields.name}
         control={form.control}
       />
-      {/* TODO: show error if json is in invalid format */}
       <GenericFormField
         type="custom"
         name="json"
