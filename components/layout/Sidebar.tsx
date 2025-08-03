@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,8 @@ import { useProject } from "@/hooks/useProject";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NAV_ITEMS, PROJECT_NAV_ITEMS } from "@/constants/nav-items";
+import { Skeleton } from "../ui/skeleton";
+import { Badge } from "../ui/badge";
 
 interface SidebarProps {
   onNavItemClicked?: () => void;
@@ -16,14 +18,17 @@ interface SidebarProps {
 const Sidebar = (props: SidebarProps) => {
   const pathname = usePathname();
   const params = useParams();
-  
+
   // Check if we're in a project context
   const projectId = params.id as string;
-  const isInProject = pathname.startsWith('/projects/') && projectId && pathname !== '/projects';
-  const { data: project } = useProject(projectId || "");
+  const isInProject =
+    pathname.startsWith("/projects/") && projectId && pathname !== "/projects";
+  const { data: project, isLoading: isLoadingProject } = useProject(
+    projectId || ""
+  );
 
   const checkIsSelected = (to: string): boolean => {
-    const normalizePath = (path: string): string => path.replace(/\/+$/, ""); 
+    const normalizePath = (path: string): string => path.replace(/\/+$/, "");
     const currentPath = normalizePath(pathname);
     const rootPath = normalizePath("/");
 
@@ -33,20 +38,20 @@ const Sidebar = (props: SidebarProps) => {
 
     const pathPrefix = normalizePath(`/${to}`);
     return currentPath.startsWith(pathPrefix);
-  }
+  };
 
   const checkIsProjectNavSelected = (to: string): boolean => {
-    const normalizePath = (path: string): string => path.replace(/\/+$/, ""); 
+    const normalizePath = (path: string): string => path.replace(/\/+$/, "");
     const currentPath = normalizePath(pathname);
-    
+
     if (to === "") {
       // For the overview page
       return currentPath === `/projects/${projectId}`;
     }
-    
+
     const expectedPath = normalizePath(`/projects/${projectId}/${to}`);
     return currentPath === expectedPath;
-  }
+  };
 
   return (
     <div className="flex flex-col px-3 py-6">
@@ -69,15 +74,25 @@ const Sidebar = (props: SidebarProps) => {
               const href = item.to === "" ? "/" : `/${item.to}`;
               const isActive = checkIsSelected(item.to);
               const IconComponent = item.icon;
-              
+
               return (
-                <Link href={href} className="w-full" key={item.to} onClick={props.onNavItemClicked}>
-                  <div className={cn("flex items-center justify-start gap-3 p-3 w-full rounded-lg hover:bg-secondary", isActive ? "bg-secondary" : "")}>
+                <Link
+                  href={href}
+                  className="w-full"
+                  key={item.to}
+                  onClick={props.onNavItemClicked}
+                >
+                  <div
+                    className={cn(
+                      "flex items-center justify-start gap-3 p-3 w-full rounded-lg hover:bg-secondary",
+                      isActive ? "bg-secondary" : ""
+                    )}
+                  >
                     <IconComponent />
                     <p>{item.label}</p>
                   </div>
                 </Link>
-              )
+              );
             })}
           </>
         )}
@@ -95,30 +110,42 @@ const Sidebar = (props: SidebarProps) => {
               </Button>
             </Link>
 
-            {project && (
+            {isLoadingProject ? (<Skeleton className="h-10" />) : project && (
               <div className="px-3 py-2 text-sm text-muted-foreground border-b mb-2">
-                <div className="font-medium truncate">{project.name}</div>
+                <div className="font-medium truncate">Project: <Badge variant="secondary">{project.name}</Badge></div>
               </div>
             )}
 
             {PROJECT_NAV_ITEMS.map((item) => {
-              const selectedClassname = checkIsProjectNavSelected(item.to) ? "bg-secondary" : "";
+              const selectedClassname = checkIsProjectNavSelected(item.to)
+                ? "bg-secondary"
+                : "";
               const IconComponent = item.icon;
 
               return (
-                <Link href={`/projects/${projectId}/${item.to}`} className="w-full" key={item.to} onClick={props.onNavItemClicked}>
-                  <div className={cn("flex items-center justify-start gap-3 p-3 w-full rounded-lg hover:bg-secondary", selectedClassname)}>
+                <Link
+                  href={`/projects/${projectId}/${item.to}`}
+                  className="w-full"
+                  key={item.to}
+                  onClick={props.onNavItemClicked}
+                >
+                  <div
+                    className={cn(
+                      "flex items-center justify-start gap-3 p-3 w-full rounded-lg hover:bg-secondary",
+                      selectedClassname
+                    )}
+                  >
                     <IconComponent />
                     <p>{item.label}</p>
                   </div>
                 </Link>
-              )
+              );
             })}
           </>
         )}
       </nav>
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

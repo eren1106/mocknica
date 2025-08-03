@@ -15,18 +15,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AuthGuard>
-      <div className="flex">
-        <div className="w-[--sidebar-width] fixed h-screen border-r hidden md:block">
-          <Sidebar />
-        </div>
-        <div className="flex flex-col ml-0 md:ml-[--sidebar-width] w-[calc(100vw-var(--sidebar-width))]">
-          <Topbar />
+    <div className="flex">
+      <div className="w-[--sidebar-width] fixed h-screen border-r hidden md:block">
+        <Sidebar />
+      </div>
+      <div className="flex flex-col ml-0 md:ml-[--sidebar-width] w-[calc(100vw-var(--sidebar-width))]">
+        <Topbar />
+        <AuthGuard>
           <div className="flex-1 flex flex-col items-center pt-16">
             <main className="container p-6">{children}</main>
           </div>
-        </div>
+        </AuthGuard>
       </div>
-    </AuthGuard>
+    </div>
   );
 }

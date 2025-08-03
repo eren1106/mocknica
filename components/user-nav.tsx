@@ -14,11 +14,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Moon, Sun, Monitor, Check } from "lucide-react"
+import { Skeleton } from "./ui/skeleton"
 
 export function UserNav() {
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, isLoading } = useAuth()
   const { setTheme, theme } = useTheme()
 
+  if(isLoading) return <Skeleton className="w-8 h-8 rounded-full" />
+  
   if (!isAuthenticated || !user) {
     return (
       <div className="flex gap-2">
