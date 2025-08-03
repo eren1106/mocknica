@@ -10,19 +10,13 @@ import DeleteConfirmation from "@/components/delete-confirmation";
 import { Badge } from "@/components/ui/badge";
 import { convertEnumToTitleCase } from "@/lib/utils";
 import { useMutationProject } from "@/hooks/useProject";
-import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import LinkButton from "../link-button";
 
 const ProjectCard = ({ project }: { project: Project }) => {
   const { deleteProject } = useMutationProject();
-  const router = useRouter();
 
   const handleDelete = async () => {
     await deleteProject(project.id);
-  };
-
-  const handleViewProject = () => {
-    router.push(`/projects/${project.id}`);
   };
 
   return (
@@ -101,13 +95,13 @@ const ProjectCard = ({ project }: { project: Project }) => {
           </div>
         </div>
 
-        <Button 
-          onClick={handleViewProject}
+        <LinkButton 
+          href={`/projects/${project.id}`}
           className="w-full mt-2"
           variant="outline"
         >
           View Project
-        </Button>
+        </LinkButton>
       </CardContent>
     </Card>
   );

@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import { useProject } from "@/hooks/useProject";
-import { Home, ArrowLeft, Globe, Database, FileJson2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NAV_ITEMS, PROJECT_NAV_ITEMS } from "@/constants/nav-items";
 

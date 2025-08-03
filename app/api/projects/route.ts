@@ -8,6 +8,9 @@ export async function GET(req: NextRequest) {
     const session = await auth.api.getSession({
       headers: req.headers
     });
+    if (!session?.user?.id) {
+      return errorResponse(req, { error: "Unauthorized", statusCode: 401 });
+    }
     const projects = await ProjectData.getAllProjects(session?.user?.id);
     return apiResponse(req, { data: projects });
   } catch (error) {

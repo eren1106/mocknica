@@ -5,8 +5,15 @@ import DialogButton from "@/components/dialog-button";
 import { Plus } from "lucide-react";
 import ProjectList from "./ProjectList";
 import ProjectForm from "./ProjectForm";
+import { useAuth } from "@/hooks/useAuth";
 
 const ProjectManagement = () => {
+  const { isAuthenticated } = useAuth();
+
+  // This component should only be rendered within an AuthGuard,
+  // but adding this as an extra safety measure
+  if (!isAuthenticated) return null;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">

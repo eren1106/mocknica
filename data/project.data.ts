@@ -116,6 +116,68 @@ export class ProjectData {
     });
   }
 
+  static async getProjectByUserAndId(id: string, userId: string): Promise<Project | null> {
+    return prisma.project.findFirst({
+      where: { 
+        id,
+        userId 
+      },
+      include: {
+        user: true,
+        endpoints: {
+          include: {
+            schema: {
+              include: {
+                fields: {
+                  include: {
+                    objectSchema: {
+                      include: {
+                        fields: true,
+                      },
+                    },
+                    arrayType: {
+                      include: {
+                        objectSchema: {
+                          include: {
+                            fields: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            responseWrapper: true,
+          },
+        },
+        schemas: {
+          include: {
+            fields: {
+              include: {
+                objectSchema: {
+                  include: {
+                    fields: true,
+                  },
+                },
+                arrayType: {
+                  include: {
+                    objectSchema: {
+                      include: {
+                        fields: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        responseWrappers: true,
+      },
+    });
+  }
+
   static async updateProject(
     id: string,
     data: Partial<ProjectSchemaType>

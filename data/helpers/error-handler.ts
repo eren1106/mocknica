@@ -26,6 +26,34 @@ export const handlePrismaError = (error: unknown): AppError => {
   // Log the original error for debugging (consider using a proper logging service)
   console.error('Original error:', error);
 
+  // Handle custom AppError instances
+  if (error instanceof AppError) return error;
+
+  // Handle string errors that might indicate auth issues
+  if (typeof error === 'string') {
+    if (error.toLowerCase().includes('unauthorized')) {
+      return new AppError(
+        'Unauthorized access.',
+        STATUS_CODES.UNAUTHORIZED,
+        ERROR_CODES.AUTH_ERROR
+      );
+    }
+    if (error.toLowerCase().includes('forbidden')) {
+      return new AppError(
+        'Access forbidden.',
+        STATUS_CODES.FORBIDDEN,
+        ERROR_CODES.AUTH_ERROR
+      );
+    }
+    if (error.toLowerCase().includes('not found')) {
+      return new AppError(
+        'Resource not found.',
+        STATUS_CODES.NOT_FOUND,
+        ERROR_CODES.NOT_FOUND
+      );
+    }
+  }
+
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     switch (error.code) {
       // Connection errors
