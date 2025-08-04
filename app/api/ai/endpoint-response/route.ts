@@ -1,4 +1,4 @@
-import { apiResponse, errorResponse } from "../_helpers/api-response";
+import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
 import ollama from "@/lib/ollama";
 
