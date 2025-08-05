@@ -1,6 +1,6 @@
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
-import ollama from "@/lib/ollama";
+import gemini from "@/lib/gemini";
 import { SchemaData } from "@/data/schema.data";
 
 export async function POST(req: NextRequest) {
@@ -94,24 +94,27 @@ RESPOND WITH ONLY JSON:`;
       `User request: ${userInput.trim()}`,
     ].join("\n\n");
 
-    const completion = await ollama.generate({
-      model: process.env.OLLAMA_MODEL || "llama3.2",
-      prompt,
+    const completion = await gemini.models.generateContent({
+      model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
+      contents: prompt,
     });
 
     let response;
     try {
       // Try to parse the response as JSON
-      response = JSON.parse(completion.response);
+      if (!completion.text) {
+        throw new Error("No response from Gemini API");
+      }
+      response = JSON.parse(completion.text);
     } catch (parseError) {
       // If JSON parsing fails, try to extract JSON from the response
-      const jsonMatch = completion.response.match(/\{[\s\S]*\}/);
+      const jsonMatch = completion.text?.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
           response = JSON.parse(jsonMatch[0]);
         } catch (extractError) {
           throw new Error(
-            `AI returned invalid JSON. Response: ${completion.response.substring(
+            `AI returned invalid JSON. Response: ${completion.text?.substring(
               0,
               200
             )}...`
@@ -119,7 +122,7 @@ RESPOND WITH ONLY JSON:`;
         }
       } else {
         throw new Error(
-          `AI response does not contain valid JSON. Response: ${completion.response.substring(
+          `AI response does not contain valid JSON. Response: ${completion.text?.substring(
             0,
             200
           )}...`
