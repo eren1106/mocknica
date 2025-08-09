@@ -105,13 +105,9 @@ export class EndpointData {
       },
       data: {
         ...restData,
-        ...(schemaId && { schema: { connect: { id: schemaId } } }),
-        ...(responseWrapperId && {
-          responseWrapper: {
-            connect: { id: responseWrapperId },
-          },
-        }),
-        ...(projectId && { project: { connect: { id: projectId } } }),
+        ...(schemaId ? { schema: { connect: { id: schemaId } } } : {schema: { disconnect: true }}),
+        ...(responseWrapperId ? { responseWrapper: { connect: { id: responseWrapperId } } } : {responseWrapper: { disconnect: true }}),
+        // ...(projectId && { project: { connect: { id: projectId } } }),
         staticResponse: staticResponse === null 
         ? Prisma.JsonNull 
         : staticResponse as Prisma.InputJsonValue,
