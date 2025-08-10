@@ -1,12 +1,12 @@
 import prisma from "@/lib/db";
-import { Project } from "@/models/project.model";
 import { ProjectSchemaType } from "@/zod-schemas/project.schema";
 import { generateApiToken } from "@/lib/utils";
+import { PrismaIncludes, ProjectWithRelations, ProjectLight } from "./helpers/prisma-includes";
 
 export class ProjectData {
   static async createProject(
     data: ProjectSchemaType & { userId: string }
-  ): Promise<Project> {
+  ): Promise<ProjectWithRelations> {
     const projectData = {
       name: data.name,
       description: data.description,
@@ -18,170 +18,51 @@ export class ProjectData {
 
     return prisma.project.create({
       data: projectData,
-      include: {
-        user: true,
-        endpoints: true,
-        schemas: true,
-        responseWrappers: true,
-      },
+      ...PrismaIncludes.projectInclude,
     });
   }
 
-  static async getProject(id: string): Promise<Project | null> {
+  static async getProject(id: string): Promise<ProjectWithRelations | null> {
     return prisma.project.findUnique({
       where: { id },
-      include: {
-        user: true,
-        endpoints: {
-          include: {
-            schema: {
-              include: {
-                fields: {
-                  include: {
-                    objectSchema: {
-                      include: {
-                        fields: true,
-                      },
-                    },
-                    arrayType: {
-                      include: {
-                        objectSchema: {
-                          include: {
-                            fields: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            responseWrapper: true,
-          },
-        },
-        schemas: {
-          include: {
-            fields: {
-              include: {
-                objectSchema: {
-                  include: {
-                    fields: true,
-                  },
-                },
-                arrayType: {
-                  include: {
-                    objectSchema: {
-                      include: {
-                        fields: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        responseWrappers: true,
-      },
+      ...PrismaIncludes.projectInclude,
     });
   }
 
-  static async getAllProjects(userId?: string): Promise<Project[]> {
+  static async getAllProjects(userId?: string): Promise<ProjectLight[]> {
     return prisma.project.findMany({
       where: userId ? { userId } : undefined,
-      include: {
-        user: true,
-        endpoints: true,
-        schemas: true,
-        responseWrappers: true,
-      },
+      ...PrismaIncludes.projectLightInclude,
       orderBy: {
         name: "asc",
       },
     });
   }
 
-  static async getUserProjects(userId: string): Promise<Project[]> {
+  static async getUserProjects(userId: string): Promise<ProjectLight[]> {
     return prisma.project.findMany({
       where: { userId },
-      include: {
-        user: true,
-        endpoints: true,
-        schemas: true,
-        responseWrappers: true,
-      },
+      ...PrismaIncludes.projectLightInclude,
       orderBy: {
         name: "asc",
       },
     });
   }
 
-  static async getProjectByUserAndId(id: string, userId: string): Promise<Project | null> {
+  static async getProjectByUserAndId(id: string, userId: string): Promise<ProjectWithRelations | null> {
     return prisma.project.findFirst({
       where: { 
         id,
         userId 
       },
-      include: {
-        user: true,
-        endpoints: {
-          include: {
-            schema: {
-              include: {
-                fields: {
-                  include: {
-                    objectSchema: {
-                      include: {
-                        fields: true,
-                      },
-                    },
-                    arrayType: {
-                      include: {
-                        objectSchema: {
-                          include: {
-                            fields: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            responseWrapper: true,
-          },
-        },
-        schemas: {
-          include: {
-            fields: {
-              include: {
-                objectSchema: {
-                  include: {
-                    fields: true,
-                  },
-                },
-                arrayType: {
-                  include: {
-                    objectSchema: {
-                      include: {
-                        fields: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        responseWrappers: true,
-      },
+      ...PrismaIncludes.projectInclude,
     });
   }
 
   static async updateProject(
     id: string,
     data: Partial<ProjectSchemaType>
-  ): Promise<Project> {
+  ): Promise<ProjectWithRelations> {
     // Get current project to check if we need to generate/remove token
     const currentProject = await prisma.project.findUnique({
       where: { id },
@@ -196,18 +77,21 @@ export class ProjectData {
     return prisma.project.update({
       where: { id },
       data: updateData,
-      include: {
-        user: true,
-        endpoints: true,
-        schemas: true,
-        responseWrappers: true,
-      },
+      ...PrismaIncludes.projectInclude,
     });
   }
 
   static async deleteProject(id: string): Promise<void> {
     await prisma.project.delete({
       where: { id },
+    });
+  }
+
+  // Light version for ownership checks
+  static async getProjectOwnership(id: string, userId: string): Promise<{ id: string } | null> {
+    return prisma.project.findFirst({
+      where: { id, userId },
+      select: { id: true },
     });
   }
 }

@@ -45,7 +45,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
 
   const form = useZodForm(EndpointBySchemaSchema, {
     // schemaId: 1,
-    basePath: "data",
+    basePath: "/data",
     projectId: projectId || "",
   });
 

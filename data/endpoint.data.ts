@@ -1,7 +1,7 @@
 import prisma from "@/lib/db";
-import { Endpoint } from "@/models/endpoint.model";
 import { Endpoint as EndpointPrisma } from "@prisma/client";
 import { Prisma } from "@prisma/client";
+import { PrismaIncludes, EndpointWithRelations } from "./helpers/prisma-includes";
 
 export class EndpointData {
   static async createEndpoint(data: Omit<EndpointPrisma, "id" | "updatedAt" | "createdAt">): Promise<EndpointPrisma> {
@@ -26,70 +26,22 @@ export class EndpointData {
 
   static async getEndpoints({
     where,
-  }: { where?: Prisma.EndpointWhereInput } = {}): Promise<Endpoint[]> {
+  }: { where?: Prisma.EndpointWhereInput } = {}): Promise<EndpointWithRelations[]> {
     return prisma.endpoint.findMany({
       where,
-      include: {
-        schema: {
-          include: {
-            fields: {
-              include: {
-                objectSchema: {
-                  include: {
-                    fields: true,
-                  },
-                },
-                arrayType: {
-                  include: {
-                    objectSchema: {
-                      include: {
-                        fields: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        responseWrapper: true,
-      },
+      ...PrismaIncludes.endpointInclude,
       orderBy: {
         path: "asc",
       },
     });
   }
 
-  static async getEndpointById(id: string): Promise<Endpoint | null> {
+  static async getEndpointById(id: string): Promise<EndpointWithRelations | null> {
     return prisma.endpoint.findUnique({
       where: {
         id,
       },
-      include: {
-        schema: {
-          include: {
-            fields: {
-              include: {
-                objectSchema: {
-                  include: {
-                    fields: true,
-                  },
-                },
-                arrayType: {
-                  include: {
-                    objectSchema: {
-                      include: {
-                        fields: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        responseWrapper: true,
-      },
+      ...PrismaIncludes.endpointInclude,
     });
   }
 
@@ -107,7 +59,6 @@ export class EndpointData {
         ...restData,
         ...(schemaId ? { schema: { connect: { id: schemaId } } } : {schema: { disconnect: true }}),
         ...(responseWrapperId ? { responseWrapper: { connect: { id: responseWrapperId } } } : {responseWrapper: { disconnect: true }}),
-        // ...(projectId && { project: { connect: { id: projectId } } }),
         staticResponse: staticResponse === null 
         ? Prisma.JsonNull 
         : staticResponse as Prisma.InputJsonValue,
@@ -120,6 +71,14 @@ export class EndpointData {
       where: {
         id,
       },
+    });
+  }
+
+  // Light version for ownership checks
+  static async getEndpointOwnership(id: string): Promise<{ id: string; projectId: string } | null> {
+    return prisma.endpoint.findUnique({
+      where: { id },
+      select: { id: true, projectId: true },
     });
   }
 }

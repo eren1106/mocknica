@@ -2,13 +2,14 @@ import prisma from '@/lib/db';
 import { Schema } from '@/models/schema.model';
 import { SchemaField } from '@prisma/client';
 import { SchemaSchemaType } from '@/zod-schemas/schema.schema';
+import { PrismaIncludes, SchemaWithFields } from './helpers/prisma-includes';
 
 export class SchemaData {
-    static async createSchema(data: SchemaSchemaType & { projectId?: string }): Promise<Schema> {
+    static async createSchema(data: SchemaSchemaType, projectId: string): Promise<SchemaWithFields> {
         return prisma.schema.create({
             data: {
                 name: data.name,
-                ...(data.projectId && { project: { connect: { id: data.projectId } } }),
+                project: { connect: { id: projectId } },
                 fields: {
                     create: data.fields.map(field => ({
                         name: field.name,
@@ -27,91 +28,35 @@ export class SchemaData {
                     }))
                 }
             },
-            include: {
-                fields: {
-                    include: {
-                        objectSchema: {
-                            include: {
-                                fields: true
-                            }
-                        },
-                        arrayType: {
-                            include: {
-                                objectSchema: {
-                                    include: {
-                                        fields: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            ...PrismaIncludes.schemaInclude,
         });
     }
 
-    static async getSchema(id: number): Promise<Schema | null> {
+    static async getSchema(id: number): Promise<SchemaWithFields | null> {
         return prisma.schema.findUnique({
             where: { id },
-            include: {
-                fields: {
-                    include: {
-                        objectSchema: {
-                            include: {
-                                fields: true
-                            }
-                        },
-                        arrayType: {
-                            include: {
-                                objectSchema: {
-                                    include: {
-                                        fields: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            ...PrismaIncludes.schemaInclude,
         });
     }
 
-    static async getAllSchemas(projectId?: string): Promise<Schema[]> {
+    static async getAllSchemas(projectId?: string): Promise<SchemaWithFields[]> {
         return prisma.schema.findMany({
             where: projectId ? { projectId } : undefined,
-            include: {
-                fields: {
-                    include: {
-                        objectSchema: {
-                            include: {
-                                fields: true
-                            }
-                        },
-                        arrayType: {
-                            include: {
-                                objectSchema: {
-                                    include: {
-                                        fields: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            },
+            ...PrismaIncludes.schemaInclude,
             orderBy: {
                 name: "asc"
             }
         });
     }
 
-    static async updateSchema(id: number, data: SchemaSchemaType): Promise<Schema> {
-        // Delete all fields associated with the schema
+    static async updateSchema(id: number, data: SchemaSchemaType): Promise<SchemaWithFields> {
+        // First delete existing fields
         await prisma.schemaField.deleteMany({
-            where: { schemaId: id },
+            where: { schemaId: id }
         });
 
-        const updatedSchema = await prisma.schema.update({
+        // Then update schema with new fields
+        return prisma.schema.update({
             where: { id },
             data: {
                 name: data.name,
@@ -133,38 +78,14 @@ export class SchemaData {
                     }))
                 }
             },
-            include: {
-                fields: {
-                    include: {
-                        objectSchema: {
-                            include: {
-                                fields: true
-                            }
-                        },
-                        arrayType: {
-                            include: {
-                                objectSchema: {
-                                    include: {
-                                        fields: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            ...PrismaIncludes.schemaInclude,
         });
-
-        return updatedSchema;
     }
 
-    static async deleteSchema(id: number): Promise<Partial<Schema>> {
+    static async deleteSchema(id: number): Promise<Partial<SchemaWithFields>> {
         return prisma.schema.delete({
             where: { id },
-            select: {
-                id: true,
-                name: true
-            }
+            select: { id: true, name: true }
         });
     }
 
@@ -172,5 +93,20 @@ export class SchemaData {
         return prisma.schemaField.delete({
             where: { id: fieldId }
         });
+    }
+
+    // Light version for ownership checks
+    static async getSchemaOwnership(id: number): Promise<{ id: number; projectId: string } | null> {
+        const result = await prisma.schema.findUnique({
+            where: { id },
+            select: { id: true, projectId: true },
+        });
+        
+        // Filter out null projectId cases
+        if (!result || !result.projectId) {
+            return null;
+        }
+        
+        return { id: result.id, projectId: result.projectId };
     }
 }

@@ -1,28 +1,50 @@
 // app/api/endpoints/route.ts
 import { NextRequest } from 'next/server';
-import { EndpointData } from '@/data/endpoint.data';
 import { apiResponse, errorResponse } from '../_helpers/api-response';
-import { requireAuth, requireProjectOwnership } from '../_helpers/auth-guards';
-import { ProjectData } from '@/data/project.data';
+import { requireAuth } from '../_helpers/auth-guards';
+import { validateRequestBody, validateQueryParams } from '../_helpers/validation';
+import { EndpointService } from '@/services/backend/endpoint.service';
+import { z } from 'zod';
+
+// Validation schemas
+const CreateEndpointSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
+  method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']),
+  path: z.string().min(1, "Path is required"),
+  schemaId: z.number().int().positive().nullable().optional(),
+  responseWrapperId: z.number().int().positive().nullable().optional(),
+  staticResponse: z.any().nullable().optional(),
+  isDataList: z.boolean().optional().default(false),
+  numberOfData: z.number().int().positive().nullable().optional(),
+  projectId: z.string().min(1, "Project ID is required"),
+});
+
+const GetEndpointsQuerySchema = z.object({
+  projectId: z.string().optional(),
+});
 
 export async function POST(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
-    
-    // directly return response if sessionResult is a response (in this case, it is error response)
     if (sessionResult instanceof Response) return sessionResult;
 
-    const data = await req.json();
-    
-    // Verify project ownership before creating endpoint
-    if (data.projectId) {
-      const ownershipResult = await requireProjectOwnership(req, data.projectId, sessionResult.user.id);
-      if (ownershipResult instanceof Response) {
-        return ownershipResult;
-      }
-    }
+    const validationResult = await validateRequestBody(req, CreateEndpointSchema);
+    if (validationResult instanceof Response) return validationResult;
 
-    const endpoint = await EndpointData.createEndpoint(data);
+    const endpoint = await EndpointService.createEndpoint(
+      {
+        ...validationResult,
+        description: validationResult.description ?? null,
+        schemaId: validationResult.schemaId ?? null,
+        responseWrapperId: validationResult.responseWrapperId ?? null,
+        staticResponse: validationResult.staticResponse ?? null,
+        numberOfData: validationResult.numberOfData ?? null,
+        isDataList: validationResult.isDataList ?? false,
+      },
+      sessionResult.user.id
+    );
+
     return apiResponse(req, { data: endpoint });
   } catch (error) {
     console.error('Error creating endpoint:', error);
@@ -33,30 +55,18 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
-    
-    if (sessionResult instanceof Response) {
-      return sessionResult;
-    }
+    if (sessionResult instanceof Response) return sessionResult;
 
-    const { searchParams } = new URL(req.url);
-    const projectId = searchParams.get('projectId');
-    
+    const queryValidation = validateQueryParams(req, GetEndpointsQuerySchema);
+    if (queryValidation instanceof Response) return queryValidation;
+
+    const { projectId } = queryValidation;
+
     if (projectId) {
-      // Verify project ownership
-      const ownershipResult = await requireProjectOwnership(req, projectId, sessionResult.user.id);
-      if (ownershipResult instanceof Response) {
-        return ownershipResult;
-      }
-      
-      const endpoints = await EndpointData.getEndpoints({ where: { projectId } });
+      const endpoints = await EndpointService.getProjectEndpoints(projectId, sessionResult.user.id);
       return apiResponse(req, { data: endpoints });
     } else {
-      // Get all endpoints for user's projects
-      const userProjects = await ProjectData.getAllProjects(sessionResult.user.id);
-      const projectIds = userProjects.map(p => p.id);
-      const endpoints = await EndpointData.getEndpoints({ 
-        where: { projectId: { in: projectIds } } 
-      });
+      const endpoints = await EndpointService.getUserEndpoints(sessionResult.user.id);
       return apiResponse(req, { data: endpoints });
     }
   } catch (error) {

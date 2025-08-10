@@ -1,17 +1,16 @@
 import { apiResponse, errorResponse } from "../_helpers/api-response";
 import { NextRequest } from "next/server";
-import { ProjectData } from "@/data/project.data";
-import { auth } from "@/lib/auth";
+import { requireAuth } from "../_helpers/auth-guards";
+import { validateRequestBody } from "../_helpers/validation";
+import { ProjectSchema } from "@/zod-schemas/project.schema";
+import { ProjectService } from "@/services/backend/project.service";
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: req.headers
-    });
-    if (!session?.user?.id) {
-      return errorResponse(req, { error: "Unauthorized", statusCode: 401 });
-    }
-    const projects = await ProjectData.getAllProjects(session?.user?.id);
+    const sessionResult = await requireAuth(req);
+    if (sessionResult instanceof Response) return sessionResult;
+
+    const projects = await ProjectService.getUserProjects(sessionResult.user.id);
     return apiResponse(req, { data: projects });
   } catch (error) {
     return errorResponse(req, { error });
@@ -20,18 +19,17 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: req.headers
-    });
-    if (!session?.user?.id) {
-      return errorResponse(req, { error: "Unauthorized", statusCode: 401 });
-    }
+    const sessionResult = await requireAuth(req);
+    if (sessionResult instanceof Response) return sessionResult;
 
-    const data = await req.json();
-    const project = await ProjectData.createProject({
-      ...data,
-      userId: session.user.id,
-    });
+    const validationResult = await validateRequestBody(req, ProjectSchema);
+    if (validationResult instanceof Response) return validationResult;
+
+    const project = await ProjectService.createProject(
+      validationResult, 
+      sessionResult.user.id
+    );
+    
     return apiResponse(req, { data: project });
   } catch (error) {
     return errorResponse(req, { error });

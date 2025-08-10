@@ -2,6 +2,7 @@ import { apiRequest } from "@/helpers/api-request";
 import { Endpoint } from "@/models/endpoint.model";
 import { ResponseWrapperService } from "./response-wrapper.service";
 import { SchemaService } from "./schema.service";
+import { Schema } from "@/models/schema.model";
 
 export class EndpointService {
   static async getAllEndpoints(projectId?: string): Promise<Endpoint[]> {
@@ -42,7 +43,7 @@ export class EndpointService {
     // WITH SCHEMA
     if (endpoint.schemaId && endpoint.schema) {
       response = SchemaService.generateResponseFromSchema(
-        endpoint.schema,
+        endpoint.schema as Schema,
         endpoint.isDataList,
         endpoint.numberOfData ?? undefined
       );

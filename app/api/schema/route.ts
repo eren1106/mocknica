@@ -1,28 +1,27 @@
 import { apiResponse, errorResponse } from "../_helpers/api-response";
 import { NextRequest } from "next/server";
-import { SchemaData } from "@/data/schema.data";
-import { requireAuth, requireProjectOwnership } from "../_helpers/auth-guards";
+import { requireAuth } from "../_helpers/auth-guards";
+import { validateRequestBody, validateQueryParams } from "../_helpers/validation";
+import { SchemaService } from "@/services/backend/schema.service";
+import { SchemaSchema } from "@/zod-schemas/schema.schema";
+import { z } from "zod";
+
+const GetSchemasQuerySchema = z.object({
+  projectId: z.string().min(1, "Project ID is required"),
+});
 
 export async function GET(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
 
-    const { searchParams } = new URL(req.url);
-    const projectId = searchParams.get('projectId');
-    
-    if (projectId) {
-      // Verify project ownership
-      const ownershipResult = await requireProjectOwnership(req, projectId, sessionResult.user.id);
-      if (ownershipResult instanceof Response) {
-        return ownershipResult;
-      }
-      
-      const schemas = await SchemaData.getAllSchemas(projectId);
-      return apiResponse(req, { data: schemas });
-    }
+    const queryValidation = validateQueryParams(req, GetSchemasQuerySchema);
+    if (queryValidation instanceof Response) return queryValidation;
 
-    return errorResponse(req, { error: "Project not found", statusCode: 404 });
+    const { projectId } = queryValidation;
+    
+    const schemas = await SchemaService.getProjectSchemas(projectId, sessionResult.user.id);
+    return apiResponse(req, { data: schemas });
   } catch (error) {
     return errorResponse(req, { error });
   }
@@ -31,21 +30,25 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
-    if (sessionResult instanceof Response) {
-      return sessionResult;
-    }
+    if (sessionResult instanceof Response) return sessionResult;
 
-    const data = await req.json();
+    const queryValidation = validateQueryParams(req, GetSchemasQuerySchema);
+    if (queryValidation instanceof Response) return queryValidation;
+
+    const { projectId } = queryValidation;
+
+    const validationResult = await validateRequestBody(req, SchemaSchema);
+    if (validationResult instanceof Response) return validationResult;
+
+    const schema = await SchemaService.createSchema(
+      {
+        name: validationResult.name,
+        fields: validationResult.fields,
+      },
+      projectId,
+      sessionResult.user.id
+    );
     
-    // Verify project ownership if projectId is provided
-    if (data.projectId) {
-      const ownershipResult = await requireProjectOwnership(req, data.projectId, sessionResult.user.id);
-      if (ownershipResult instanceof Response) {
-        return ownershipResult;
-      }
-    }
-
-    const schema = await SchemaData.createSchema(data);
     return apiResponse(req, { data: schema });
   } catch (error) {
     return errorResponse(req, { error });

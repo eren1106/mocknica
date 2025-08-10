@@ -14,7 +14,6 @@ import { ResponseWrapper } from "@prisma/client";
 import JsonEditor from "@/components/json-editor";
 import FormButton from "@/components/form-button";
 import { WRAPPER_DATA_STR } from "@/constants";
-import { FieldErrors } from "react-hook-form";
 import { useParams } from "next/navigation";
 
 const formFields = getZodFieldNames(ResponseWrapperSchema);
@@ -50,26 +49,14 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
     }
 
     try {
-      // Parse JSON safely since validation ensures it's valid JSON
-      let parsedJson;
-      if (data.json && data.json.trim() !== "") {
-        // Replace WRAPPER_DATA_STR with "WRAPPER_DATA_STR" in the JSON string, so that it become valid JSON
-        const processedJson = data.json.replace(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`);
-        parsedJson = JSON.parse(processedJson);
-      }
-
       if (responseWrapper) {
         await updateResponseWrapper({
           id: responseWrapper.id,
-          data: {
-            ...data,
-            json: parsedJson,
-          },
+          data,
         });
       } else {
         await createResponseWrapper({
           ...data,
-          json: parsedJson,
           projectId: projectId,
         });
       }
@@ -91,7 +78,7 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
         name="json"
         control={form.control}
         placeholder="Enter JSON"
-        description="Insert ${data} as the response data"
+        description={`Insert ${WRAPPER_DATA_STR} as the response data`}
         customChildren={
           <JsonEditor
             value={form.watch("json") || ""}

@@ -1,80 +1,32 @@
 import { apiResponse, errorResponse } from "@/app/api/_helpers/api-response";
-import { EndpointData } from "@/data/endpoint.data";
-import { HttpMethod } from "@prisma/client";
+import { requireAuth } from "@/app/api/_helpers/auth-guards";
+import { validateRequestBody } from "@/app/api/_helpers/validation";
+import { EndpointService } from "@/services/backend/endpoint.service";
 import { NextRequest } from "next/server";
+import { z } from "zod";
+
+const CreateEndpointsBySchemaSchema = z.object({
+  schemaId: z.number().int().positive(),
+  basePath: z.string().min(1, "Base path is required"),
+  responseWrapperId: z.number().int().positive().optional(),
+  projectId: z.string().min(1, "Project ID is required"),
+});
 
 export async function POST(req: NextRequest) {
     try {
-        const {
-            schemaId,
-            basePath,
-            responseWrapperId,
-            projectId,
-        } = await req.json();
-        // create GET, GET/:id, POST, PUT, DELETE endpoints
-        const get = await EndpointData.createEndpoint({
-            name: `GET ${basePath}`,
-            description: `GET ${basePath}`,
-            method: HttpMethod.GET,
-            path: basePath,
-            schemaId,
-            isDataList: true,
-            numberOfData: 3,
-            staticResponse: null,
-            responseWrapperId,
-            projectId,
-        });
-        const getById = await EndpointData.createEndpoint({
-            name: `GET ${basePath}/:id`,
-            description: `GET ${basePath}/:id`,
-            method: HttpMethod.GET,
-            path: `${basePath}/:id`,
-            schemaId,
-            isDataList: false,
-            numberOfData: null,
-            staticResponse: null,
-            responseWrapperId,
-            projectId,
-        });
-        const post = await EndpointData.createEndpoint({
-            name: `POST ${basePath}`,
-            description: `POST ${basePath}`,
-            method: HttpMethod.POST,
-            path: basePath,
-            schemaId,
-            isDataList: false,
-            numberOfData: null,
-            staticResponse: null,
-            responseWrapperId,
-            projectId,
-        });
-        const putById = await EndpointData.createEndpoint({
-            name: `PUT ${basePath}/:id`,
-            description: `PUT ${basePath}/:id`,
-            method: HttpMethod.PUT,
-            path: `${basePath}/:id`,
-            schemaId,
-            isDataList: false,
-            numberOfData: null,
-            staticResponse: null,
-            responseWrapperId,
-            projectId,
-        });
-        const deleteById = await EndpointData.createEndpoint({
-            name: `DELETE ${basePath}/:id`,
-            description: `DELETE ${basePath}/:id`,
-            method: HttpMethod.DELETE,
-            path: `${basePath}/:id`,
-            schemaId,
-            isDataList: false,
-            numberOfData: null,
-            staticResponse: null,
-            responseWrapperId,
-            projectId,
-        });
-        return apiResponse(req, { data: [get, getById, post, putById, deleteById] });
-      } catch (error) {
+        const sessionResult = await requireAuth(req);
+        if (sessionResult instanceof Response) return sessionResult;
+
+        const validationResult = await validateRequestBody(req, CreateEndpointsBySchemaSchema);
+        if (validationResult instanceof Response) return validationResult;
+
+        const endpoints = await EndpointService.createEndpointsBySchema(
+            validationResult,
+            sessionResult.user.id
+        );
+
+        return apiResponse(req, { data: endpoints });
+    } catch (error) {
         return errorResponse(req, { error });
-      }
+    }
 }
-  

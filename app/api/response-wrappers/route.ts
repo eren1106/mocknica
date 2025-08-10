@@ -1,17 +1,39 @@
-import prisma from '@/lib/db';
 import { apiResponse, errorResponse } from '../_helpers/api-response';
 import { NextRequest } from 'next/server';
+import { requireAuth } from '../_helpers/auth-guards';
+import { validateRequestBody, validateQueryParams } from '../_helpers/validation';
+import { ResponseWrapperService } from '@/services/backend/response-wrapper.service';
+import { CreateResponseWrapperSchema } from '@/zod-schemas/response-wrapper.schema';
+import { z } from 'zod';
+import { WRAPPER_DATA_STR } from '@/constants';
+
+const GetResponseWrappersQuerySchema = z.object({
+  projectId: z.string().optional(),
+});
 
 // GET /api/response-wrappers
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const projectId = searchParams.get('projectId');
-    const wrappers = await prisma.responseWrapper.findMany({
-      where: projectId ? { projectId } : undefined,
-      orderBy: { createdAt: 'asc' },
-    });
-    return apiResponse(req, { data: wrappers });
+    const sessionResult = await requireAuth(req);
+    if (sessionResult instanceof Response) return sessionResult;
+
+    const queryValidation = validateQueryParams(req, GetResponseWrappersQuerySchema);
+    if (queryValidation instanceof Response) return queryValidation;
+
+    const { projectId } = queryValidation;
+
+    if (projectId) {
+      const wrappers = await ResponseWrapperService.getProjectResponseWrappers(
+        projectId, 
+        sessionResult.user.id
+      );
+      return apiResponse(req, { data: wrappers });
+    } else {
+      const wrappers = await ResponseWrapperService.getUserResponseWrappers(
+        sessionResult.user.id
+      );
+      return apiResponse(req, { data: wrappers });
+    }
   } catch (error) {
     return errorResponse(req, { error });
   }
@@ -20,31 +42,30 @@ export async function GET(req: NextRequest) {
 // POST /api/response-wrappers
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { name, json, projectId } = body;
-    console.log("PROJECT ID:", projectId);
-    if (!name || !json || !projectId) {
-      return errorResponse(req, { error: 'Name, JSON and projectId are required' });
-    }
+    const sessionResult = await requireAuth(req);
+    if (sessionResult instanceof Response) return sessionResult;
 
-    // Check if the project exists
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
+    const validationResult = await validateRequestBody(req, CreateResponseWrapperSchema, (data) => {
+      return {
+        ...data,
+        json: data.json ?? null,
+      }
     });
+    if (validationResult instanceof Response) return validationResult;
 
-    if (!project) {
-      return errorResponse(req, { error: `Project with ID ${projectId} not found` });
-    }
-
-    const wrapper = await prisma.responseWrapper.create({
-      data: {
-        name,
-        json,
-        projectId,
+    const wrapper = await ResponseWrapperService.createResponseWrapper(
+      {
+        name: validationResult.name,
+        json: validationResult.json ? JSON.parse(validationResult.json.replaceAll(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`)) : null,
       },
-    });
+      validationResult.projectId,
+      sessionResult.user.id
+    );
 
-    return apiResponse(req, { data: wrapper, message: 'Response wrapper created successfully' });
+    return apiResponse(req, { 
+      data: wrapper, 
+      message: 'Response wrapper created successfully' 
+    });
   } catch (error) {
     return errorResponse(req, { error });
   }
