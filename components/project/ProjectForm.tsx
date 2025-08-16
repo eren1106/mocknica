@@ -12,14 +12,6 @@ import { ProjectPermission } from "@prisma/client";
 import { convertEnumToTitleCase } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { CorsOriginsInput } from "../cors-origins-input";
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 
 interface ProjectFormProps {
   project?: Project;
