@@ -11,8 +11,8 @@ const EndpointCreationTabs = ({ onSuccess, projectId }: EndpointCreationTabsProp
   return (
     <DynamicTabs
       tabs={[
-        { value: "custom", label: "Custom", content: <EndpointForm onSuccess={onSuccess} projectId={projectId} /> },
-        { value: "create-by-schema", label: "Create by Schema", content: <EndpointBySchemaForm onSuccess={onSuccess} projectId={projectId} /> },
+        { value: "custom", label: "Custom", content: <EndpointForm onSuccess={onSuccess} /> },
+        { value: "create-by-schema", label: "Create by Schema", content: <EndpointBySchemaForm onSuccess={onSuccess} /> },
       ]}
     />
   )

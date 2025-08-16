@@ -34,7 +34,7 @@ const ResponseWrapperView = ({wrapper}: {wrapper: ResponseWrapper}) => {
 
       return elements;
     },
-    [formatJSON]
+    []
   );
   return (
     <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">

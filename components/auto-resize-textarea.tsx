@@ -17,7 +17,7 @@ const AutoResizeTextarea = React.forwardRef<
     const value = event.target.value;
     if (value.length <= maxChar) {
       setCharCount(value.length);
-      props.onChange && props.onChange(event);
+      props.onChange?.(event);
     } else {
       const trimmedText = value.slice(0, maxChar);
       event.target.value = trimmedText;
