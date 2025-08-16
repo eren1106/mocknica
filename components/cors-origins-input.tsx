@@ -32,7 +32,7 @@ const CorsOriginsInput = React.forwardRef<HTMLDivElement, CorsOriginsInputProps>
     };
 
     return (
-      <div ref={ref} className={cn("space-y-2", className)}>
+      <div ref={ref} className={cn("flex flex-col gap-2 w-full", className)}>
         {value.length === 0 && (
           <div className="text-sm text-muted-foreground">
             No CORS origins configured. Add origins to allow cross-origin requests.

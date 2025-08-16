@@ -27,7 +27,6 @@ import { SelectOption } from "@/types/select-option";
 import AutoResizeTextarea from "./auto-resize-textarea";
 import DatePicker from "./date-picker";
 import { InputTags } from "./input-tags";
-import { CorsOriginsInput } from "./cors-origins-input";
 import { Switch } from "./ui/switch";
 import RichTextEditor from "./rich-text-editor";
 import Combobox from "./combobox";
@@ -45,6 +44,7 @@ interface BaseField {
   topEndContent?: React.ReactNode;
   className?: string;
   contentClassName?: string;
+  displayError?: boolean;
 }
 
 interface InputField {
@@ -56,7 +56,6 @@ interface InputField {
     | "star"
     | "date"
     | "tags"
-    | "cors-origins" // TODO: dont hard code this, just use custom type 
     | "switch"
     | "rich-text"
     | "checkbox";
@@ -103,6 +102,8 @@ type GenericFormFieldProps =
 const GenericFormField: React.FC<GenericFormFieldProps> = (
   props: GenericFormFieldProps
 ) => {
+  const { displayError = true } = props;
+
   // for radio section
   const [otherValue, setOtherValue] = useState("");
   const [radioValue, setRadioValue] = useState<string>("");
@@ -334,16 +335,6 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (
               />
             );
             break;
-          case "cors-origins":
-            res = (
-              <CorsOriginsInput
-                value={field.value}
-                onChange={field.onChange}
-                placeholder="http://localhost:3000"
-                disabled={disabled}
-              />
-            );
-            break;
           case "switch":
             res = (
               <Switch checked={field.value} onCheckedChange={field.onChange} />
@@ -393,7 +384,7 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (
               </FormDescription>
             )}
             <FormControl>{res}</FormControl>
-            <FormMessage />
+            {displayError && <FormMessage />}
           </FormItem>
         );
       }}

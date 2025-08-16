@@ -11,6 +11,15 @@ import { useMutationProject } from "@/hooks/useProject";
 import { ProjectPermission } from "@prisma/client";
 import { convertEnumToTitleCase } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import { CorsOriginsInput } from "../cors-origins-input";
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 interface ProjectFormProps {
   project?: Project;
@@ -98,17 +107,26 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
 
       <GenericFormField
         control={form.control}
-        type="cors-origins" // TODO: dont hard code this, just use custom type 
+        type="custom"
         name="corsOrigins"
         label="CORS Allowed Origins"
         description="List of origins that are allowed to make cross-origin requests to your API"
         optional
+        displayError={false}
+        customChildren={
+          // TODO: show validation error for each fields
+          <CorsOriginsInput
+            value={form.watch("corsOrigins")}
+            onChange={(value) => form.setValue("corsOrigins", value)}
+          />
+        }
       />
 
       {isNeedToken && (
         <Card className="p-4 bg-muted/50">
           <p className="text-sm text-muted-foreground">
-            <strong>Note:</strong> An API token will be generated and required for all API calls to this project&apos;s endpoints.
+            <strong>Note:</strong> An API token will be generated and required
+            for all API calls to this project&apos;s endpoints.
           </p>
         </Card>
       )}
