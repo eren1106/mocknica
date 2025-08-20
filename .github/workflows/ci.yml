@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+# Cancel in-progress runs for the same workflow and branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+      # Don't cancel other matrix jobs if one fails
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 9
+
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'pnpm'
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+
+    - name: Run type check
+      run: pnpm run type-check
+
+    - name: Run ESLint
+      run: pnpm run lint
+
+    - name: Build application
+      run: pnpm run build
+      env:
+        NODE_ENV: production
+        # Disable telemetry during CI builds
+        NEXT_TELEMETRY_DISABLED: 1
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      if: matrix.node-version == '20.x' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      with:
+        name: build-files-${{ github.sha }}
+        path: |
+          .next/
+          !.next/cache/
+        retention-days: 7
+        compression-level: 6
