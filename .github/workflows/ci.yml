@@ -41,7 +41,7 @@ jobs:
       run: pnpm install --frozen-lockfile
 
     - name: Generate Prisma client
-      run: pnpm prisma generate
+      run: pnpm db-client
 
     - name: Run type check
       run: pnpm run type-check

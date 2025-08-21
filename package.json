@@ -8,15 +8,16 @@
     "start": "next start",
     "type-check": "tsc --noEmit",
     "lint": "next lint",
-    "db-sync": "pnpx prisma db push && pnpx prisma generate",
-    "studio": "pnpx prisma studio",
+    "db-sync": "pnpm db-push && pnpm db-client",
+    "db-push": "pnpm prisma db push",
+    "db-client": "pnpm prisma generate",
+    "studio": "pnpm prisma studio",
     "prepare": "husky"
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",
     "@google/genai": "^1.12.0",
     "@hookform/resolvers": "^4.1.1",
-    "@prisma/client": "^6.4.1",
     "@radix-ui/react-accordion": "^1.2.4",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-checkbox": "^1.1.4",
@@ -58,6 +59,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@prisma/client": "^6.4.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -66,6 +68,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.0-canary.69",
     "husky": "^9.1.7",
+    "prisma": "^6.14.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"
   }
