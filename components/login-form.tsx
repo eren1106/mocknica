@@ -5,13 +5,12 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { FaGoogle } from "react-icons/fa6"
+import { FaGoogle } from "react-icons/fa"
 import { signIn } from "@/lib/auth-client"
 import { useState } from "react"
 import { toast } from "sonner"
