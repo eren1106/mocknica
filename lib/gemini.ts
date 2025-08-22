@@ -15,10 +15,19 @@ declare global {
   var __gemini: GoogleGenAI | undefined;
 }
 
-const gemini = globalThis.__gemini ?? createGeminiClient();
+// Lazy initialization - only create client when accessed
+const getGeminiClient = () => {
+  if (globalThis.__gemini) {
+    return globalThis.__gemini;
+  }
+  
+  const client = createGeminiClient();
+  
+  if (process.env.NODE_ENV !== 'production') {
+    globalThis.__gemini = client;
+  }
+  
+  return client;
+};
 
-if (process.env.NODE_ENV !== 'production') {
-  globalThis.__gemini = gemini;
-}
-
-export default gemini;
+export default getGeminiClient;

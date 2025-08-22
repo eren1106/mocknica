@@ -1,6 +1,6 @@
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
-import gemini from "@/lib/gemini";
+import getGeminiClient from "@/lib/gemini";
 import { SchemaData } from "@/data/schema.data";
 
 export async function POST(req: NextRequest) {
@@ -94,6 +94,7 @@ RESPOND WITH ONLY JSON:`;
       `User request: ${userInput.trim()}`,
     ].join("\n\n");
 
+    const gemini = getGeminiClient();
     const completion = await gemini.models.generateContent({
       model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
       contents: prompt,
