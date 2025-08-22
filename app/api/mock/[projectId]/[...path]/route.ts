@@ -8,47 +8,56 @@ import { EndpointData } from "@/data/endpoint.data";
 import { EndpointService } from "@/services/endpoint.service";
 import { ProjectData } from "@/data/project.data";
 
+// Define the proper params type for Next.js App Router
+type Params = Promise<{ projectId: string; path: string[] }>;
+
 export async function GET(
   req: NextRequest,
-  { params }: { params: { projectId: string; path: string[] } }
+  { params }: { params: Params }
 ) {
-  return handleRequest(req, params, "GET");
+  const resolvedParams = await params;
+  return handleRequest(req, resolvedParams, "GET");
 }
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { projectId: string; path: string[] } }
+  { params }: { params: Params }
 ) {
-  return handleRequest(req, params, "POST");
+  const resolvedParams = await params;
+  return handleRequest(req, resolvedParams, "POST");
 }
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { projectId: string; path: string[] } }
+  { params }: { params: Params }
 ) {
-  return handleRequest(req, params, "PUT");
+  const resolvedParams = await params;
+  return handleRequest(req, resolvedParams, "PUT");
 }
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { projectId: string; path: string[] } }
+  { params }: { params: Params }
 ) {
-  return handleRequest(req, params, "DELETE");
+  const resolvedParams = await params;
+  return handleRequest(req, resolvedParams, "DELETE");
 }
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { projectId: string; path: string[] } }
+  { params }: { params: Params }
 ) {
-  return handleRequest(req, params, "PATCH");
+  const resolvedParams = await params;
+  return handleRequest(req, resolvedParams, "PATCH");
 }
 
 // export async function OPTIONS(
 //   req: NextRequest,
-//   { params }: { params: { projectId: string; path: string[] } }
+//   { params }: { params: Params }
 // ) {
 //   try {
-//     const { projectId } = params;
+//     const resolvedParams = await params;
+//     const { projectId } = resolvedParams;
     
 //     // Check if project exists
 //     const project = await ProjectData.getProject(projectId);
