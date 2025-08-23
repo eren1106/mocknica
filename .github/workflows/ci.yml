@@ -1,10 +1,10 @@
-name: CI
+name: CI - Build and Test
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, dev ]
 
 # Cancel in-progress runs for the same workflow and branch
 concurrency:
@@ -12,13 +12,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint-and-build:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: 18.x
       # Don't cancel other matrix jobs if one fails
       fail-fast: false
 
