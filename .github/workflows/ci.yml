@@ -18,7 +18,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: 18.x
+        node-version: [18.x]
       # Don't cancel other matrix jobs if one fails
       fail-fast: false
 
