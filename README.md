@@ -2,7 +2,7 @@
 
 A powerful mock API platform that helps developers create, manage, and serve realistic mock APIs for development and testing purposes. Built with Next.js, TypeScript, and modern web technologies.
 
-![MockA Demo](https://via.placeholder.com/800x400?text=MockA+Demo)
+<!-- ![MockA Demo](https://via.placeholder.com/800x400?text=MockA+Demo) -->
 
 ## ✨ Features
 
