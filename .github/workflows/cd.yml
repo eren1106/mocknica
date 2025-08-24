@@ -1,42 +1,51 @@
+# This workflow handles Continuous Deployment (CD) - building and pushing Docker images
 name: CD - Build and Push Docker Image
 
+# Trigger conditions: main branch pushes, version tags, or manual dispatch
 on:
   push:
-    branches: [main]
-    tags: ["v*"]
-  workflow_dispatch:
+    branches: [main]          # Deploy on main branch updates
+    tags: ["v*"]             # Deploy on version tags (e.g., v1.0.0)
+  workflow_dispatch:          # Allow manual triggering from GitHub UI
     inputs:
       tag:
         description: "Docker image tag"
         required: false
         default: "latest"
 
+# Prevent concurrent deployments to avoid conflicts
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Environment variables used throughout the workflow
 env:
-  GHCR_REGISTRY: ghcr.io
-  DOCKERHUB_REGISTRY: docker.io
-  REPO_NAME: ${{ github.event.repository.name }}
+  GHCR_REGISTRY: ghcr.io                           # GitHub Container Registry
+  DOCKERHUB_REGISTRY: docker.io                    # Docker Hub registry
+  REPO_NAME: ${{ github.event.repository.name }}   # Repository name for tagging
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    # Allow longer timeout for Docker builds (includes multi-platform builds)
     timeout-minutes: 45
+    # Required permissions for pushing to registries and creating attestations
     permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
+      contents: read      # Read repository contents
+      packages: write     # Push to GitHub Packages
+      attestations: write # Create build attestations
+      id-token: write     # Generate OIDC tokens for attestations
 
     steps:
+      # Download repository code including Dockerfile
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Setup Docker Buildx for advanced features like multi-platform builds
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Authenticate with GitHub Container Registry using built-in token
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
@@ -44,6 +53,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Authenticate with Docker Hub using stored secrets
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -51,22 +61,26 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Generate Docker image metadata (tags and labels) based on Git context
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
+          # Push to both registries
           images: |
             ${{ env.GHCR_REGISTRY }}/${{ github.repository }}
             ${{ env.DOCKERHUB_REGISTRY }}/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}
+          # Automatic tag generation based on Git events
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch          # branch name (e.g., main)
+            type=ref,event=pr             # PR number (e.g., pr-123)
+            type=semver,pattern={{version}} # full version (e.g., 1.2.3)
+            type=semver,pattern={{major}}.{{minor}} # major.minor (e.g., 1.2)
+            type=semver,pattern={{major}}   # major version (e.g., 1)
+            type=sha,prefix={{branch}}-     # git SHA with branch prefix
+            type=raw,value=latest,enable={{is_default_branch}} # latest tag for main branch
 
+      # Debug output to show what tags and labels will be applied
       - name: Show computed tags & labels (debug)
         run: |
           echo "Computed tags:"
@@ -75,20 +89,23 @@ jobs:
           echo "Computed labels:"
           echo "${{ steps.meta.outputs.labels }}"
 
+      # Build Docker image for multiple platforms and push to registries
       - name: Build and push Docker image
         id: build
         uses: docker/build-push-action@v5
         with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          context: .                              # Use current directory as build context
+          platforms: linux/amd64,linux/arm64     # Build for both x86_64 and ARM64
+          push: true                              # Push images to registries
+          tags: ${{ steps.meta.outputs.tags }}   # Apply generated tags
+          labels: ${{ steps.meta.outputs.labels }} # Apply generated labels
+          cache-from: type=gha                    # Use GitHub Actions cache for layers
+          cache-to: type=gha,mode=max            # Save cache for future builds
           build-args: |
-            BUILDKIT_INLINE_CACHE=1
+            BUILDKIT_INLINE_CACHE=1              # Enable inline caching
 
+      # Generate cryptographic attestation for supply chain security
+      # Proves that this workflow built the image
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
@@ -96,6 +113,7 @@ jobs:
           subject-digest: ${{ steps.build.outputs.digest }}
           push-to-registry: true
 
+      # Output summary of what was built and where it was pushed
       - name: Output image details
         run: |
           echo "Images pushed to:"

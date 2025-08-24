@@ -1,68 +1,86 @@
+# This workflow handles Continuous Integration (CI) - building and testing the application
 name: CI - Build and Test
 
+# Trigger conditions: runs on pushes and pull requests to main/dev branches
 on:
   push:
     branches: [ main, dev ]
   pull_request:
     branches: [ main, dev ]
 
-# Cancel in-progress runs for the same workflow and branch
+# Prevent multiple workflow runs from the same branch from running simultaneously
+# This saves compute resources and prevents conflicts
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
+    # Use the latest Ubuntu runner for consistent, clean environment
     runs-on: ubuntu-latest
+    # Fail the job if it takes longer than 30 minutes (prevents hanging builds)
     timeout-minutes: 30
 
     strategy:
       matrix:
+        # Test against Node.js 18.x (can be expanded to test multiple versions)
         node-version: [18.x]
-      # Don't cancel other matrix jobs if one fails
+      # Continue testing other matrix combinations even if one fails
       fail-fast: false
 
     steps:
+    # Download the repository code to the runner
     - name: Checkout code
       uses: actions/checkout@v4
 
+    # Install pnpm package manager (faster alternative to npm)
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
       with:
         version: 9
 
+    # Install and configure Node.js with pnpm caching for faster subsequent runs
     - name: Setup Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'pnpm'
 
+    # Install project dependencies using frozen lockfile to ensure reproducible builds
     - name: Install dependencies
       run: pnpm install --frozen-lockfile
 
+    # Generate Prisma database client (ORM setup)
     - name: Generate Prisma client
       run: pnpm db-client
 
+    # Check TypeScript types for errors (static analysis)
     - name: Run type check
       run: pnpm run type-check
 
+    # Run ESLint to check code quality and style issues
     - name: Run ESLint
       run: pnpm run lint
 
+    # Build the Next.js application for production
     - name: Build application
       run: pnpm run build
       env:
+        # Set production environment for optimized build
         NODE_ENV: production
-        # Disable telemetry during CI builds
+        # Disable Next.js telemetry collection during CI
         NEXT_TELEMETRY_DISABLED: 1
 
+    # Upload build artifacts for potential use in deployment
+    # Only runs on Node 20.x, main branch pushes (not PRs)
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
-      if: matrix.node-version == '20.x' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       with:
         name: build-files-${{ github.sha }}
         path: |
           .next/
           !.next/cache/
+        # Keep artifacts for 7 days, compress to save storage
         retention-days: 7
         compression-level: 6
