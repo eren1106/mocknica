@@ -74,3 +74,5 @@ ENV PORT 3000
 ENV HOSTNAME "0.0.0.0"
 
 CMD ["pnpm", "start:docker"]
+
+# FYI: start:docker will call "prisma db push --accept-data-loss && node server.js". What's server.js? When build a Next.js application with output: 'standalone' in next.config.ts, Next.js automatically generates a server.js file in the .next/standalone directory during the build process. It serves your Next.js application

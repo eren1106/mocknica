@@ -6,9 +6,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/mocka
       - NEXT_TELEMETRY_DISABLED=1
     depends_on:
       db:
