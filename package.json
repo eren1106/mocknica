@@ -6,6 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
+    "test": "vitest",
     "type-check": "tsc --noEmit",
     "lint": "next lint",
     "db-sync": "pnpm db-push && pnpm db-client",
@@ -63,15 +64,21 @@
     "@eslint/eslintrc": "^3",
     "@prisma/client": "^6.4.1",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.0.2",
     "autoprefixer": "10.0.1",
     "eslint": "^9",
     "eslint-config-next": "15.2.0-canary.69",
     "husky": "^9.1.7",
+    "jsdom": "^26.1.0",
     "prisma": "^6.14.0",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
   }
 }
