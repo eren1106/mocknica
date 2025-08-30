@@ -62,6 +62,10 @@ jobs:
     - name: Run ESLint
       run: pnpm run lint
 
+    # Run tests
+    - name: Run tests
+      run: pnpm run test
+
     # Build the Next.js application for production
     - name: Build application
       run: pnpm run build
