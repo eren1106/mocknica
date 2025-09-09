@@ -23,6 +23,9 @@ export const useMutationEndpoint = () => {
       invalidateQueries();
       toast.success("Endpoint created successfully");
     },
+    onError: () => {
+      toast.error("Failed to create endpoint");
+    },
   });
   const updateEndpoint = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Endpoint> }) =>
@@ -31,12 +34,18 @@ export const useMutationEndpoint = () => {
       invalidateQueries();
       toast.success("Endpoint updated successfully");
     },
+    onError: () => {
+      toast.error("Failed to update endpoint");
+    },
   });
   const deleteEndpoint = useMutation({
     mutationFn: (id: string) => EndpointService.deleteEndpoint(id),
     onSuccess: () => {
       invalidateQueries();
       toast.success("Endpoint deleted successfully");
+    },
+    onError: () => {
+      toast.error("Failed to delete endpoint");
     },
   });
   const createEndpointsBySchema = useMutation({
@@ -48,6 +57,9 @@ export const useMutationEndpoint = () => {
     onSuccess: () => {
       invalidateQueries();
       toast.success("Endpoints created successfully");
+    },
+    onError: () => {
+      toast.error("Failed to create endpoints");
     },
   });
 

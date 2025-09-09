@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { requireAuth } from "../_helpers/auth-guards";
 import { validateRequestBody, validateQueryParams } from "../_helpers/validation";
 import { SchemaService } from "@/services/backend/schema.service";
-import { SchemaSchema } from "@/zod-schemas/schema.schema";
+import { PayloadSchemaSchema } from "@/zod-schemas/schema.schema";
 import { z } from "zod";
 
 const GetSchemasQuerySchema = z.object({
@@ -32,12 +32,7 @@ export async function POST(req: NextRequest) {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
 
-    const queryValidation = validateQueryParams(req, GetSchemasQuerySchema);
-    if (queryValidation instanceof Response) return queryValidation;
-
-    const { projectId } = queryValidation;
-
-    const validationResult = await validateRequestBody(req, SchemaSchema);
+    const validationResult = await validateRequestBody(req, PayloadSchemaSchema);
     if (validationResult instanceof Response) return validationResult;
 
     const schema = await SchemaService.createSchema(
@@ -45,7 +40,7 @@ export async function POST(req: NextRequest) {
         name: validationResult.name,
         fields: validationResult.fields,
       },
-      projectId,
+      validationResult.projectId,
       sessionResult.user.id
     );
     

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useZodForm } from "@/hooks/useZodForm";
 import ZodForm from "@/components/zod-form";
 import GenericFormField from "@/components/generic-form-field";
@@ -32,7 +32,7 @@ interface SchemaFormProps {
 const SchemaForm = (props: SchemaFormProps) => {
   const params = useParams();
   const projectId = params.id as string;
-  
+
   const { data: schemas } = useSchemas(projectId);
   const { createSchema, updateSchema, isPending } = useMutationSchema();
 

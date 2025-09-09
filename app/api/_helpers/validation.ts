@@ -22,13 +22,7 @@ export async function validateRequestBody<T>(
         status: "FAILED",
         statusCode: 400,
         extra: {
-          details: error.errors.map((err) => (
-          //   {
-          //   path: err.path.join("."),
-          //   message: err.message,
-          // }
-          err.message
-        )),
+          errorDetails: error.errors.map((err) => err.message),
         },
       });
     }

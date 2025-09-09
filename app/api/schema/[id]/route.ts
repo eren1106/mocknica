@@ -27,6 +27,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params;
     
+    // TODO: Check whether the schema belongs to the project of this user
+    
     const validationResult = await validateRequestBody(req, SchemaSchema);
     if (validationResult instanceof Response) return validationResult;
 
