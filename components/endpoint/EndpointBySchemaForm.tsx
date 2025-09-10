@@ -52,10 +52,8 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
   const onSubmit = async (data: z.infer<typeof EndpointBySchemaSchema>) => {
     try {
       await createEndpointsBySchema(data);
-      toast.success("Endpoints created successfully");
     } catch (e) {
       console.error(e);
-      toast.error("Failed to create endpoints");
     }
     onSuccess?.();
   };
