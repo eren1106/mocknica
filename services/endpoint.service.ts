@@ -3,6 +3,7 @@ import { Endpoint } from "@/models/endpoint.model";
 import { ResponseWrapperService } from "./response-wrapper.service";
 import { SchemaService } from "./schema.service";
 import { Schema } from "@/models/schema.model";
+import { QueryParams, QueryParamsHelper } from "@/helpers/query-params";
 
 export class EndpointService {
   static async getAllEndpoints(projectId?: string): Promise<Endpoint[]> {
@@ -38,7 +39,7 @@ export class EndpointService {
   }
 
   // display what the endpoint should return when user request the mock data
-  static getEndpointResponse(endpoint: Endpoint) {
+  static getEndpointResponse(endpoint: Endpoint, queryParams?: QueryParams) {
     let response;
     // WITH SCHEMA
     if (endpoint.schemaId && endpoint.schema) {
@@ -47,6 +48,21 @@ export class EndpointService {
         endpoint.isDataList,
         endpoint.numberOfData ?? undefined
       );
+      
+      // Apply query parameter processing only for list data
+      if (endpoint.isDataList && Array.isArray(response) && queryParams) {
+        const result = QueryParamsHelper.processData(response, queryParams);
+        response = result.data;
+        
+        // If pagination is applied, wrap response with pagination info
+        // if (result.pagination) {
+        //   response = {
+        //     data: result.data,
+        //     pagination: result.pagination
+        //   };
+        // }
+      }
+      
       if (endpoint.responseWrapper) {
         response = ResponseWrapperService.generateResponseWrapperJson({
           response,
@@ -62,6 +78,20 @@ export class EndpointService {
             wrapper: endpoint.responseWrapper,
           })
         : endpoint.staticResponse;
+      
+      // Apply query parameter processing for static responses if it's an array
+      if (Array.isArray(response) && queryParams) {
+        const result = QueryParamsHelper.processData(response, queryParams);
+        response = result.data;
+        
+        // If pagination is applied, wrap response with pagination info
+        // if (result.pagination) {
+        //   response = {
+        //     data: result.data,
+        //     pagination: result.pagination
+        //   };
+        // }
+      }
     }
     return response;
   }

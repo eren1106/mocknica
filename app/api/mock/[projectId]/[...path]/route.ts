@@ -7,6 +7,7 @@ import { Endpoint } from "@/models/endpoint.model";
 import { EndpointData } from "@/data/endpoint.data";
 import { EndpointService } from "@/services/endpoint.service";
 import { ProjectData } from "@/data/project.data";
+import { QueryParamsHelper } from "@/helpers/query-params";
 
 // Define the proper params type for Next.js App Router
 type Params = Promise<{ projectId: string; path: string[] }>;
@@ -187,8 +188,11 @@ async function handleRequest(
       });
     }
 
+    // Parse query parameters from the request URL
+    const queryParams = QueryParamsHelper.parseQueryParams(new URL(req.url));
+
     // TODO: make this function into utils instead of using service
-    const response = EndpointService.getEndpointResponse(matchingEndpoint);
+    const response = EndpointService.getEndpointResponse(matchingEndpoint, queryParams);
 
     // Create response with CORS headers only if origin is allowed
     const headers = new Headers();
