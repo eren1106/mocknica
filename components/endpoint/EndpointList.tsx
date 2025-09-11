@@ -3,6 +3,7 @@
 import { Edit, Trash, Copy } from "lucide-react";
 import DialogButton from "../dialog-button";
 import EndpointForm from "./EndpointForm";
+import JsonViewer from "../json-viewer";
 import {
   Accordion,
   AccordionContent,
@@ -10,7 +11,7 @@ import {
   AccordionTrigger,
 } from "../ui/accordion";
 import DeleteConfirmationDialog from "../delete-confirmation";
-import { cn, formatJSON } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { EndpointService } from "@/services/endpoint.service";
 import { useEndpoints, useMutationEndpoint } from "@/hooks/useEndpoint";
 import { Skeleton } from "../ui/skeleton";
@@ -22,14 +23,15 @@ interface EndpointsListProps {
 }
 
 export default function EndpointsList({ projectId }: EndpointsListProps) {
-  const { data: endpoints, isLoading: isLoadingEndpoints } = useEndpoints(projectId);
+  const { data: endpoints, isLoading: isLoadingEndpoints } =
+    useEndpoints(projectId);
   const { deleteEndpoint, isPending: isMutatingEndpoints } =
     useMutationEndpoint();
 
   const copyEndpointUrl = async (endpoint: any) => {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const fullUrl = `${baseUrl}/api/mock/${projectId}${endpoint.path}`;
-    
+
     try {
       await navigator.clipboard.writeText(fullUrl);
       toast.success("Endpoint URL copied to clipboard!");
@@ -73,9 +75,9 @@ export default function EndpointsList({ projectId }: EndpointsListProps) {
             <AccordionItem
               value={endpoint.id}
               key={endpoint.id}
-              className="border-none"
+              className="border-none shadow-sm rounded-md"
             >
-              <AccordionTrigger className="hover:no-underline border border-muted rounded-md p-4 data-[state=open]:rounded-b-none data-[state=open]:border-b-0">
+              <AccordionTrigger className="bg-background hover:no-underline border border-muted rounded-md p-4 data-[state=open]:rounded-b-none data-[state=open]:border-b-0">
                 <div className="flex items-center gap-2 w-full mr-3">
                   <p
                     className={cn(
@@ -85,18 +87,18 @@ export default function EndpointsList({ projectId }: EndpointsListProps) {
                   >
                     {endpoint.method}
                   </p>
-                  <p>{endpoint.path}</p>
-                  <p className="text-muted-foreground">{endpoint.name}</p>
+                  <p className="font-bold">{endpoint.path}</p>
+                  <p className="text-muted-foreground">{endpoint.description}</p>
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="flex flex-col gap-2 border border-muted rounded-md p-4 pt-0 border-t-0 rounded-t-none -mt-px">
+              <AccordionContent className="bg-background flex flex-col gap-2 border border-muted rounded-md p-4 pt-0 border-t-0 rounded-t-none -mt-px">
                 <div className="flex items-center justify-end gap-2">
                   <Button
                     onClick={() => copyEndpointUrl(endpoint)}
                     className="size-10 p-2"
                     variant="outline"
                   >
-                    <Copy size={20} />
+                    <Copy size={16} />
                   </Button>
                   <DialogButton
                     content={(close) => (
@@ -111,7 +113,7 @@ export default function EndpointsList({ projectId }: EndpointsListProps) {
                     className="size-10 p-2"
                     variant="outline"
                   >
-                    <Trash size={20} />
+                    <Trash size={16} />
                   </DialogButton>
                   <DialogButton
                     content={(close) => (
@@ -121,21 +123,21 @@ export default function EndpointsList({ projectId }: EndpointsListProps) {
                     className="size-10 p-2"
                     variant="outline"
                   >
-                    <Edit size={20} />
+                    <Edit size={16} />
                   </DialogButton>
                 </div>
-                {endpoint.description && <p className="text-muted-foreground">{endpoint.description}</p>}
+                {endpoint.description && (
+                  <p className="text-muted-foreground">
+                    {endpoint.description}
+                  </p>
+                )}
                 {
                   <>
                     {endpoint.schema && <p>Schema: {endpoint.schema.name}</p>}
-                    {/* <p>Response:</p> */}
-                    <pre className="p-4 rounded-md overflow-auto max-h-96 text-sm bg-secondary">
-                      <code className="">
-                        {formatJSON(
-                          EndpointService.getEndpointResponse(endpoint)
-                        )}
-                      </code>
-                    </pre>
+                    <JsonViewer 
+                      data={EndpointService.getEndpointResponse(endpoint)}
+                      className="mt-2"
+                    />
                   </>
                 }
               </AccordionContent>

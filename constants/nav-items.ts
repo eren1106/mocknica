@@ -5,12 +5,13 @@ import {
   FolderOpen,
   Globe,
   Database,
+  LucideProps,
 } from "lucide-react";
 
 interface NavItem {
   to: string;
   label: string;
-  icon: React.ComponentType;
+  icon: React.ComponentType<LucideProps>;
 }
 
 export const NAV_ITEMS: NavItem[] = [

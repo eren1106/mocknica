@@ -22,7 +22,7 @@ export default function RootLayout({
       <div className="flex flex-col ml-0 md:ml-[--sidebar-width] w-[calc(100vw-var(--sidebar-width))]">
         <Topbar />
         <AuthGuard>
-          <div className="flex-1 flex flex-col items-center pt-16">
+          <div className="flex-1 flex flex-col items-center pt-[--topbar-height] bg-muted min-h-screen">
             <main className="container p-6">{children}</main>
           </div>
         </AuthGuard>

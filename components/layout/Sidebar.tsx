@@ -88,8 +88,8 @@ const Sidebar = (props: SidebarProps) => {
                       isActive ? "bg-secondary" : ""
                     )}
                   >
-                    <IconComponent />
-                    <p>{item.label}</p>
+                    <IconComponent size={16} />
+                    <p className="text-sm">{item.label}</p>
                   </div>
                 </Link>
               );
@@ -135,8 +135,8 @@ const Sidebar = (props: SidebarProps) => {
                       selectedClassname
                     )}
                   >
-                    <IconComponent />
-                    <p>{item.label}</p>
+                    <IconComponent size={16} />
+                    <p className="text-sm">{item.label}</p>
                   </div>
                 </Link>
               );

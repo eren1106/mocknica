@@ -46,7 +46,6 @@ export default function ProjectOverviewContainer() {
             content={(close) => (
               <ProjectForm project={project} onSuccess={close} />
             )}
-            variant="outline"
             className="flex items-center gap-2"
           >
             <Edit size={16} />
