@@ -3,10 +3,10 @@
 import DialogButton from "../dialog-button";
 import { Plus } from "lucide-react";
 import EndpointsList from "./EndpointList";
-import EndpointCreationTabs from "./EndpointCreationTabs";
 import { useProject } from "@/hooks/useProject";
 import { useParams } from "next/navigation";
 import { Skeleton } from "../ui/skeleton";
+import EndpointCreationTabs from "./EndpointCreationTabs";
 
 const EndpointManagement = () => {
   const params = useParams();
@@ -25,7 +25,7 @@ const EndpointManagement = () => {
     <div className="flex flex-col">
       <div className="flex justify-end gap-2 items-center">
         <DialogButton
-          content={(close) => <EndpointCreationTabs onSuccess={close} projectId={projectId} />} // need 'use client' for this
+          content={(close) => <EndpointCreationTabs onSuccess={close} />} // need 'use client' for this
           className="w-fit"
         >
           <Plus className="size-6 mr-2" />

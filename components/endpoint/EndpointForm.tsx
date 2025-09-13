@@ -3,7 +3,6 @@
 import { useZodForm } from "@/hooks/useZodForm";
 import { Endpoint, HttpMethod } from "@prisma/client";
 import { toast } from "sonner";
-import * as z from "zod";
 import FormButton from "../form-button";
 import GenericFormField from "../generic-form-field";
 import ZodForm from "../zod-form";
@@ -22,32 +21,7 @@ import { useSchemas } from "@/hooks/useSchema";
 import { AIService } from "@/services/ai.service";
 import { useParams } from "next/navigation";
 import LinkButton from "../link-button";
-
-const EndPointSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().nullable(),
-  method: z.nativeEnum(HttpMethod),
-  path: z.string().min(1, "Path is required"),
-  schemaId: z.union([z.coerce.number().int().positive(), z.literal(undefined)]),
-  isDataList: z.boolean().transform((val) => val ?? false),
-  numberOfData: z.coerce.number().int().positive(),
-  responseWrapperId: z.union([
-    z.coerce.number().int().positive(),
-    z.literal(undefined),
-  ]),
-  staticResponse: z.string().nullable().refine((val) => {
-    if (!val || val.trim() === "") return true; // Allow empty or null values
-    try {
-      JSON.parse(val);
-      return true;
-    } catch {
-      return false;
-    }
-  }, {
-    message: "Static response must be valid JSON"
-  }),
-  projectId: z.string().min(1, "Project is required"),
-});
+import { EndPointSchema, EndPointSchemaType } from "@/zod-schemas/endpoint.schema";
 
 interface EndpointFormProps {
   endpoint?: Endpoint;
@@ -111,7 +85,7 @@ export default function EndpointForm({
         }
   );
 
-  const onSubmit = async (values: z.infer<typeof EndPointSchema>) => {
+  const onSubmit = async (values: EndPointSchemaType) => {
     console.log("VALUES", values);
     try {
       // Parse staticResponse safely since validation ensures it's valid JSON
