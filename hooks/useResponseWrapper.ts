@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ResponseWrapperService } from '@/services/response-wrapper.service';
 import { ResponseWrapper } from '@prisma/client';
 import { toast } from 'sonner';
+import { ENDPOINTS_QUERY_KEY } from './useEndpoint';
 
 const RESPONSE_WRAPPERS_QUERY_KEY = 'response-wrappers';
 
@@ -24,7 +25,10 @@ export const useResponseWrapper = (id: number) => {
 
 export const useMutationResponseWrapper = () => {
   const queryClient = useQueryClient();
-  const invalidateQueries = () => queryClient.invalidateQueries({ queryKey: [RESPONSE_WRAPPERS_QUERY_KEY] });
+  const invalidateQueries = () => {
+    queryClient.invalidateQueries({ queryKey: [RESPONSE_WRAPPERS_QUERY_KEY] });
+    queryClient.invalidateQueries({ queryKey: [ENDPOINTS_QUERY_KEY] }); // refetch endpoints as well to reflect the changes immediately
+  };
 
   const createResponseWrapper = useMutation({ 
     mutationFn: (data: Partial<ResponseWrapper>) => ResponseWrapperService.createResponseWrapper(data),

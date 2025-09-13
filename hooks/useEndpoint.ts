@@ -3,7 +3,7 @@ import { EndpointService } from '@/services/endpoint.service';
 import { Endpoint } from '@/models/endpoint.model';
 import { toast } from 'sonner';
 
-const ENDPOINTS_QUERY_KEY = 'endpoints';
+export const ENDPOINTS_QUERY_KEY = 'endpoints';
 
 export const useEndpoints = (projectId?: string) => {
   return useQuery<Endpoint[]>({
