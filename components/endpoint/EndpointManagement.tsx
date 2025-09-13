@@ -33,7 +33,7 @@ const EndpointManagement = () => {
         </DialogButton>
       </div>
       <h2 className="text-2xl font-bold mb-3">Available Endpoints</h2>
-      <EndpointsList projectId={projectId} />
+      <EndpointsList />
     </div>
   );
 };
