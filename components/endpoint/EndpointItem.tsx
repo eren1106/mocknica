@@ -14,15 +14,14 @@ import { Copy, Edit, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { EndpointService } from "@/services/endpoint.service";
-import { useParams } from "next/navigation";
+import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 interface IEndpointItemProps {
   endpoint: Endpoint;
 }
 
 export default function EndpointItem({ endpoint }: IEndpointItemProps) {
-  const params = useParams();
-  const projectId = params.id as string;
+  const projectId = useCurrentProjectId();
 
   const { deleteEndpoint, isPending: isMutatingEndpoints } =
     useMutationEndpoint();

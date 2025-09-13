@@ -1,13 +1,12 @@
 "use client";
 
 import { useProject } from "@/hooks/useProject";
-import { useParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import ResponseWrappersPageContainer from "./_ui/ResponseWrappersPageContainer";
+import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 export default function ProjectResponseWrappersPage() {
-  const params = useParams();
-  const projectId = params.id as string;
+  const projectId = useCurrentProjectId();
   const { data: project, isLoading } = useProject(projectId);
 
   if (isLoading) {

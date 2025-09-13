@@ -11,10 +11,10 @@ import ProjectForm from "@/components/project/ProjectForm";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 export default function ProjectOverviewContainer() {
-  const params = useParams();
-  const projectId = params.id as string;
+  const projectId = useCurrentProjectId();
   const { data: project, isLoading } = useProject(projectId);
   const [showToken, setShowToken] = useState(false);
 

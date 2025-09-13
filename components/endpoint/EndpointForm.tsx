@@ -25,6 +25,7 @@ import {
   EndPointSchema,
   EndPointSchemaType,
 } from "@/zod-schemas/endpoint.schema";
+import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 interface EndpointFormProps {
   endpoint?: Endpoint;
@@ -40,8 +41,7 @@ export default function EndpointForm({
     updateEndpoint,
     isPending: isMutatingEndpoint,
   } = useMutationEndpoint();
-  const params = useParams();
-  const projectId = params.id as string;
+  const projectId = useCurrentProjectId();
 
   const { data: schemas, isLoading: isLoadingSchema } = useSchemas(projectId);
   const [aiPrompt, setAiPrompt] = useState("");

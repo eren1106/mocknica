@@ -3,12 +3,11 @@
 import { Accordion } from "../ui/accordion";
 import { useEndpoints } from "@/hooks/useEndpoint";
 import { Skeleton } from "../ui/skeleton";
-import { useParams } from "next/navigation";
 import EndpointItem from "./EndpointItem";
+import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 export default function EndpointsList() {
-  const params = useParams();
-  const projectId = params.id as string;
+  const projectId = useCurrentProjectId();
 
   const { data: endpoints, isLoading: isLoadingEndpoints } =
     useEndpoints(projectId);

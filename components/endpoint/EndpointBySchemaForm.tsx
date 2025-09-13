@@ -11,12 +11,11 @@ import { InfoIcon } from "lucide-react";
 import { Switch } from "../ui/switch";
 import { useResponseWrappers } from "@/hooks/useResponseWrapper";
 import { Label } from "../ui/label";
-import { toast } from "sonner";
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
 import ResponseWrapperView from "@/app/(main)/projects/[id]/response-wrappers/_ui/ResponseWrapperView";
-import { useParams } from "next/navigation";
 import LinkButton from "../link-button";
+import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 const EndpointBySchemaSchema = z.object({
   schemaId: z.coerce.number().min(1, "Schema is required"),
@@ -33,8 +32,7 @@ interface EndpointBySchemaFormProps {
 }
 
 const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
-  const params = useParams();
-  const projectId = params.id as string;
+  const projectId = useCurrentProjectId();
   
   const { createEndpointsBySchema, isPending } = useMutationEndpoint();
   const { data: schemas, isLoading: isLoadingSchema } = useSchemas(projectId);

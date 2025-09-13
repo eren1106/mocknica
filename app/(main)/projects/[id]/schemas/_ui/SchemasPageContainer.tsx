@@ -8,11 +8,10 @@ import SchemaForm from "@/components/schema/SchemaForm";
 import { Plus } from "lucide-react";
 import SearchBar from "@/components/searchbar";
 import { useSchemas } from "@/hooks/useSchema";
-import { useParams } from "next/navigation";
+import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 const SchemasPageContainer = () => {
-  const params = useParams();
-  const projectId = params.id as string;
+  const projectId = useCurrentProjectId();
 
   const { data: schemas, isLoading } = useSchemas(projectId);
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,7 +42,7 @@ const SchemasPageContainer = () => {
           onClear={handleClearSearch}
         />
         <DialogButton
-          content={(close) => <SchemaForm onSuccess={close} projectId={projectId} />}
+          content={(close) => <SchemaForm onSuccess={close} />}
           className="w-fit"
           title="Create Schema"
         >

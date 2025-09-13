@@ -3,13 +3,14 @@
 import { ModeToggle } from "@/components/mode-toggle";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname, useParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useProject } from "@/hooks/useProject";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NAV_ITEMS, PROJECT_NAV_ITEMS } from "@/constants/nav-items";
 import { Skeleton } from "../ui/skeleton";
 import { Badge } from "../ui/badge";
+import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 interface SidebarProps {
   onNavItemClicked?: () => void;
@@ -17,10 +18,9 @@ interface SidebarProps {
 
 const Sidebar = (props: SidebarProps) => {
   const pathname = usePathname();
-  const params = useParams();
 
   // Check if we're in a project context
-  const projectId = params.id as string;
+  const projectId = useCurrentProjectId();
   const isInProject =
     pathname.startsWith("/projects/") && projectId && pathname !== "/projects";
   const { data: project, isLoading: isLoadingProject } = useProject(

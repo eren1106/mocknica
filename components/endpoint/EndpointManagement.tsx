@@ -4,13 +4,13 @@ import DialogButton from "../dialog-button";
 import { Plus } from "lucide-react";
 import EndpointsList from "./EndpointList";
 import { useProject } from "@/hooks/useProject";
-import { useParams } from "next/navigation";
 import { Skeleton } from "../ui/skeleton";
 import EndpointCreationTabs from "./EndpointCreationTabs";
+import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 const EndpointManagement = () => {
-  const params = useParams();
-  const projectId = params.id as string;
+  const projectId = useCurrentProjectId();
+
   const { data: project, isLoading } = useProject(projectId);
 
   if (isLoading) {
