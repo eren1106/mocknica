@@ -14,7 +14,7 @@ const ResponseWrappersPageContainer = ({ projectId }: ResponseWrappersPageContai
   const { data: responseWrappers, isLoading } = useResponseWrappers(projectId);
 
   return (
-    <div className="container flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Response Wrappers</h1>
         <DialogButton
@@ -33,12 +33,16 @@ const ResponseWrappersPageContainer = ({ projectId }: ResponseWrappersPageContai
         {isLoading ? (
           <Skeleton className="h-10" />
         ) : (
-          responseWrappers?.map((wrapper) => (
-            <ResponseWrapperCard
-              key={wrapper.id}
-              wrapper={wrapper}
-            />
-          ))
+          responseWrappers?.length === 0 ? (
+            <p className="text-muted-foreground italic">No response wrappers found. Create one now!</p>
+          ) : (
+            responseWrappers?.map((wrapper) => (
+              <ResponseWrapperCard
+                key={wrapper.id}
+                wrapper={wrapper}
+              />
+            ))
+          )
         )}
       </div>
     </div>

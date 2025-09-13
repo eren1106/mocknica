@@ -21,7 +21,10 @@ import { useSchemas } from "@/hooks/useSchema";
 import { AIService } from "@/services/ai.service";
 import { useParams } from "next/navigation";
 import LinkButton from "../link-button";
-import { EndPointSchema, EndPointSchemaType } from "@/zod-schemas/endpoint.schema";
+import {
+  EndPointSchema,
+  EndPointSchemaType,
+} from "@/zod-schemas/endpoint.schema";
 
 interface EndpointFormProps {
   endpoint?: Endpoint;
@@ -284,7 +287,8 @@ export default function EndpointForm({
           ) : (
             <div className="flex flex-col gap-3 p-4 border border-dashed rounded-lg">
               <p className="text-sm text-muted-foreground">
-                No schemas available for this project. Create a schema first to use dynamic data generation.
+                No schemas available for this project. Create a schema first to
+                use dynamic data generation.
               </p>
               <LinkButton
                 href={`/projects/${projectId}/schemas`}
@@ -371,11 +375,26 @@ export default function EndpointForm({
               label: wrapper.name,
             })) || []
           }
+          emptyOptionsFallback={
+            <div className="flex flex-col gap-2 p-2 max-w-full">
+              <p className="text-sm text-muted-foreground leading-tight">
+                No response wrappers available. Create one first.
+              </p>
+              <LinkButton
+                href={`/projects/${projectId}/response-wrappers`}
+                size="sm"
+              >
+                Go to Response Wrappers
+              </LinkButton>
+            </div>
+          }
           defaultValue={defaultWrapperId?.toString()}
           disabled={isLoadingResponseWrapper}
         />
       )}
-      {(isUseWrapper && selectedWrapper) && <ResponseWrapperView wrapper={selectedWrapper} />}
+      {isUseWrapper && selectedWrapper && (
+        <ResponseWrapperView wrapper={selectedWrapper} />
+      )}
 
       <FormButton isLoading={isMutatingEndpoint}>
         {endpoint ? "Update" : "Create"} Endpoint

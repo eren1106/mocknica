@@ -71,6 +71,7 @@ interface SelectField {
   type: "select" | "multiple-choice" | "combobox";
   options: SelectOption[];
   defaultValue?: string;
+  emptyOptionsFallback?: React.ReactNode;
 }
 
 interface CustomField {
@@ -209,18 +210,30 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (
             res = (
               <Select
                 onValueChange={field.onChange}
-                defaultValue={ field.value ? field.value?.toString() : props.defaultValue?.toString()}
+                defaultValue={
+                  field.value
+                    ? field.value?.toString()
+                    : props.defaultValue?.toString()
+                }
                 disabled={disabled}
               >
                 <SelectTrigger>
                   <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
                 <SelectContent>
-                  {props.options?.map((item) => (
-                    <SelectItem value={`${item.value}`} key={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
+                  {props.options.length > 0 ? (
+                    props.options.map((item) => (
+                      <SelectItem value={`${item.value}`} key={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    props.emptyOptionsFallback || (
+                      <i className="text-muted-foreground text-sm px-1">
+                        No options
+                      </i>
+                    )
+                  )}
                 </SelectContent>
               </Select>
             );
@@ -362,21 +375,24 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (
         }
 
         return (
-          <FormItem className={cn("flex flex-col items-start w-full", props.className)}>
-            <div className={cn("flex items-center gap-2 justify-between w-full", props.contentClassName)}>
+          <FormItem
+            className={cn("flex flex-col items-start w-full", props.className)}
+          >
+            <div
+              className={cn(
+                "flex items-center gap-2 justify-between w-full",
+                props.contentClassName
+              )}
+            >
               {(label || useFormNameAsLabel) && (
                 <FormLabel className="font-medium text-sm flex gap-1 items-center">
                   {label || convertCamelCaseToTitle(name)}{" "}
                   {!optional && <p>*</p>}
                 </FormLabel>
               )}
-              {
-                props.topEndContent && (
-                  <div className="ml-auto">
-                    {props.topEndContent}
-                  </div>
-                )
-              }
+              {props.topEndContent && (
+                <div className="ml-auto">{props.topEndContent}</div>
+              )}
             </div>
             {description && (
               <FormDescription className="whitespace-pre">
