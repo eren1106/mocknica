@@ -7,7 +7,7 @@ import FormButton from "../form-button";
 import GenericFormField from "../generic-form-field";
 import ZodForm from "../zod-form";
 import { Button } from "../ui/button";
-import { Sparkles } from "lucide-react";
+import { Sparkles, RefreshCw } from "lucide-react";
 import DialogButton from "../dialog-button";
 import AutoResizeTextarea from "../auto-resize-textarea";
 import { useMemo, useState } from "react";
@@ -19,13 +19,15 @@ import ResponseWrapperView from "@/app/(main)/projects/[id]/response-wrappers/_u
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
 import { AIService } from "@/services/ai.service";
-import { useParams } from "next/navigation";
 import LinkButton from "../link-button";
 import {
   EndPointSchema,
   EndPointSchemaType,
 } from "@/zod-schemas/endpoint.schema";
 import { useCurrentProjectId } from "@/hooks/useCurrentProject";
+import { SchemaService } from "@/services/schema.service";
+import { stringifyJSON } from "@/lib/utils";
+import JsonViewer from "../json-viewer";
 
 interface EndpointFormProps {
   endpoint?: Endpoint;
@@ -63,7 +65,7 @@ export default function EndpointForm({
           responseWrapperId: endpoint.responseWrapperId || undefined,
           numberOfData: endpoint.numberOfData || 3,
           staticResponse: endpoint.staticResponse
-            ? JSON.stringify(endpoint.staticResponse, undefined, 4)
+            ? stringifyJSON(endpoint.staticResponse)
             : "",
           projectId: endpoint.projectId,
         }
@@ -74,19 +76,17 @@ export default function EndpointForm({
           method: HttpMethod.GET,
           isDataList: false,
           numberOfData: 3,
-          staticResponse: JSON.stringify(
-            {
-              id: 1,
-              name: "John Doe",
-            },
-            undefined,
-            4
-          ),
+          staticResponse: stringifyJSON({
+            id: 1,
+            name: "John Doe",
+          }),
           schemaId: undefined,
           responseWrapperId: undefined,
           projectId: projectId || "",
         }
   );
+
+  const schemaId = form.watch("schemaId");
 
   const onSubmit = async (values: EndPointSchemaType) => {
     console.log("VALUES", values);
@@ -103,14 +103,14 @@ export default function EndpointForm({
           id: endpoint.id,
           data: {
             ...values,
-            // cannot send stringify format, need send in object format, because the stringify process will be conducted automatically when send data via api
+            // cannot send stringified format, need send in object format, because the stringify process will be conducted automatically when send data via api
             staticResponse: parsedStaticResponse,
           },
         });
       } else {
         await createEndpoint({
           ...values,
-          // cannot send stringify format, need send in object format, because the stringify process will be conducted automatically when send data via api
+          // cannot send stringified format, need send in object format, because the stringify process will be conducted automatically when send data via api
           staticResponse: parsedStaticResponse,
         });
       }
@@ -129,7 +129,7 @@ export default function EndpointForm({
     setIsGenerating(true);
     try {
       const res = await AIService.generateResponseByAI(aiPrompt);
-      form.setValue("staticResponse", JSON.stringify(res, undefined, 4));
+      form.setValue("staticResponse", stringifyJSON(res));
     } catch (error) {
       console.error("Error generating response:", error);
       toast.error("Failed to generate response");
@@ -145,11 +145,50 @@ export default function EndpointForm({
         "schemaId",
         endpoint?.schemaId || defaultSchemaId || undefined
       );
+      // Generate static response when enabling schema
+      handleRegenerateSchemaResponse();
     }
     if (!checked) {
       form.setValue("schemaId", undefined);
+      // Reset to default static response when disabling schema
+      form.setValue(
+        "staticResponse",
+        stringifyJSON(
+          endpoint?.staticResponse || {
+            id: 1,
+            name: "John Doe",
+          }
+        )
+      );
     }
     setIsUseSchema(checked);
+  };
+
+  const handleRegenerateSchemaResponse = async () => {
+    if (schemaId && schemas) {
+      const selectedSchema = schemas.find(
+        (schema) => schema.id === Number(schemaId)
+      );
+      if (selectedSchema) {
+        try {
+          const isDataList = form.watch("isDataList");
+          const numberOfData = form.watch("numberOfData");
+          const generatedResponse = SchemaService.generateResponseFromSchema(
+            selectedSchema,
+            isDataList || false,
+            numberOfData || undefined
+          );
+          form.setValue(
+            "staticResponse",
+            stringifyJSON(generatedResponse)
+          );
+          toast.success("Schema response regenerated");
+        } catch (error) {
+          console.error("Error regenerating schema response:", error);
+          toast.error("Failed to regenerate schema response");
+        }
+      }
+    }
   };
 
   const handleUseWrapperChange = (checked: boolean) => {
@@ -282,6 +321,29 @@ export default function EndpointForm({
                   optional
                   description="Number of data to generate, if not set, it will generate 3 data"
                 />
+              )}
+
+              {schemaId && (
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">
+                      Generated Response Preview
+                    </label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRegenerateSchemaResponse}
+                      className="flex items-center gap-2"
+                    >
+                      <RefreshCw size={14} />
+                      Regenerate
+                    </Button>
+                  </div>
+                  <JsonViewer
+                    data={JSON.parse(form.watch("staticResponse") || "")}
+                  />
+                </div>
               )}
             </>
           ) : (

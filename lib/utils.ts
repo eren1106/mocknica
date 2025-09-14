@@ -70,3 +70,12 @@ export function generateApiToken(): string {
   crypto.getRandomValues(array);
   return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
 };
+
+export function stringifyJSON (jsonData: any, space: number = 2): string {
+  try {
+    return JSON.stringify(jsonData, undefined, space);
+  } catch (error) {
+    console.error("Error stringifying JSON:", error);
+    return String(jsonData);
+  }
+};
