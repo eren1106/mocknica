@@ -5,32 +5,23 @@ import { AppError, handlePrismaError } from "@/data/helpers/error-handler";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { ProjectService } from "./project.service";
 import { HttpMethod } from "@prisma/client";
+import { SchemaService as BackendSchemaService } from "./schema.service";
+import { SchemaService } from "../schema.service";
 
 export class EndpointService {
   /**
-   * Create a new endpoint with project ownership validation
-   */
-  static async createEndpoint(
-    data: Omit<EndpointPrisma, "id" | "updatedAt" | "createdAt">,
-    userId: string
-  ): Promise<EndpointPrisma> {
-    try {
-      // Verify project ownership
-      await ProjectService.verifyProjectOwnership(data.projectId, userId);
-      
-      return await EndpointData.createEndpoint(data);
-    } catch (error) {
-      throw handlePrismaError(error);
-    }
-  }
-
-  /**
    * Get endpoints for a project with ownership validation
    */
-  static async getProjectEndpoints(projectId: string, userId: string): Promise<Endpoint[]> {
+  static async getProjectEndpoints(
+    projectId: string,
+    userId: string
+  ): Promise<Endpoint[]> {
     try {
       // Verify project ownership
-      const hasAccess = await ProjectService.verifyProjectOwnership(projectId, userId);
+      const hasAccess = await ProjectService.verifyProjectOwnership(
+        projectId,
+        userId
+      );
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
@@ -51,14 +42,14 @@ export class EndpointService {
   static async getUserEndpoints(userId: string): Promise<Endpoint[]> {
     try {
       const userProjects = await ProjectService.getUserProjects(userId);
-      const projectIds = userProjects.map(p => p.id);
-      
+      const projectIds = userProjects.map((p) => p.id);
+
       if (projectIds.length === 0) {
         return [];
       }
 
-      return await EndpointData.getEndpoints({ 
-        where: { projectId: { in: projectIds } } 
+      return await EndpointData.getEndpoints({
+        where: { projectId: { in: projectIds } },
       });
     } catch (error) {
       throw handlePrismaError(error);
@@ -68,10 +59,13 @@ export class EndpointService {
   /**
    * Get a specific endpoint with ownership validation
    */
-  static async getEndpoint(endpointId: string, userId: string): Promise<Endpoint> {
+  static async getEndpoint(
+    endpointId: string,
+    userId: string
+  ): Promise<Endpoint> {
     try {
       const endpoint = await EndpointData.getEndpointById(endpointId);
-      
+
       if (!endpoint) {
         throw new AppError(
           "Endpoint not found",
@@ -81,7 +75,10 @@ export class EndpointService {
       }
 
       // Verify project ownership
-      const hasAccess = await ProjectService.verifyProjectOwnership(endpoint.projectId, userId);
+      const hasAccess = await ProjectService.verifyProjectOwnership(
+        endpoint.projectId,
+        userId
+      );
       if (!hasAccess) {
         throw new AppError(
           "Access denied",
@@ -91,6 +88,23 @@ export class EndpointService {
       }
 
       return endpoint;
+    } catch (error) {
+      throw handlePrismaError(error);
+    }
+  }
+
+  /**
+   * Create a new endpoint with project ownership validation
+   */
+  static async createEndpoint(
+    data: Omit<EndpointPrisma, "id" | "updatedAt" | "createdAt">,
+    userId: string
+  ): Promise<EndpointPrisma> {
+    try {
+      // Verify project ownership
+      await ProjectService.verifyProjectOwnership(data.projectId, userId);
+
+      return await EndpointData.createEndpoint(data);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -107,7 +121,7 @@ export class EndpointService {
     try {
       // Verify ownership first
       await this.getEndpoint(endpointId, userId);
-      
+
       return await EndpointData.updateEndpoint(endpointId, data);
     } catch (error) {
       throw handlePrismaError(error);
@@ -117,11 +131,14 @@ export class EndpointService {
   /**
    * Delete an endpoint with ownership validation
    */
-  static async deleteEndpoint(endpointId: string, userId: string): Promise<void> {
+  static async deleteEndpoint(
+    endpointId: string,
+    userId: string
+  ): Promise<void> {
     try {
       // Verify ownership first
       await this.getEndpoint(endpointId, userId);
-      
+
       await EndpointData.deleteEndpoint(endpointId);
     } catch (error) {
       throw handlePrismaError(error);
@@ -142,7 +159,10 @@ export class EndpointService {
   ): Promise<EndpointPrisma[]> {
     try {
       // Verify project ownership
-      const hasAccess = await ProjectService.verifyProjectOwnership(data.projectId, userId);
+      const hasAccess = await ProjectService.verifyProjectOwnership(
+        data.projectId,
+        userId
+      );
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
@@ -200,10 +220,18 @@ export class EndpointService {
       ];
 
       for (const config of endpointConfigs) {
+        // Generate static response for each endpoint
+        const schema = await BackendSchemaService.getSchema(schemaId, userId);
+        const generatedResponse = SchemaService.generateResponseFromSchema(
+          schema,
+          config.isDataList || false,
+          config.numberOfData || undefined
+        );
+
         const endpoint = await EndpointData.createEndpoint({
           ...config,
           schemaId,
-          staticResponse: null,
+          staticResponse: generatedResponse,
           responseWrapperId: responseWrapperId ?? null,
           projectId,
         });

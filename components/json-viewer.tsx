@@ -139,7 +139,7 @@ export default function JsonViewer({ data, className }: JsonViewerProps) {
 
   return (
     <div className={cn("relative", className)}>
-      <div className="absolute top-2 right-2 z-10">
+      <div className="absolute top-3 right-5 z-10">
         <Button
           onClick={copyToClipboard}
           size="sm"
