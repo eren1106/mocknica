@@ -1,8 +1,12 @@
 import { ProjectData } from "@/data/project.data";
+import { SchemaData } from "@/data/schema.data";
+import { EndpointData } from "@/data/endpoint.data";
 import { Project } from "@/models/project.model";
 import { ProjectSchemaType } from "@/zod-schemas/project.schema";
-import { AppError, handlePrismaError } from "@/data/helpers/error-handler";
+import { AppError, ERROR_CODES, handlePrismaError } from "@/data/helpers/error-handler";
 import { STATUS_CODES } from "@/constants/status-codes";
+import { Schema } from "@/models/schema.model";
+import { SchemaService } from "../schema.service";
 
 export class ProjectService {
   /**
@@ -10,7 +14,85 @@ export class ProjectService {
    */
   static async createProject(data: ProjectSchemaType, userId: string): Promise<Project> {
     try {
-      return await ProjectData.createProject({ ...data, userId });
+      // If AI-generated data is provided, create everything step by step
+      if (data.aiGeneratedData) {        
+        // First create the project without AI data
+        const { aiGeneratedData, ...projectData } = data;
+        const project = await ProjectData.createProject({ ...projectData, userId });
+
+        try {
+          // Create schemas
+          const createdSchemas: Schema[] = [];
+          for (const schemaData of aiGeneratedData.schemas) {
+            const createdSchema = await SchemaData.createSchema(
+              {
+                name: schemaData.name,
+                fields: schemaData.fields
+              },
+              project.id
+            );
+            createdSchemas.push(createdSchema as Schema);
+          }
+
+          // Create endpoints
+          for (const endpointData of aiGeneratedData.endpoints) {
+            if(!endpointData.schemaId) {
+              throw new AppError(
+                "Schema ID is missing in endpoint data",
+                STATUS_CODES.BAD_REQUEST,
+                ERROR_CODES.VALIDATION_ERROR
+              );
+            }
+            
+            let schemaId: number | null = null;
+            let schema: Schema | null = null;
+            
+            // Find the schema by index (1-based in AI response)
+            if (endpointData.schemaId && endpointData.schemaId > 0 && endpointData.schemaId <= createdSchemas.length) {
+              schema = createdSchemas[endpointData.schemaId - 1];
+              schemaId = schema.id;
+            }
+
+            const endpointResponse = schema ? SchemaService.generateResponseFromSchema(
+              schema,
+              endpointData.isDataList || false,
+              endpointData.numberOfData || undefined
+            ) : null;
+
+            // Use EndpointData.createEndpoint
+            await EndpointData.createEndpoint({
+              name: `${endpointData.method} ${endpointData.path}`,
+              path: endpointData.path,
+              method: endpointData.method,
+              description: endpointData.description,
+              projectId: project.id,
+              schemaId,
+              isDataList: endpointData.isDataList || false,
+              numberOfData: endpointData.numberOfData || null,
+              responseWrapperId: null,
+              staticResponse: endpointResponse,
+            });
+          }
+
+          // Return the project with all related data
+          const finalProject = await ProjectData.getProject(project.id);
+          if (!finalProject) {
+            throw new AppError(
+              "Failed to retrieve created project",
+              STATUS_CODES.INTERNAL_SERVER_ERROR,
+              ERROR_CODES.DATABASE_ERROR
+            );
+          }
+          return finalProject;
+        } catch (error) {
+          // If schemas/endpoints creation fails, delete the project to maintain consistency
+          await ProjectData.deleteProject(project.id);
+          throw error;
+        }
+      } else {
+        // Regular project creation without AI data
+        return await ProjectData.createProject({ ...data, userId });
+      }
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -27,7 +109,7 @@ export class ProjectService {
         throw new AppError(
           "Project not found or access denied",
           STATUS_CODES.NOT_FOUND,
-          "NOT_FOUND" as any
+          ERROR_CODES.NOT_FOUND
         );
       }
 
