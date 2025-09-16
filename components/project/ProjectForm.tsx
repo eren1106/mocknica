@@ -309,16 +309,8 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <Badge
-                          variant={
-                            endpoint.method === "GET"
-                              ? "default"
-                              : endpoint.method === "POST"
-                              ? "secondary"
-                              : endpoint.method === "PUT"
-                              ? "outline"
-                              : "destructive"
-                          }
-                          className="text-xs font-mono"
+                          variant="outline"
+                          className="text-xs font-mono border-primary"
                         >
                           {endpoint.method}
                         </Badge>

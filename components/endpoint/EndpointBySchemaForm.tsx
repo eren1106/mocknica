@@ -37,7 +37,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
   const { createEndpointsBySchema, isPending } = useMutationEndpoint();
   const { data: schemas, isLoading: isLoadingSchema } = useSchemas(projectId);
   const { data: responseWrappers, isLoading: isLoadingResponseWrapper } =
-    useResponseWrappers();
+    useResponseWrappers(projectId);
 
   const [isUseWrapper, setIsUseWrapper] = useState(false);
 

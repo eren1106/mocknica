@@ -54,7 +54,7 @@ export default function EndpointForm({
   const [isUseSchema, setIsUseSchema] = useState(!!endpoint?.schemaId);
 
   const { data: responseWrappers, isLoading: isLoadingResponseWrapper } =
-    useResponseWrappers();
+    useResponseWrappers(projectId);
 
   const form = useZodForm(
     EndPointSchema,

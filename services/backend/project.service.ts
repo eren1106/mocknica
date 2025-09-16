@@ -7,6 +7,8 @@ import { AppError, ERROR_CODES, handlePrismaError } from "@/data/helpers/error-h
 import { STATUS_CODES } from "@/constants/status-codes";
 import { Schema } from "@/models/schema.model";
 import { SchemaService } from "../schema.service";
+import { WRAPPER_DATA_STR } from "@/constants";
+import { ResponseWrapperData } from "@/data/response-wrapper.data";
 
 export class ProjectService {
   /**
@@ -34,6 +36,18 @@ export class ProjectService {
             createdSchemas.push(createdSchema as Schema);
           }
 
+          // Create default response wrapper
+          const responseWrapperJSON = {
+            data: WRAPPER_DATA_STR,
+            status: 200,
+            message: "Success"
+          }
+          const responseWrapper = await ResponseWrapperData.createResponseWrapper({
+            name: "Default Response Wrapper",
+            // we want send this "data": $data , not this "data": "$data"
+            json: JSON.stringify(responseWrapperJSON).replaceAll(`"${WRAPPER_DATA_STR}"`, WRAPPER_DATA_STR),
+          }, project.id);
+
           // Create endpoints
           for (const endpointData of aiGeneratedData.endpoints) {
             if(!endpointData.schemaId) {
@@ -59,7 +73,6 @@ export class ProjectService {
               endpointData.numberOfData || undefined
             ) : null;
 
-            // Use EndpointData.createEndpoint
             await EndpointData.createEndpoint({
               name: `${endpointData.method} ${endpointData.path}`,
               path: endpointData.path,
@@ -69,7 +82,7 @@ export class ProjectService {
               schemaId,
               isDataList: endpointData.isDataList || false,
               numberOfData: endpointData.numberOfData || null,
-              responseWrapperId: null,
+              responseWrapperId: responseWrapper.id,
               staticResponse: endpointResponse,
             });
           }

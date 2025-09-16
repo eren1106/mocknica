@@ -61,7 +61,7 @@ export async function PUT(
       parsedId,
       {
         name: validationResult.name,
-        json: validationResult.json ? JSON.parse(validationResult.json.replaceAll(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`)) : null,
+        json: validationResult.json,
       },
       sessionResult.user.id
     );
