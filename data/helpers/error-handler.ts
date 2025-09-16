@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { STATUS_CODES } from '@/constants/status-codes';
 
-enum ERROR_CODES {
+export enum ERROR_CODES {
   DATABASE_ERROR = 'DATABASE_ERROR',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   AUTH_ERROR = 'AUTH_ERROR',

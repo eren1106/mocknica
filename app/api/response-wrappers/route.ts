@@ -5,7 +5,6 @@ import { validateRequestBody, validateQueryParams } from '../_helpers/validation
 import { ResponseWrapperService } from '@/services/backend/response-wrapper.service';
 import { CreateResponseWrapperSchema } from '@/zod-schemas/response-wrapper.schema';
 import { z } from 'zod';
-import { WRAPPER_DATA_STR } from '@/constants';
 
 const GetResponseWrappersQuerySchema = z.object({
   projectId: z.string().optional(),
@@ -56,7 +55,7 @@ export async function POST(req: NextRequest) {
     const wrapper = await ResponseWrapperService.createResponseWrapper(
       {
         name: validationResult.name,
-        json: validationResult.json ? JSON.parse(validationResult.json.replaceAll(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`)) : null,
+        json: validationResult.json,
       },
       validationResult.projectId,
       sessionResult.user.id

@@ -1,17 +1,18 @@
 import prisma from "@/lib/db";
 import { ResponseWrapper } from "@prisma/client";
 import { ResponseWrapperSchemaType } from "@/zod-schemas/response-wrapper.schema";
-import { Prisma } from "@prisma/client";
+import { WRAPPER_DATA_STR } from "@/constants";
 
 export class ResponseWrapperData {
   static async createResponseWrapper(
     data: ResponseWrapperSchemaType,
     projectId: string
   ): Promise<ResponseWrapper> {
+    console.log("JSONNN", data.json)
     return prisma.responseWrapper.create({
       data: {
         name: data.name,
-        json: data.json === null ? Prisma.JsonNull : data.json as Prisma.InputJsonValue,
+        json: data.json ? JSON.parse(data.json.replaceAll(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`)) : null,
         project: { connect: { id: projectId } },
       },
     });
@@ -45,7 +46,7 @@ export class ResponseWrapperData {
       where: { id },
       data: {
         ...data,
-        json: data.json === null ? Prisma.JsonNull : data.json as Prisma.InputJsonValue,
+        json: data.json ? JSON.parse(data.json.replaceAll(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`)) : null,
       },
     });
   }

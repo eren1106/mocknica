@@ -14,7 +14,7 @@ import { ResponseWrapper } from "@prisma/client";
 import JsonEditor from "@/components/json-editor";
 import FormButton from "@/components/form-button";
 import { WRAPPER_DATA_STR } from "@/constants";
-import { useParams } from "next/navigation";
+import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 const formFields = getZodFieldNames(ResponseWrapperSchema);
 interface ResponseWrapperFormProps {
@@ -22,8 +22,7 @@ interface ResponseWrapperFormProps {
   onSuccess?: () => void;
 }
 const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormProps) => {
-  const { id } = useParams();
-  const projectId = id as string;
+  const projectId = useCurrentProjectId();
 
   const { createResponseWrapper, updateResponseWrapper, isPending } = useMutationResponseWrapper();
   const form = useZodForm<ResponseWrapperSchemaType>(
@@ -41,7 +40,6 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
   );
   const onSubmit = async (data: ResponseWrapperSchemaType) => {
     console.log("DATA:", data);
-    console.log("ProjectId being sent:", projectId);
 
     if (!projectId) {
       console.error("Project ID is undefined");

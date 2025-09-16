@@ -131,6 +131,7 @@ RESPOND WITH ONLY JSON:`;
       }
     }
 
+    // TODO: validate with Zod
     // Extract and validate the schema fields from AI response
     if (!response.fields || !Array.isArray(response.fields)) {
       throw new Error("AI response must contain a 'fields' array");
