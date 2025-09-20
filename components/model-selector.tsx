@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Check, ChevronDown, Loader2, Cpu, Cloud, Server } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAiModels } from "@/hooks/useAiModels";
 
 interface AIModel {
   id: string;
@@ -54,63 +55,18 @@ export function ModelSelector({
   placeholder = "Select AI model...",
   disabled = false 
 }: ModelSelectorProps) {
+  const { data: models, isLoading, error } = useAiModels();
   const [open, setOpen] = useState(false);
-  const [models, setModels] = useState<AIModel[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Fetch available models
-  useEffect(() => {
-    const fetchModels = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await fetch('/api/ai/models');
-        if (!response.ok) {
-          throw new Error(`Failed to fetch models: ${response.statusText}`);
-        }
-        
-        const responseData = await response.json();
-        setModels(responseData.data?.models || []);
-      } catch (err) {
-        console.error('Error fetching AI models:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch models');
-        
-        // Fallback to hardcoded models if API fails
-        // setModels([
-        //   {
-        //     id: 'gemini-2.0-flash',
-        //     name: 'Gemini 2.0 Flash',
-        //     provider: 'gemini',
-        //     description: 'Fast and efficient Gemini model',
-        //     isLocal: false
-        //   },
-        //   {
-        //     id: 'gpt-4o-mini',
-        //     name: 'GPT-4o Mini',
-        //     provider: 'openai',
-        //     description: 'Affordable and intelligent small model',
-        //     isLocal: false
-        //   }
-        // ]);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const selectedModel = models?.find(model => model.id === value);
 
-    fetchModels();
-  }, []);
-
-  const selectedModel = models.find(model => model.id === value);
-
-  const groupedModels = models.reduce((acc, model) => {
+  const groupedModels = models?.reduce((acc, model) => {
     if (!acc[model.provider]) {
       acc[model.provider] = [];
     }
     acc[model.provider].push(model);
     return acc;
-  }, {} as Record<string, AIModel[]>);
+  }, {} as Record<string, AIModel[]>) || {};
 
   const formatProviderName = (provider: string) => {
     switch (provider) {
@@ -133,10 +89,10 @@ export function ModelSelector({
           role="combobox"
           aria-expanded={open}
           className="w-full justify-between"
-          disabled={disabled || loading}
+          disabled={disabled || isLoading}
         >
           <div className="flex items-center gap-2 min-w-0">
-            {loading ? (
+            {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Loading models...</span>
@@ -168,7 +124,7 @@ export function ModelSelector({
         <Command>
           <CommandInput placeholder="Search models..." />
           <CommandList>
-            {loading ? (
+            {isLoading ? (
               <div className="flex items-center justify-center p-4">
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
                 <span className="text-sm text-muted-foreground">Loading models...</span>
@@ -176,7 +132,7 @@ export function ModelSelector({
             ) : error ? (
               <div className="p-4 text-center">
                 <p className="text-sm text-destructive mb-2">Failed to load models</p>
-                <p className="text-xs text-muted-foreground">{error}</p>
+                <p className="text-xs text-muted-foreground">{error.message}</p>
               </div>
             ) : Object.keys(groupedModels).length === 0 ? (
               <CommandEmpty>No models available.</CommandEmpty>
