@@ -77,7 +77,7 @@ export class GeminiProvider extends AIProvider {
 
       return {
         content: completion.text,
-        model,
+        model: model,
         provider: AIProviderType.GEMINI,
       };
     } catch (error) {
@@ -96,78 +96,45 @@ export class GeminiProvider extends AIProvider {
       const available = await this.isAvailable();
       if (!available) return [];
 
-      const client = this.getClient();
-
-      // Use the Gemini SDK to list available models
-      const response = await client.models.list();
-      const models = [];
-
-      for await (const model of response) models.push(model);
-
-      return models
-        .filter((model) => this.isValidGeminiModel(model))
-        .map((model) => ({
-          id: model.name!,
-          name: model.displayName!,
+      return [
+        {
+          id: 'gemini-2.0-flash',
+          name: 'Gemini 2.0 Flash',
           provider: AIProviderType.GEMINI,
-          description: model.description,
-          maxTokens: model.outputTokenLimit,
-          isLocal: false,
-        }));
+          description: 'Fast and efficient for most tasks',
+          maxTokens: 8192,
+          isLocal: false
+        },
+        // {
+        //   id: 'gemini-2.0-flash-exp',
+        //   name: 'Gemini 2.0 Flash (Experimental)',
+        //   provider: AIProviderType.GEMINI,
+        //   description: 'Experimental version with latest features',
+        //   maxTokens: 8192,
+        //   isLocal: false
+        // },
+        {
+          id: 'gemini-1.5-pro',
+          name: 'Gemini 1.5 Pro',
+          provider: AIProviderType.GEMINI,
+          description: 'High-performance model for complex tasks',
+          maxTokens: 2048000,
+          isLocal: false
+        },
+        {
+          id: 'gemini-pro',
+          name: 'Gemini Pro',
+          provider: AIProviderType.GEMINI,
+          description: 'Balanced performance for general tasks',
+          maxTokens: 1048576,
+          isLocal: false
+        }
+      ];
     } catch (error) {
       console.warn("Could not fetch Gemini models, using defaults:", error);
       return [];
     }
   }
-
-  private isValidGeminiModel(model: any): boolean {
-    if (!model.name?.includes("gemini")) return false;
-    if (!model.displayName?.includes("Gemini")) return false;
-    if (model.description?.includes("Experimental")) return false;
-    if (model.displayName.includes("Experimental")) return false;
-    if (model.displayName.includes("Audio")) return false;
-    if (model.displayName.includes("Embedding")) return false;
-    if (model.displayName.includes("Preview")) return false;
-
-    return true;
-  }
-
-  // private getDefaultModels(): AIModel[] {
-  //   return [
-  //     {
-  //       id: 'gemini-2.0-flash',
-  //       name: 'Gemini 2.0 Flash',
-  //       provider: AIProviderType.GEMINI,
-  //       description: 'Fast and efficient for most tasks',
-  //       maxTokens: 8192,
-  //       isLocal: false
-  //     },
-  //     {
-  //       id: 'gemini-2.0-flash-exp',
-  //       name: 'Gemini 2.0 Flash (Experimental)',
-  //       provider: AIProviderType.GEMINI,
-  //       description: 'Experimental version with latest features',
-  //       maxTokens: 8192,
-  //       isLocal: false
-  //     },
-  //     {
-  //       id: 'gemini-1.5-pro',
-  //       name: 'Gemini 1.5 Pro',
-  //       provider: AIProviderType.GEMINI,
-  //       description: 'High-performance model for complex tasks',
-  //       maxTokens: 2048000,
-  //       isLocal: false
-  //     },
-  //     {
-  //       id: 'gemini-1.5-flash',
-  //       name: 'Gemini 1.5 Flash',
-  //       provider: AIProviderType.GEMINI,
-  //       description: 'Fast and efficient with good quality',
-  //       maxTokens: 1048576,
-  //       isLocal: false
-  //     }
-  //   ];
-  // }
 
   async isAvailable(): Promise<boolean> {
     try {
