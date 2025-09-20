@@ -82,7 +82,8 @@ export function ModelSelector({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    // set modal={true} to fix nested popover issue
+    <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -120,7 +121,7 @@ export function ModelSelector({
           <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0" align="start">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
         <Command>
           <CommandInput placeholder="Search models..." />
           <CommandList>
