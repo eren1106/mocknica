@@ -16,6 +16,7 @@ import DialogButton from "../dialog-button";
 import { Sparkles } from "lucide-react";
 import AutoResizeTextarea from "../auto-resize-textarea";
 import { Button } from "../ui/button";
+import { ModelSelector } from "../model-selector";
 import { AIService } from "@/services/ai.service";
 import { X, Eye, Code, Database } from "lucide-react";
 import { Badge } from "../ui/badge";
@@ -49,6 +50,7 @@ interface AIGeneratedData {
 const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
   const { createProject, updateProject, isPending } = useMutationProject();
   const [aiPrompt, setAiPrompt] = useState("");
+  const [selectedModel, setSelectedModel] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiGeneratedData, setAiGeneratedData] =
     useState<AIGeneratedData | null>(null);
@@ -62,7 +64,10 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
 
     setIsGenerating(true);
     try {
-      const result = await AIService.generateEndpointsAndSchemasByAI(aiPrompt);
+      const result = await AIService.generateEndpointsAndSchemasByAI(
+        aiPrompt, 
+        selectedModel || undefined
+      );
       setAiGeneratedData(result as unknown as AIGeneratedData);
       close();
     } catch (error) {
@@ -189,12 +194,28 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
           description="Describe your project to generate all the endpoints and schemas of this project with AI"
           content={(close) => (
             <div className="flex flex-col gap-4">
-              <AutoResizeTextarea
-                placeholder="Describe your project to generate all the endpoints and schemas of this project with AI"
-                minRows={5}
-                value={aiPrompt}
-                onChange={handleAIPromptChange}
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium">AI Model</label>
+                <ModelSelector
+                  value={selectedModel}
+                  onValueChange={setSelectedModel}
+                  placeholder="Select AI model (optional)"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Choose an AI model for generation. If not selected, the default model will be used.
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Project Description</label>
+                <AutoResizeTextarea
+                  placeholder="Describe your project to generate all the endpoints and schemas with AI"
+                  minRows={5}
+                  value={aiPrompt}
+                  onChange={handleAIPromptChange}
+                />
+              </div>
+              
               <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
