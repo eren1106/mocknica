@@ -8,6 +8,7 @@ import {
   AIModel,
   AIConfigurationError,
   AIGenerationError,
+  AIModelId,
 } from "../types";
 
 /**
@@ -19,10 +20,10 @@ import {
 export class OllamaProvider extends AIProvider {
   private client: Ollama | null = null;
 
-  constructor(config: AIProviderConfig) {
+  constructor(config: AIProviderConfig = {}) {
     super(AIProviderType.OLLAMA, {
-      defaultModel: "llama3.2",
-      baseUrl: "http://localhost:11434",
+      baseUrl: process.env.OLLAMA_BASE_URL || "http://localhost:11434",
+      defaultModel: (process.env.OLLAMA_MODEL as AIModelId) || "llama3.2",
       timeout: 60000, // Longer timeout for local models
       maxRetries: 2,
       ...config,

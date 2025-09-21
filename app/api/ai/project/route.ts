@@ -1,8 +1,8 @@
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
-import { createAIServiceManager } from "@/lib/ai/utils";
 import { SchemaData } from "@/data/schema.data";
 import { HttpMethod } from "@prisma/client";
+import { aiServiceManager } from "@/lib/ai";
 
 export async function POST(req: NextRequest) {
   try {
@@ -332,7 +332,7 @@ RESPOND WITH ONLY JSON:`;
     ].join("\n\n");
 
     // Initialize AI service manager and generate response
-    const aiManager = createAIServiceManager();
+    const aiManager = aiServiceManager;
     
     let completion;
     try {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Check, ChevronDown, Loader2, Cpu, Cloud, Server } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -55,18 +55,30 @@ export function ModelSelector({
   placeholder = "Select AI model...",
   disabled = false 
 }: ModelSelectorProps) {
-  const { data: models, isLoading, error } = useAiModels();
+  const { data, isLoading, error } = useAiModels();
   const [open, setOpen] = useState(false);
+
+  const models = data?.models;
+  const defaultModel = data?.defaultModel;
+
+  // Auto-select default model if no value is provided and default model is available
+  useEffect(() => {
+    if (!value && defaultModel && models?.some(model => model.id === defaultModel)) {
+      onValueChange(defaultModel);
+    }
+  }, [value, defaultModel, models, onValueChange]);
 
   const selectedModel = models?.find(model => model.id === value);
 
-  const groupedModels = models?.reduce((acc, model) => {
-    if (!acc[model.provider]) {
-      acc[model.provider] = [];
-    }
-    acc[model.provider].push(model);
-    return acc;
-  }, {} as Record<string, AIModel[]>) || {};
+  const groupedModels = useMemo(() => {
+    return models?.reduce((acc, model) => {
+      if (!acc[model.provider]) {
+        acc[model.provider] = [];
+      }
+      acc[model.provider].push(model);
+      return acc;
+    }, {} as Record<string, AIModel[]>) || {};
+  }, [models]);
 
   const formatProviderName = (provider: string) => {
     switch (provider) {

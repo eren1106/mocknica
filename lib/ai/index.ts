@@ -13,7 +13,7 @@ export { OpenAIProvider } from './providers/openai.provider';
 export { OllamaProvider } from './providers/ollama.provider';
 
 // Service manager
-export { AIServiceManager, getAIServiceManager, resetAIServiceManager } from './ai-service-manager';
+export { AIServiceManager } from './ai-service-manager';
 
-// Convenience functions
-export { createAIServiceManager } from './utils';
+// Singleton instance (recommended for most use cases)
+export { default as aiServiceManager } from './ai-service-manager';

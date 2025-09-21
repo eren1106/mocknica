@@ -1,11 +1,11 @@
 import { NextRequest } from "next/server";
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
-import { createAIServiceManager } from "@/lib/ai";
 import { AIModel } from "@/lib/ai/types";
+import { aiServiceManager } from "@/lib/ai";
 
 export async function GET(req: NextRequest) {
   try {
-    const aiManager = createAIServiceManager();
+    const aiManager = aiServiceManager;
     
     // Get all available models from all providers
     const models = await aiManager.getAllAvailableModels();
@@ -18,11 +18,15 @@ export async function GET(req: NextRequest) {
       healthStatus[model.provider]?.available
     );
 
+    // Get the default model
+    const defaultModel = await aiManager.getDefaultModel();
+
     return apiResponse(req, { 
       data: {
         models: availableModels,
         providers: aiManager.getAvailableProviders(),
-        health: healthStatus
+        health: healthStatus,
+        defaultModel
       }
     });
   } catch (error) {

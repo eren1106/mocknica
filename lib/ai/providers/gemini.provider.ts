@@ -8,6 +8,7 @@ import {
   AIModel,
   AIConfigurationError,
   AIGenerationError,
+  AIModelId,
 } from "../types";
 
 /**
@@ -18,9 +19,10 @@ import {
 export class GeminiProvider extends AIProvider {
   private client: GoogleGenAI | null = null;
 
-  constructor(config: AIProviderConfig) {
+  constructor(config: AIProviderConfig = {}) {
     super(AIProviderType.GEMINI, {
-      defaultModel: "gemini-2.0-flash",
+      apiKey: process.env.GEMINI_API_KEY,
+      defaultModel: (process.env.GEMINI_MODEL as AIModelId) || "gemini-2.0-flash",
       timeout: 30000,
       maxRetries: 3,
       ...config,

@@ -85,12 +85,12 @@ export abstract class AIProvider {
    */
   protected abstract validateConfig(): void;
 
-  // /**
-  //  * Get the default model for this provider
-  //  */
-  // public getDefaultModel(): string | undefined {
-  //   return this.config.defaultModel;
-  // }
+  /**
+   * Get the default model for this provider
+   */
+  public getDefaultModel(): AIModelId | undefined {
+    return this.config.defaultModel;
+  }
 
   /**
    * Update provider configuration

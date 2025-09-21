@@ -1,6 +1,6 @@
+import { aiServiceManager } from "@/lib/ai";
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
-import { createAIServiceManager } from "@/lib/ai/utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       `User request: ${userInput.trim()}`,
     ].join("\n\n");
 
-    const aiManager = createAIServiceManager();
+    const aiManager = aiServiceManager;
     const completion = await aiManager.generateText({
       prompt,
       model,

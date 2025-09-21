@@ -22,35 +22,27 @@ import { OllamaProvider } from './providers/ollama.provider';
 export class AIServiceManager {
   private providers: Map<AIProviderType, AIProvider> = new Map();
 
-  constructor(configs: Partial<Record<AIProviderType, AIProviderConfig>>) {
-    this.initializeProviders(configs);
+  constructor() {
+    this.initializeProviders();
   }
 
   /**
    * Initialize AI providers based on available configurations
    */
-  private initializeProviders(configs: Partial<Record<AIProviderType, AIProviderConfig>>): void {
+  private initializeProviders(): void {
     // Initialize Gemini provider
-    if (configs.gemini?.apiKey || process.env.GEMINI_API_KEY) {
+    if (process.env.GEMINI_API_KEY) {
       try {
-        const geminiConfig = {
-          apiKey: process.env.GEMINI_API_KEY,
-          ...configs.gemini
-        };
-        this.providers.set(AIProviderType.GEMINI, new GeminiProvider(geminiConfig));
+        this.providers.set(AIProviderType.GEMINI, new GeminiProvider());
       } catch (error) {
         console.warn('Failed to initialize Gemini provider:', error);
       }
     }
 
     // Initialize OpenAI provider
-    if (configs.openai?.apiKey || process.env.OPENAI_API_KEY) {
+    if (process.env.OPENAI_API_KEY) {
       try {
-        const openaiConfig = {
-          apiKey: process.env.OPENAI_API_KEY,
-          ...configs.openai
-        };
-        this.providers.set(AIProviderType.OPENAI, new OpenAIProvider(openaiConfig));
+        this.providers.set(AIProviderType.OPENAI, new OpenAIProvider());
       } catch (error) {
         console.warn('Failed to initialize OpenAI provider:', error);
       }
@@ -58,11 +50,7 @@ export class AIServiceManager {
 
     // Initialize Ollama provider (always available if baseUrl is accessible)
     try {
-      const ollamaConfig = {
-        baseUrl: process.env.OLLAMA_BASE_URL || 'http://localhost:11434',
-        ...configs.ollama
-      };
-      this.providers.set(AIProviderType.OLLAMA, new OllamaProvider(ollamaConfig));
+      this.providers.set(AIProviderType.OLLAMA, new OllamaProvider());
     } catch (error) {
       console.warn('Failed to initialize Ollama provider:', error);
     }
@@ -296,6 +284,39 @@ export class AIServiceManager {
   }
 
   /**
+   * Get the default model based on provider priority and availability
+   * Priority order: gemini > openai > ollama
+   */
+  async getDefaultModel(): Promise<string | null> {
+    const providerPriority: AIProviderType[] = [
+      AIProviderType.GEMINI,
+      AIProviderType.OPENAI,
+      AIProviderType.OLLAMA
+    ];
+
+    for (const providerType of providerPriority) {
+      const provider = this.providers.get(providerType);
+      if (!provider) continue;
+
+      try {
+        const isAvailable = await provider.isAvailable();
+        if (isAvailable) {
+          // Get the default model from provider using the proper method
+          const defaultModel = provider.getDefaultModel();
+          if (defaultModel) {
+            return defaultModel;
+          }
+        }
+      } catch (error) {
+        // Continue to next provider if current one fails
+        continue;
+      }
+    }
+
+    return null;
+  }
+
+  /**
    * Get health status of all providers
    */
   async getHealthStatus(): Promise<Record<AIProviderType, { available: boolean; error?: string }>> {
@@ -321,20 +342,31 @@ export class AIServiceManager {
  * Global AI Service Manager Instance
  * Singleton pattern for shared usage across the application
  */
-let globalAIManager: AIServiceManager | null = null;
 
-export function getAIServiceManager(
-  configs?: Partial<Record<AIProviderType, AIProviderConfig>>
-): AIServiceManager {
-  if (!globalAIManager) {
-    globalAIManager = new AIServiceManager(configs || {});
-  }
-  return globalAIManager;
+// Factory function to create a new AIServiceManager instance
+const aiServiceManagerSingleton = () => {
+  return new AIServiceManager();
 }
 
-/**
- * Reset the global AI manager (useful for testing or config changes)
- */
-export function resetAIServiceManager(): void {
-  globalAIManager = null;
+// Extend globalThis type to include our singleton instance
+// This provides TypeScript typing for the global variable
+declare const globalThis: {
+  aiServiceManagerGlobal: ReturnType<typeof aiServiceManagerSingleton>;
+} & typeof global;
+
+// Singleton implementation:
+// - First check if instance exists on globalThis (for development hot reloads)
+// - If not found, create a new instance using the factory function
+// - This ensures only one instance exists across the entire application
+const aiServiceManager = globalThis.aiServiceManagerGlobal ?? aiServiceManagerSingleton();
+
+// Export the singleton instance directly (not a function)
+// Usage: import aiServiceManager from './ai-service-manager'
+export default aiServiceManager;
+
+// Development optimization: Store instance on globalThis to persist across hot reloads
+// This prevents losing provider initialization and state during development
+// In production, we don't store on globalThis to keep the global namespace clean
+if (process.env.NODE_ENV !== 'production') {
+  globalThis.aiServiceManagerGlobal = aiServiceManager;
 }

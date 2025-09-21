@@ -8,6 +8,7 @@ import {
   AIModel,
   AIConfigurationError,
   AIGenerationError,
+  AIModelId,
 } from "../types";
 
 /**
@@ -19,9 +20,10 @@ import {
 export class OpenAIProvider extends AIProvider {
   private client: OpenAI | null = null;
 
-  constructor(config: AIProviderConfig) {
+  constructor(config: AIProviderConfig = {}) {
     super(AIProviderType.OPENAI, {
-      defaultModel: "gpt-4o-mini",
+      apiKey: process.env.OPENAI_API_KEY,
+      defaultModel: (process.env.OPENAI_MODE as AIModelId) || "gpt-4o-mini",
       baseUrl: "https://api.openai.com/v1",
       timeout: 30000,
       maxRetries: 3,
