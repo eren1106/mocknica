@@ -29,15 +29,15 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
   const getMethodColor = (method: string) => {
     switch (method) {
       case "GET":
-        return "bg-green-500 dark:bg-green-600";
+        return "border border-green-500 text-green-500 bg-green-500/10 dark:border-green-400 dark:text-green-400 dark:bg-green-400/10";
       case "POST":
-        return "bg-yellow-500 dark:bg-yellow-600";
+        return "border border-yellow-500 text-yellow-500 bg-yellow-500/10 dark:border-yellow-400 dark:text-yellow-400 dark:bg-yellow-400/10";
       case "PUT":
-        return "bg-blue-500 dark:bg-blue-600";
+        return "border border-blue-500 text-blue-500 bg-blue-500/10 dark:border-blue-400 dark:text-blue-400 dark:bg-blue-400/10";
       case "DELETE":
-        return "bg-red-500 dark:bg-red-600";
+        return "border border-red-500 text-red-500 bg-red-500/10 dark:border-red-400 dark:text-red-400 dark:bg-red-400/10";
       default:
-        return "bg-muted";
+        return "border border-muted-foreground text-muted-foreground bg-muted/10";
     }
   };
 
@@ -63,7 +63,7 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
         <div className="flex items-center gap-2 w-full mr-3">
           <p
             className={cn(
-              "w-20 p-2 rounded-[2px] font-semibold text-center text-white",
+              "w-20 p-2 rounded-[2px] font-semibold text-center",
               getMethodColor(endpoint.method)
             )}
           >

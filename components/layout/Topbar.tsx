@@ -23,7 +23,7 @@ const Topbar = () => {
 
   return (
     // INTERESTING ISSUE: if put bg-card here, the progressbar will have weird behavior (it will load with width of 100vw + sidebar width, which stop at the sidebar border)
-    <div className="bg-card w-full md:w-[calc(100vw-var(--sidebar-width))] fixed top-0 z-50 h-[--topbar-height] border-b flex px-6 items-center gap-3">
+    <div className="bg-background w-full md:w-[calc(100vw-var(--sidebar-width))] fixed top-0 z-50 h-[--topbar-height] border-b flex px-6 items-center gap-3">
       <SidebarSheet />
       {projectId && (
         <div className="flex items-center gap-3">
