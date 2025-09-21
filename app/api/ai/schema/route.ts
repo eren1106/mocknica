@@ -1,11 +1,11 @@
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
-import getGeminiClient from "@/lib/gemini";
+import { createAIServiceManager } from "@/lib/ai/utils";
 import { SchemaData } from "@/data/schema.data";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt: userInput } = await req.json();
+    const { prompt: userInput, model } = await req.json();
 
     // Get all existing schemas to provide as examples
     const existingSchemas = await SchemaData.getAllSchemas();
@@ -94,28 +94,28 @@ RESPOND WITH ONLY JSON:`;
       `User request: ${userInput.trim()}`,
     ].join("\n\n");
 
-    const gemini = getGeminiClient();
-    const completion = await gemini.models.generateContent({
-      model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
-      contents: prompt,
+    const aiManager = createAIServiceManager();
+    const completion = await aiManager.generateText({
+      prompt,
+      model,
     });
 
     let response;
     try {
       // Try to parse the response as JSON
-      if (!completion.text) {
-        throw new Error("No response from Gemini API");
+      if (!completion.content) {
+        throw new Error("No response from AI service");
       }
-      response = JSON.parse(completion.text);
+      response = JSON.parse(completion.content);
     } catch (parseError) {
       // If JSON parsing fails, try to extract JSON from the response
-      const jsonMatch = completion.text?.match(/\{[\s\S]*\}/);
+      const jsonMatch = completion.content?.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         try {
           response = JSON.parse(jsonMatch[0]);
         } catch (extractError) {
           throw new Error(
-            `AI returned invalid JSON. Response: ${completion.text?.substring(
+            `AI returned invalid JSON. Response: ${completion.content?.substring(
               0,
               200
             )}...`
@@ -123,7 +123,7 @@ RESPOND WITH ONLY JSON:`;
         }
       } else {
         throw new Error(
-          `AI response does not contain valid JSON. Response: ${completion.text?.substring(
+          `AI response does not contain valid JSON. Response: ${completion.content?.substring(
             0,
             200
           )}...`

@@ -28,6 +28,7 @@ import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 import { SchemaService } from "@/services/schema.service";
 import { stringifyJSON } from "@/lib/utils";
 import JsonViewer from "../json-viewer";
+import { ModelSelector } from "../model-selector";
 
 interface EndpointFormProps {
   endpoint?: Endpoint;
@@ -47,6 +48,7 @@ export default function EndpointForm({
 
   const { data: schemas, isLoading: isLoadingSchema } = useSchemas(projectId);
   const [aiPrompt, setAiPrompt] = useState("");
+  const [selectedModel, setSelectedModel] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUseWrapper, setIsUseWrapper] = useState(
     !!endpoint?.responseWrapperId
@@ -128,7 +130,10 @@ export default function EndpointForm({
   const handleGenerateResponseByAI = async (callback: () => void) => {
     setIsGenerating(true);
     try {
-      const res = await AIService.generateResponseByAI(aiPrompt);
+      const res = await AIService.generateResponseByAI(
+        aiPrompt, 
+        selectedModel || undefined
+      );
       form.setValue("staticResponse", stringifyJSON(res));
     } catch (error) {
       console.error("Error generating response:", error);
@@ -385,12 +390,28 @@ export default function EndpointForm({
               description="Describe the response you want to generate"
               content={(close) => (
                 <div className="flex flex-col gap-4">
-                  <AutoResizeTextarea
-                    placeholder="Generate a user profile response with fields for id, name, email, role, and status"
-                    minRows={5}
-                    value={aiPrompt}
-                    onChange={handlePromptChange}
-                  />
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">AI Model</label>
+                    <ModelSelector
+                      value={selectedModel}
+                      onValueChange={setSelectedModel}
+                      placeholder="Select AI model (optional)"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Choose an AI model for generation. If not selected, the default model will be used.
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Response Description</label>
+                    <AutoResizeTextarea
+                      placeholder="Generate a user profile response with fields for id, name, email, role, and status"
+                      minRows={5}
+                      value={aiPrompt}
+                      onChange={handlePromptChange}
+                    />
+                  </div>
+                  
                   <div className="flex justify-end gap-2">
                     <Button
                       variant="outline"
@@ -401,7 +422,7 @@ export default function EndpointForm({
                     </Button>
                     <Button
                       onClick={() => handleGenerateResponseByAI(close)}
-                      disabled={isGenerating}
+                      disabled={isGenerating || !aiPrompt.trim()}
                     >
                       {isGenerating ? "Generating..." : "Generate"}
                     </Button>

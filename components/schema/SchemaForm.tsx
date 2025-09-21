@@ -22,6 +22,7 @@ import DialogButton from "../dialog-button";
 import AutoResizeTextarea from "../auto-resize-textarea";
 import { AIService } from "@/services/ai.service";
 import { useCurrentProjectId } from "@/hooks/useCurrentProject";
+import { ModelSelector } from "../model-selector";
 
 const formFields = getZodFieldNames(SchemaSchema);
 interface SchemaFormProps {
@@ -123,6 +124,7 @@ const SchemaForm = (props: SchemaFormProps) => {
   };
 
   const [aiPrompt, setAiPrompt] = useState("");
+  const [selectedModel, setSelectedModel] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
 
   const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -132,7 +134,10 @@ const SchemaForm = (props: SchemaFormProps) => {
   const handleGenerateSchemaByAI = async (close: () => void) => {
     setIsGenerating(true);
     try {
-      const response = await AIService.generateSchemaByAI(aiPrompt);
+      const response = await AIService.generateSchemaByAI(
+        aiPrompt, 
+        selectedModel || undefined
+      );
       form.setValue("fields", response);
       close();
     } catch (error) {
@@ -334,12 +339,28 @@ const SchemaForm = (props: SchemaFormProps) => {
         description="Describe the response you want to generate"
         content={(close) => (
           <div className="flex flex-col gap-4">
-            <AutoResizeTextarea
-              placeholder="Generate a user profile response with fields for id, name, email, role, and status"
-              minRows={5}
-              value={aiPrompt}
-              onChange={handlePromptChange}
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium">AI Model</label>
+              <ModelSelector
+                value={selectedModel}
+                onValueChange={setSelectedModel}
+                placeholder="Select AI model (optional)"
+              />
+              <p className="text-xs text-muted-foreground">
+                Choose an AI model for generation. If not selected, the default model will be used.
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Schema Description</label>
+              <AutoResizeTextarea
+                placeholder="Generate a user profile schema with fields for id, name, email, role, and status"
+                minRows={5}
+                value={aiPrompt}
+                onChange={handlePromptChange}
+              />
+            </div>
+            
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -350,7 +371,7 @@ const SchemaForm = (props: SchemaFormProps) => {
               </Button>
               <Button
                 onClick={() => handleGenerateSchemaByAI(close)}
-                disabled={isGenerating}
+                disabled={isGenerating || !aiPrompt.trim()}
               >
                 {isGenerating ? "Generating..." : "Generate"}
               </Button>
