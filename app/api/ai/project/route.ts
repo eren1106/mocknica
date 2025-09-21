@@ -1,12 +1,12 @@
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
-import getGeminiClient from "@/lib/gemini";
 import { SchemaData } from "@/data/schema.data";
 import { HttpMethod } from "@prisma/client";
+import { aiServiceManager } from "@/lib/ai";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt: userInput } = await req.json();
+    const { prompt: userInput, model } = await req.json();
 
     // Get all existing schemas to provide as examples for object references
     const existingSchemas = await SchemaData.getAllSchemas();
@@ -331,29 +331,31 @@ RESPOND WITH ONLY JSON:`;
       `User request: ${userInput.trim()}`,
     ].join("\n\n");
 
-    const gemini = getGeminiClient();
+    // Initialize AI service manager and generate response
+    const aiManager = aiServiceManager;
     
-    // Use generateContent with enhanced parameters for longer responses
-    const completion = await gemini.models.generateContent({
-      model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: prompt }]
-        }
-      ],
-    });
+    let completion;
+    try {
+      completion = await aiManager.generateText({
+        prompt,
+        model,
+      });
+    } catch (aiError) {
+      // If AI generation fails, throw a more descriptive error
+      const errorMessage = aiError instanceof Error ? aiError.message : 'Unknown AI generation error';
+      throw new Error(`AI generation failed: ${errorMessage}`);
+    }
 
     let response;
     let rawResponse = "";
     
     try {
       // Try to parse the response as JSON
-      if (!completion.text) {
-        throw new Error("No response from Gemini API");
+      if (!completion.content) {
+        throw new Error("No response from AI service");
       }
       
-      rawResponse = completion.text;
+      rawResponse = completion.content;
       response = JSON.parse(rawResponse);
     } catch (parseError) {
       // If JSON parsing fails, try to extract JSON from the response

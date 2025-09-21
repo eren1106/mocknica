@@ -1,10 +1,10 @@
+import { aiServiceManager } from "@/lib/ai";
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
-import getGeminiClient from "@/lib/gemini";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt: userInput } = await req.json();
+    const { prompt: userInput, model } = await req.json();
 
     const systemPrompt = `
   You are a JSON-only generator. You must output only valid JSON—no markdown, no code fences, no explanations, no \`\`\`json blocks.
@@ -19,27 +19,27 @@ export async function POST(req: NextRequest) {
       `User request: ${userInput.trim()}`,
     ].join("\n\n");
 
-    const gemini = getGeminiClient();
-    const completion = await gemini.models.generateContent({
-      model: process.env.GEMINI_MODEL || "gemini-2.0-flash",
-      contents: prompt,
+    const aiManager = aiServiceManager;
+    const completion = await aiManager.generateText({
+      prompt,
+      model,
     });
 
-    if (!completion.text) {
-      throw new Error("No response from Gemini API");
+    if (!completion.content) {
+      throw new Error("No response from AI service");
     }
 
-    console.log("Gemini response:", completion.text);
+    console.log("AI response:", completion.content);
 
     let response;
     try {
       // Try to parse the response as JSON directly
-      response = JSON.parse(completion.text);
+      response = JSON.parse(completion.content);
     } catch (parseError) {
       // If JSON parsing fails, try to extract JSON from markdown code blocks
-      const jsonMatch = completion.text.match(/```json\s*([\s\S]*?)\s*```/) || 
-                       completion.text.match(/```\s*([\s\S]*?)\s*```/) ||
-                       completion.text.match(/\{[\s\S]*\}/);
+      const jsonMatch = completion.content.match(/```json\s*([\s\S]*?)\s*```/) || 
+                       completion.content.match(/```\s*([\s\S]*?)\s*```/) ||
+                       completion.content.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
         try {
@@ -47,12 +47,12 @@ export async function POST(req: NextRequest) {
           response = JSON.parse(jsonContent);
         } catch (extractError) {
           throw new Error(
-            `AI returned invalid JSON. Response: ${completion.text.substring(0, 200)}...`
+            `AI returned invalid JSON. Response: ${completion.content.substring(0, 200)}...`
           );
         }
       } else {
         throw new Error(
-          `AI response does not contain valid JSON. Response: ${completion.text.substring(0, 200)}...`
+          `AI response does not contain valid JSON. Response: ${completion.content.substring(0, 200)}...`
         );
       }
     }
