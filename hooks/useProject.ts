@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 
 const PROJECTS_QUERY_KEY = 'projects';
 
+// TODO: need userId prop
 export const useProjects = () => {
   return useQuery<Project[]>({
     queryKey: [PROJECTS_QUERY_KEY],

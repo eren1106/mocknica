@@ -23,16 +23,21 @@ const SidebarSheet = () => {
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="block md:hidden p-0"
+          size="sm"
+          className="block md:hidden hover:bg-secondary/80 transition-colors"
           onClick={() => setIsOpen(true)}
+          aria-label="Open navigation menu"
         >
-          <Menu size={28} />
+          <Menu className="w-5 h-5" />
         </Button>
       </SheetTrigger>
-      {/* got error if not adding sheet title */}
-      <SheetTitle className="hidden"></SheetTitle>
-      <SheetContent side="left" className="p-0 pt-3 min-w-[--sidebar-width]">
-        <div className="overflow-y-auto">
+      {/* Screen reader accessible title */}
+      <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+      <SheetContent 
+        side="left" 
+        className="p-0 w-[--sidebar-width] max-w-[--sidebar-width]"
+      >
+        <div className="h-full overflow-y-auto">
           <Sidebar onNavItemClicked={() => setIsOpen(false)} />
         </div>
       </SheetContent>

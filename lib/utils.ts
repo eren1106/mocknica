@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
+import { toast } from "sonner";
 import { twMerge } from "tailwind-merge"
 import { z } from "zod";
 
@@ -78,4 +79,41 @@ export function stringifyJSON (jsonData: any, space: number = 2): string {
     console.error("Error stringifying JSON:", error);
     return String(jsonData);
   }
+};
+
+export function formatDate (date: Date | string): string {
+  return new Date(date).toLocaleDateString();
+};
+
+/**
+ * Copies text to clipboard with error handling and toast feedback
+ * @param text - The text to copy
+ * @param successMessage - Success message for toast (optional)
+ * @param errorMessage - Error message for toast (optional)
+ */
+export const copyToClipboard = async (
+  text: string,
+  successMessage = "Copied to clipboard!",
+  errorMessage = "Failed to copy to clipboard"
+): Promise<void> => {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.success(successMessage);
+  } catch (error) {
+    console.error("Failed to copy text:", error);
+    toast.error(errorMessage);
+  }
+};
+
+/**
+ * Formats an API endpoint URL for display
+ * @param projectId - The project ID
+ * @param baseUrl - The base URL (defaults to NEXT_PUBLIC_APP_URL)
+ * @returns The formatted API endpoint URL
+ */
+export const formatProjectEndpointBaseURL = (
+  projectId: string,
+  baseUrl = process.env.NEXT_PUBLIC_APP_URL
+): string => {
+  return `${baseUrl}/api/mock/${projectId}/`;
 };

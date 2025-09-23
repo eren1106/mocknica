@@ -1,31 +1,66 @@
 "use client";
 
-import React, { useState } from "react";
+import { useMemo } from "react";
 import { useProjects } from "@/hooks/useProject";
 import ProjectCard from "./ProjectCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import SearchBar from "@/components/searchbar";
+import { FolderOpen } from "lucide-react";
 
-const ProjectList = () => {
+type SortOrder = "name-asc" | "name-desc" | "created-asc" | "created-desc";
+type FilterType = "all" | "public" | "private";
+
+interface ProjectListProps {
+  searchQuery?: string;
+  sortOrder?: SortOrder;
+  filterType?: FilterType;
+}
+
+const ProjectList = ({ 
+  searchQuery = "",
+  sortOrder = "created-desc",
+  filterType = "all",
+}: ProjectListProps) => {
   const { data: projects, isLoading } = useProjects();
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredProjects = projects?.filter((project) =>
-    project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    project.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredAndSortedProjects = useMemo(() => {
+    if (!projects) return [];
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
+    const filtered = projects.filter((project) => {
+      // Search filter
+      const matchesSearch = searchQuery === "" || 
+        project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        project.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
-  const handleClearSearch = () => {
-    setSearchQuery("");
-  };
+      // Visibility filter
+      const matchesFilter = filterType === "all" || 
+        (filterType === "public" && project.permission === "PUBLIC") ||
+        (filterType === "private" && project.permission === "PRIVATE");
+
+      return matchesSearch && matchesFilter;
+    });
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sortOrder) {
+        case "name-asc":
+          return a.name.localeCompare(b.name);
+        case "name-desc":
+          return b.name.localeCompare(a.name);
+        case "created-asc":
+          return new Date(a.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case "created-desc":
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [projects, searchQuery, sortOrder, filterType]);
 
   if (isLoading) {
     return (
-      <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className={`grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3`}>
         {Array.from({ length: 6 }).map((_, index) => (
           <Skeleton key={index} className="h-64" />
         ))}
@@ -33,27 +68,34 @@ const ProjectList = () => {
     );
   }
 
+  if (filteredAndSortedProjects.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <FolderOpen className="size-12 mx-auto mb-4" />
+        <h3 className="text-lg font-medium text-foreground mb-2">
+          {searchQuery || filterType !== "all" 
+            ? "No projects found"
+            : "No projects yet"
+          }
+        </h3>
+        <p className="text-muted-foreground mb-4">
+          {searchQuery || filterType !== "all"
+            ? "Try adjusting your search or filter criteria"
+            : "Create your first project to get started with building your API"
+          }
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-4">
-      <SearchBar
-        placeholder="Search projects..."
-        containerClassName="w-full"
-        value={searchQuery}
-        onChange={handleSearch}
-        onClear={handleClearSearch}
-      />
-      
-      {filteredProjects.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
-          {searchQuery ? "No projects found matching your search." : "No projects yet. Create your first project to get started."}
-        </div>
-      ) : (
-        <div className="grid md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filteredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
-        </div>
-      )}
+    <div className={`grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3`}>
+      {filteredAndSortedProjects.map((project) => (
+        <ProjectCard 
+          key={project.id} 
+          project={project}
+        />
+      ))}
     </div>
   );
 };
