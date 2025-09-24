@@ -22,9 +22,9 @@ const EndpointGuide = () => {
         </CardHeader>
         <CardContent className={sectionClasses}>
           <div>
-            <h4 className="font-medium mb-2">
+            <h5 className="font-medium mb-2">
               Step 1: Create a Simple Endpoint
-            </h4>
+            </h5>
             <p className="text-muted-foreground text-sm mb-3">
               Start by creating a basic endpoint to get familiar with the
               system. Click the &apos;Create Endpoint&apos; button and fill in
@@ -49,9 +49,9 @@ const EndpointGuide = () => {
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">
+            <h5 className="font-medium mb-2">
               Step 2: Test in Postman (or any HTTP client)
-            </h4>
+            </h5>
             <p className="text-muted-foreground text-sm mb-2">
               Once your endpoint is created, you can test it using Postman or
               any HTTP client:
@@ -75,7 +75,7 @@ const EndpointGuide = () => {
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">Step 3: Add Dynamic Behavior</h4>
+            <h5 className="font-medium mb-2">Step 3: Add Dynamic Behavior</h5>
             <p className="text-muted-foreground text-sm mb-2">
               Enhance your endpoint with dynamic features:
             </p>
@@ -91,10 +91,10 @@ const EndpointGuide = () => {
               <div className={codeExampleClasses + " text-sm"}>
                 <div>
                   <strong>Query Parameters:</strong>{" "}
-                  /api/users?search=john&limit=10
+                  /api/users?search=john&sortBy=name&order=asc&page=1&limit=10
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Filter and paginate results
+                  Search, sort, and paginate results using built-in parameters
                 </div>
               </div>
             </div>
@@ -120,7 +120,7 @@ const EndpointGuide = () => {
         </CardHeader>
         <CardContent className={sectionClasses}>
           <div>
-            <h4 className="font-medium mb-2">What are Path Parameters?</h4>
+            <h5 className="font-medium mb-2">What are Path Parameters?</h5>
             <p className="text-muted-foreground text-sm mb-3">
               Path parameters are dynamic segments in your URL path, denoted by
               a colon (:) followed by the parameter name. They&apos;re used to
@@ -129,7 +129,7 @@ const EndpointGuide = () => {
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">Example Endpoints:</h4>
+            <h5 className="font-medium mb-2">Example Endpoints:</h5>
             <div className="space-y-2">
               <div className={codeExampleClasses}>
                 <div className="text-green-600 dark:text-green-400">GET</div>
@@ -143,7 +143,7 @@ const EndpointGuide = () => {
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">How to Call These Endpoints:</h4>
+            <h5 className="font-medium mb-2">How to Call These Endpoints:</h5>
             <div className="space-y-3">
               <div>
                 <p className="text-sm font-medium mb-1">Single Parameter:</p>
@@ -205,7 +205,7 @@ const EndpointGuide = () => {
         </CardHeader>
         <CardContent className={sectionClasses}>
           <div>
-            <h4 className="font-medium mb-2">What are Query Parameters?</h4>
+            <h5 className="font-medium mb-2">What are Query Parameters?</h5>
             <p className="text-muted-foreground text-sm mb-3">
               Query parameters are optional key-value pairs appended to the URL
               after a question mark (?). They&apos;re used for filtering,
@@ -213,7 +213,7 @@ const EndpointGuide = () => {
             </p>
             <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-md mb-3">
               <p className="text-sm">
-                <strong>✨ Built-in Feature:</strong> Query parameters are
+                <strong>✨ Built-in Feature:</strong> These query parameters are
                 automatically parsed and available in your endpoints. No
                 additional configuration needed - just use them in your API
                 calls!
@@ -222,64 +222,46 @@ const EndpointGuide = () => {
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">Common Query Parameters:</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-3">
               <div className="space-y-2">
                 <Badge variant="outline" className="w-fit">
-                  Filtering
+                  Search & Filtering
                 </Badge>
                 <div className={codeExampleClasses + " text-xs"}>
-                  ?search=keyword
-                  <br />
-                  ?status=active
-                  <br />
-                  ?method=GET
+                  <div><strong>search</strong> - Search through all text fields</div>
+                  <div className="text-muted-foreground mt-1">Example: ?search=john</div>
                 </div>
               </div>
+              
               <div className="space-y-2">
                 <Badge variant="outline" className="w-fit">
                   Sorting
                 </Badge>
                 <div className={codeExampleClasses + " text-xs"}>
-                  ?sortBy=name
-                  <br />
-                  ?order=asc
-                  <br />
-                  ?sortBy=createdAt&order=desc
+                  <div><strong>sortBy</strong> - Field to sort by (supports nested fields with dot notation)</div>
+                  <div><strong>order</strong> - Sort direction: &quot;asc&quot; or &quot;desc&quot;</div>
+                  <div className="text-muted-foreground mt-1">Example: ?sortBy=name&order=desc</div>
                 </div>
               </div>
+              
               <div className="space-y-2">
                 <Badge variant="outline" className="w-fit">
                   Pagination
                 </Badge>
                 <div className={codeExampleClasses + " text-xs"}>
-                  ?page=1
-                  <br />
-                  ?limit=10
-                  <br />
-                  ?page=2&limit=20
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Badge variant="outline" className="w-fit">
-                  Multiple Values
-                </Badge>
-                <div className={codeExampleClasses + " text-xs"}>
-                  ?tags=api,rest
-                  <br />
-                  ?fields=name,id,email
-                  <br />
-                  ?include=user,posts
+                  <div><strong>page</strong> - Page number (starts from 1)</div>
+                  <div><strong>limit</strong> - Items per page (max: 10,000)</div>
+                  <div className="text-muted-foreground mt-1">Example: ?page=2&limit=20</div>
                 </div>
               </div>
             </div>
           </div>
 
           <div>
-            <h4 className="font-medium mb-2">Example API Calls:</h4>
+            <h5 className="font-medium mb-2">Example API Calls:</h5>
             <div className="space-y-3">
               <div>
-                <p className="text-sm font-medium mb-1">Basic Query:</p>
+                <p className="text-sm font-medium mb-1">Search Example:</p>
                 <div className={codeExampleClasses}>
                   GET /api/users
                   <span className="text-blue-600 dark:text-blue-400">
@@ -289,18 +271,38 @@ const EndpointGuide = () => {
               </div>
 
               <div>
-                <p className="text-sm font-medium mb-1">Multiple Parameters:</p>
+                <p className="text-sm font-medium mb-1">Sorting Example:</p>
                 <div className={codeExampleClasses}>
                   GET /api/endpoints
                   <span className="text-blue-600 dark:text-blue-400">
-                    ?method=GET&sortBy=name&order=asc&page=1&limit=10
+                    ?sortBy=name&order=asc
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium mb-1">Pagination Example:</p>
+                <div className={codeExampleClasses}>
+                  GET /api/users
+                  <span className="text-blue-600 dark:text-blue-400">
+                    ?page=2&limit=10
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium mb-1">Combined Parameters:</p>
+                <div className={codeExampleClasses}>
+                  GET /api/endpoints
+                  <span className="text-blue-600 dark:text-blue-400">
+                    ?search=user&sortBy=createdAt&order=desc&page=1&limit=5
                   </span>
                 </div>
               </div>
 
               <div>
                 <p className="text-sm font-medium mb-1">
-                  Combined with Path Parameters:
+                  With Path Parameters:
                 </p>
                 <div className={codeExampleClasses}>
                   GET /api/projects/
@@ -309,7 +311,7 @@ const EndpointGuide = () => {
                   </span>
                   /endpoints
                   <span className="text-blue-600 dark:text-blue-400">
-                    ?status=active&limit=5
+                    ?search=api&limit=10
                   </span>
                 </div>
               </div>
@@ -336,7 +338,7 @@ const EndpointGuide = () => {
         <CardContent>
           <div className="space-y-4">
             <div>
-              <h4 className="font-medium mb-2">Path Parameters:</h4>
+              <h5 className="font-medium mb-2">Path Parameters:</h5>
               <ul className="space-y-1 text-sm text-muted-foreground ml-4">
                 <li>• Use for required identifiers (user ID, resource ID)</li>
                 <li>
@@ -347,24 +349,19 @@ const EndpointGuide = () => {
             </div>
 
             <div>
-              <h4 className="font-medium mb-2">Query Parameters:</h4>
+              <h5 className="font-medium mb-2">Built-in Query Parameters:</h5>
               <ul className="space-y-1 text-sm text-muted-foreground ml-4">
-                <li>• Use for optional filtering, sorting, and pagination</li>
-                <li>
-                  • Built-in parsing - automatically available in your endpoints
-                </li>
-                <li>• Provide sensible defaults when parameters are missing</li>
-                <li>
-                  • Use consistent naming (search, sortBy, order, page, limit)
-                </li>
-                <li>
-                  • System handles validation and sanitization automatically
-                </li>
+                <li>• <strong>search</strong>: Searches through all string and number fields automatically</li>
+                <li>• <strong>sortBy</strong>: Supports nested field access with dot notation (e.g., &quot;user.name&quot;)</li>
+                <li>• <strong>order</strong>: Handles strings, numbers, and dates intelligently</li>
+                <li>• <strong>page</strong> & <strong>limit</strong>: Automatic pagination with sensible defaults</li>
+                <li>• All parameters are optional and validated automatically</li>
+                <li>• No additional setup required - just use them in your API calls</li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-medium mb-2">URL Encoding:</h4>
+              <h5 className="font-medium mb-2">URL Encoding:</h5>
               <ul className="space-y-1 text-sm text-muted-foreground ml-4">
                 <li>• Always URL-encode special characters in parameters</li>
                 <li>• Spaces become %20 or +</li>
@@ -383,7 +380,7 @@ const EndpointGuide = () => {
         <CardContent>
           <div className="space-y-4">
             <div>
-              <h4 className="font-medium mb-2">E-commerce API:</h4>
+              <h5 className="font-medium mb-2">E-commerce API Example:</h5>
               <div className="space-y-2">
                 <div className={codeExampleClasses + " text-xs"}>
                   GET /api/products/:productId
@@ -392,17 +389,16 @@ const EndpointGuide = () => {
                   </div>
                 </div>
                 <div className={codeExampleClasses + " text-xs"}>
-                  GET
-                  /api/products?category=electronics&minPrice=100&maxPrice=500&sortBy=price&order=asc
+                  GET /api/products?search=electronics&sortBy=price&order=asc&page=1&limit=20
                   <div className="text-muted-foreground">
-                    Filter and sort products
+                    Search products, sort by price, paginated results
                   </div>
                 </div>
               </div>
             </div>
 
             <div>
-              <h4 className="font-medium mb-2">User Management API:</h4>
+              <h5 className="font-medium mb-2">User Management API Example:</h5>
               <div className="space-y-2">
                 <div className={codeExampleClasses + " text-xs"}>
                   GET /api/users/:userId/posts
@@ -411,9 +407,27 @@ const EndpointGuide = () => {
                   </div>
                 </div>
                 <div className={codeExampleClasses + " text-xs"}>
-                  GET /api/users?search=john&role=admin&page=1&limit=20
+                  GET /api/users?search=john&sortBy=createdAt&order=desc&page=1&limit=10
                   <div className="text-muted-foreground">
-                    Search users with pagination
+                    Search users, sort by creation date, with pagination
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h5 className="font-medium mb-2">Advanced Sorting Examples:</h5>
+              <div className="space-y-2">
+                <div className={codeExampleClasses + " text-xs"}>
+                  GET /api/posts?sortBy=author.name&order=asc
+                  <div className="text-muted-foreground">
+                    Sort by nested field using dot notation
+                  </div>
+                </div>
+                <div className={codeExampleClasses + " text-xs"}>
+                  GET /api/orders?search=pending&sortBy=total&order=desc&limit=50
+                  <div className="text-muted-foreground">
+                    Search + sort by numeric field + limit results
                   </div>
                 </div>
               </div>
