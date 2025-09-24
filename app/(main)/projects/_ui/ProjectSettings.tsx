@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
-export default function ProjectOverviewContainer() {
+export default function ProjectSettings() {
   const projectId = useCurrentProjectId();
   const { data: project, isLoading } = useProject(projectId);
   const [showToken, setShowToken] = useState(false);

@@ -1,5 +1,5 @@
-import EndpointManagement from "@/components/endpoint/EndpointManagement";
+import EndpointPageContainer from "@/components/endpoint/EndpointPageContainer";
 
 export default function ProjectEndpointsPage() {
-  return <EndpointManagement />;
+  return <EndpointPageContainer />;
 }

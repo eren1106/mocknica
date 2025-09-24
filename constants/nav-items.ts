@@ -4,6 +4,7 @@ import {
   FolderOpen,
   Globe,
   Database,
+  Settings,
 } from "lucide-react";
 import { NavItem } from "@/types/navigation";
 
@@ -23,11 +24,6 @@ export const NAV_ITEMS: NavItem[] = [
 export const PROJECT_NAV_ITEMS: NavItem[] = [
   {
     to: "",
-    label: "Overview",
-    icon: Home,
-  },
-  {
-    to: "endpoints",
     label: "Endpoints",
     icon: Globe,
   },
@@ -40,5 +36,10 @@ export const PROJECT_NAV_ITEMS: NavItem[] = [
     to: "response-wrappers",
     label: "Response Wrappers",
     icon: FileJson2,
+  },
+  {
+    to: "settings",
+    label: "Settings",
+    icon: Settings,
   },
 ];

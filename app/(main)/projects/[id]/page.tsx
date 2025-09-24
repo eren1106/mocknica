@@ -1,5 +1,5 @@
-import ProjectOverviewContainer from "../_ui/ProjectOverviewContainer";
+import EndpointPageContainer from "@/components/endpoint/EndpointPageContainer";
 
 export default function ProjectOverviewPage() {
-  return <ProjectOverviewContainer />;
+  return <EndpointPageContainer />;
 }

@@ -13,7 +13,7 @@ import ControlsBar, { SortOption, FilterOption } from "../controls-bar";
 type SortOrder = "name-asc" | "name-desc" | "created-asc" | "created-desc" | "method-asc" | "path-asc";
 type FilterType = "all" | "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
-const EndpointManagement = () => {
+const EndpointPageContainer = () => {
   const projectId = useCurrentProjectId();
   const { data: project, isLoading: isLoadingProject } = useProject(projectId);
   
@@ -122,4 +122,4 @@ const EndpointManagement = () => {
   );
 };
 
-export default EndpointManagement;
+export default EndpointPageContainer;
