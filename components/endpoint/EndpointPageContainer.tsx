@@ -2,13 +2,14 @@
 
 import React, { useState } from "react";
 import DialogButton from "../dialog-button";
-import { Plus } from "lucide-react";
+import { Plus, HelpCircle } from "lucide-react";
 import EndpointsList from "./EndpointList";
 import { useProject } from "@/hooks/useProject";
 import { Skeleton } from "../ui/skeleton";
 import EndpointCreationTabs from "./EndpointCreationTabs";
 import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 import ControlsBar, { SortOption, FilterOption } from "../controls-bar";
+import EndpointGuide from "./EndpointGuide";
 
 type SortOrder = "name-asc" | "name-desc" | "created-asc" | "created-desc" | "method-asc" | "path-asc";
 type FilterType = "all" | "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
@@ -90,13 +91,26 @@ const EndpointPageContainer = () => {
           </p>
         </div>
         
-        <DialogButton
-          content={(close) => <EndpointCreationTabs onSuccess={close} />}
-          className="w-fit self-start lg:self-center"
-        >
-          <Plus className="size-4 mr-2" />
-          Create Endpoint
-        </DialogButton>
+        <div className="flex gap-2 w-fit self-start lg:self-center">
+          <DialogButton
+            content={<EndpointGuide />}
+            title="API Endpoint Usage Guide"
+            description="Learn how to create your first API, use dynamic parameters and query strings in your API endpoints"
+            variant="outline"
+            className="w-fit"
+          >
+            <HelpCircle className="size-4 mr-2" />
+            Usage Guide
+          </DialogButton>
+          
+          <DialogButton
+            content={(close) => <EndpointCreationTabs onSuccess={close} />}
+            className="w-fit"
+          >
+            <Plus className="size-4 mr-2" />
+            Create Endpoint
+          </DialogButton>
+        </div>
       </div>
 
       {/* Controls Bar */}
