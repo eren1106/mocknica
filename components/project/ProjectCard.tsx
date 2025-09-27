@@ -56,7 +56,7 @@ const ProjectCard = ({ project }: { project: Project }) => {
             </div>
           </div>
 
-          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
             <DialogButton
               variant="ghost"
               size="icon"
@@ -90,25 +90,25 @@ const ProjectCard = ({ project }: { project: Project }) => {
       </CardHeader>
 
       <CardContent className="flex flex-col gap-4 flex-1 pt-0">
-        <div className="grid grid-cols-3 gap-3">
-          <div className="text-center p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-            <div className="text-xl font-bold text-primary">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="text-center p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+            <div className="text-lg sm:text-xl font-bold text-primary">
               {project.endpoints.length}
             </div>
             <div className="text-xs text-muted-foreground font-medium">
               Endpoint{project.endpoints.length !== 1 ? "s" : ""}
             </div>
           </div>
-          <div className="text-center p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-            <div className="text-xl font-bold text-primary">
+          <div className="text-center p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+            <div className="text-lg sm:text-xl font-bold text-primary">
               {project.schemas.length}
             </div>
             <div className="text-xs text-muted-foreground font-medium">
               Schema{project.schemas.length !== 1 ? "s" : ""}
             </div>
           </div>
-          <div className="text-center p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-            <div className="text-xl font-bold text-primary">
+          <div className="text-center p-2 sm:p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
+            <div className="text-lg sm:text-xl font-bold text-primary">
               {project.responseWrappers.length}
             </div>
             <div className="text-xs text-muted-foreground font-medium">

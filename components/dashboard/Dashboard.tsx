@@ -14,11 +14,11 @@ const Dashboard = () => {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">
+        <h1 className="font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
           Welcome back! Here&apos;s an overview of your API projects and quick
           actions to get you started.
         </p>
@@ -28,14 +28,14 @@ const Dashboard = () => {
       <StatsCards />
 
       {/* Main Content Grid */}
-      <div className="grid gap-8 lg:grid-cols-3">
+      <div className="grid gap-6 sm:gap-8 xl:grid-cols-3">
         {/* Left Column - Wider */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="xl:col-span-2 space-y-6 sm:space-y-8">
           <RecentActivity />
         </div>
 
         {/* Right Column - Narrower */}
-        <div className="space-y-8">
+        <div className="space-y-6 sm:space-y-8">
           <QuickActions />
         </div>
       </div>

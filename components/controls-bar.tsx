@@ -83,7 +83,7 @@ const ControlsBar: React.FC<ControlsBarProps> = ({
   return (
     <Card>
       <CardContent>
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-2 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
           {/* Search */}
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -96,12 +96,12 @@ const ControlsBar: React.FC<ControlsBarProps> = ({
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
             {/* Filter Dropdown (if provided) */}
             {filterOptions && onFilterChange && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-2">
+                  <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto">
                     <Filter className="h-4 w-4" />
                     {getFilterLabel(filterValue)}
                   </Button>
@@ -129,7 +129,7 @@ const ControlsBar: React.FC<ControlsBarProps> = ({
             {/* Sort Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
+                <Button variant="outline" size="sm" className="gap-2 w-full sm:w-auto">
                   {sortDirection === "asc" ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
                   {getSortLabel(sortValue)}
                 </Button>

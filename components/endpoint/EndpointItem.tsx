@@ -98,7 +98,7 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
             </div>
 
             {/* Metadata */}
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex-wrap xs:flex hidden items-center gap-1 sm:gap-2 md:gap-4 text-xs text-muted-foreground">
               {endpoint.schema && (
                 <div className="flex items-center gap-1">
                   <Database className="h-3 w-3" />
@@ -121,8 +121,8 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
       </AccordionTrigger>
       <AccordionContent className="bg-background flex flex-col gap-4 border border-muted rounded-md p-4 pt-0 border-t-0 rounded-t-none">
         {/* Actions Bar */}
-        <div className="flex items-center justify-between border-b border-border pb-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between border-b border-border pb-3 flex-wrap gap-1">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Button
               onClick={() => copyEndpointUrl(endpoint)}
               size="sm"
@@ -143,7 +143,7 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
             </Button> */}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <DialogButton
               content={(close) => (
                 <EndpointForm onSuccess={close} endpoint={endpoint} />

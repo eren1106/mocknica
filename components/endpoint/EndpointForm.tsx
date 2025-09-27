@@ -253,28 +253,32 @@ export default function EndpointForm({
         optional
       />
 
-      <div className="flex gap-4">
-        <GenericFormField
-          control={form.control}
-          type="select"
-          name="method"
-          label="Method"
-          options={[
-            { value: "GET", label: "GET" },
-            { value: "POST", label: "POST" },
-            { value: "PUT", label: "PUT" },
-            { value: "DELETE", label: "DELETE" },
-            { value: "PATCH", label: "PATCH" },
-          ]}
-        />
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="w-full sm:w-32">
+          <GenericFormField
+            control={form.control}
+            type="select"
+            name="method"
+            label="Method"
+            options={[
+              { value: "GET", label: "GET" },
+              { value: "POST", label: "POST" },
+              { value: "PUT", label: "PUT" },
+              { value: "DELETE", label: "DELETE" },
+              { value: "PATCH", label: "PATCH" },
+            ]}
+          />
+        </div>
 
-        <GenericFormField
-          control={form.control}
-          type="input"
-          name="path"
-          label="Path"
-          placeholder="/users"
-        />
+        <div className="flex-1">
+          <GenericFormField
+            control={form.control}
+            type="input"
+            name="path"
+            label="Path"
+            placeholder="/users"
+          />
+        </div>
       </div>
 
       {/* SCHEMA */}

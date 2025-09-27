@@ -16,14 +16,14 @@ export default function RootLayout({
 }>) {
   return (
     <div className="flex">
-      <div className="w-[--sidebar-width] fixed h-screen border-r hidden md:block">
+      <div className="w-[--sidebar-width] fixed h-screen border-r hidden md:block z-40">
         <Sidebar />
       </div>
-      <div className="flex flex-col ml-0 md:ml-[--sidebar-width] w-[calc(100vw-var(--sidebar-width))]">
+      <div className="flex flex-col ml-0 md:ml-[--sidebar-width] w-full md:w-[calc(100vw-var(--sidebar-width))]">
         <Topbar />
         <AuthGuard>
           <div className="flex-1 flex flex-col items-center pt-[--topbar-height] bg-muted min-h-screen">
-            <main className="container p-6">{children}</main>
+            <main className="container p-4 sm:p-6 md:p-8">{children}</main>
           </div>
         </AuthGuard>
       </div>

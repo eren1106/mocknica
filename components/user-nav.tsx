@@ -15,10 +15,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Moon, Sun, Monitor, Check } from "lucide-react"
 import { Skeleton } from "./ui/skeleton"
+import { useRouter } from "next/navigation"
 
 export function UserNav() {
   const { user, isAuthenticated, isLoading } = useAuth()
   const { setTheme, theme } = useTheme()
+  const router = useRouter()
 
   if(isLoading) return <Skeleton className="w-8 h-8 rounded-full" />
   
@@ -37,7 +39,7 @@ export function UserNav() {
 
   const handleSignOut = async () => {
     await signOut()
-    window.location.href = "/login"
+    router.push("/login")
   }
 
   return (

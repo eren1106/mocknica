@@ -1,5 +1,4 @@
 import prisma from '@/lib/db';
-import { Schema } from '@/models/schema.model';
 import { SchemaField } from '@prisma/client';
 import { SchemaSchemaType } from '@/zod-schemas/schema.schema';
 import { PrismaIncludes, SchemaWithFields } from './helpers/prisma-includes';

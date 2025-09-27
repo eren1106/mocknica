@@ -35,7 +35,7 @@ const SidebarSheet = () => {
       <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
       <SheetContent 
         side="left" 
-        className="p-0 w-[--sidebar-width] max-w-[--sidebar-width]"
+        className="p-0 w-[85vw] md:w-[--sidebar-width]"
       >
         <div className="h-full overflow-y-auto">
           <Sidebar onNavItemClicked={() => setIsOpen(false)} />

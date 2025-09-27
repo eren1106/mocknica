@@ -91,13 +91,13 @@ const EndpointPageContainer = () => {
           </p>
         </div>
         
-        <div className="flex gap-2 w-fit self-start lg:self-center">
+        <div className="flex flex-col sm:flex-row gap-2 self-start lg:self-center w-full md:w-fit">
           <DialogButton
             content={<EndpointGuide />}
             title="API Endpoint Usage Guide"
             description="Learn how to create your first API, use dynamic parameters and query strings in your API endpoints"
             variant="outline"
-            className="w-fit"
+            className="w-full md:w-fit"
           >
             <HelpCircle className="size-4 mr-2" />
             Usage Guide
@@ -105,7 +105,7 @@ const EndpointPageContainer = () => {
           
           <DialogButton
             content={(close) => <EndpointCreationTabs onSuccess={close} />}
-            className="w-fit"
+            className="w-full md:w-fit"
           >
             <Plus className="size-4 mr-2" />
             Create Endpoint

@@ -65,7 +65,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
     setIsGenerating(true);
     try {
       const result = await AIService.generateEndpointsAndSchemasByAI(
-        aiPrompt, 
+        aiPrompt,
         selectedModel || undefined
       );
       setAiGeneratedData(result as unknown as AIGeneratedData);
@@ -112,7 +112,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
           ...data,
           aiGeneratedData: aiGeneratedData || undefined,
         };
-        
+
         await createProject(projectData);
       }
       onSuccess?.();
@@ -202,12 +202,15 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
                   placeholder="Select AI model (optional)"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Choose an AI model for generation. If not selected, the default model will be used.
+                  Choose an AI model for generation. If not selected, the
+                  default model will be used.
                 </p>
               </div>
-              
+
               <div className="space-y-2">
-                <label className="text-sm font-medium">Project Description</label>
+                <label className="text-sm font-medium">
+                  Project Description
+                </label>
                 <AutoResizeTextarea
                   placeholder="Describe your project to generate all the endpoints and schemas with AI"
                   minRows={5}
@@ -215,7 +218,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
                   onChange={handleAIPromptChange}
                 />
               </div>
-              
+
               <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
@@ -272,19 +275,22 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
                 {aiGeneratedData.schemas.map((schema, index) => (
                   <Card
                     key={index}
-                    className="p-3 bg-white/60 dark:bg-gray-800/60 border border-blue-200 dark:border-blue-800"
+                    className="p-2 sm:p-3 bg-white/60 dark:bg-gray-800/60 border border-blue-200 dark:border-blue-800"
                   >
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <h5 className="font-medium text-sm text-blue-900 dark:text-blue-100">
+                      <div className="flex items-start sm:items-center justify-between gap-2">
+                        <h5 className="font-medium text-sm text-blue-900 dark:text-blue-100 flex-1 min-w-0">
                           {schema.name}
                         </h5>
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge
+                          variant="secondary"
+                          className="text-xs flex-shrink-0"
+                        >
                           {schema.fields?.length || 0} fields
                         </Badge>
                       </div>
                       {schema.description && (
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
                           {schema.description}
                         </p>
                       )}
@@ -325,28 +331,28 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
                 {aiGeneratedData.endpoints.map((endpoint, index) => (
                   <Card
                     key={index}
-                    className="p-3 bg-white/60 dark:bg-gray-800/60 border border-primary"
+                    className="p-2 sm:p-3 bg-white/60 dark:bg-gray-800/60 border border-primary"
                   >
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <Badge
                           variant="outline"
-                          className="text-xs font-mono border-primary"
+                          className="text-xs font-mono border-primary flex-shrink-0"
                         >
                           {endpoint.method}
                         </Badge>
-                        <code className="text-xs font-mono bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded">
+                        <code className="text-xs font-mono bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded break-all">
                           {endpoint.path}
                         </code>
                       </div>
                       {endpoint.description && (
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
                           {endpoint.description}
                         </p>
                       )}
                       {endpoint.isDataList && (
                         <div className="flex items-center gap-1">
-                          <Eye className="h-3 w-3 text-gray-500" />
+                          <Eye className="h-3 w-3 text-gray-500 flex-shrink-0" />
                           <span className="text-xs text-gray-500">
                             Returns {endpoint.numberOfData || "multiple"} items
                           </span>

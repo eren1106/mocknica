@@ -20,24 +20,24 @@ const Topbar = ({ className }: ITopbarProps) => {
         "w-full md:w-[calc(100vw-var(--sidebar-width))]",
         "fixed top-0 z-50 h-[--topbar-height]",
         "border-b border-border/40",
-        "flex items-center justify-between px-4 sm:px-6",
+        "flex items-center justify-between px-3 sm:px-4 lg:px-6",
         "shadow-sm",
         className
       )}
     >
       {/* Left Section - Mobile Menu + API Endpoint */}
-      <div className="flex items-center gap-4 min-w-0 flex-1">
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
         <SidebarSheet />
         {projectId && (
           <ProjectEndpointBaseUrlDisplay 
             projectId={projectId}
-            className="min-w-0 flex-1"
+            className="min-w-0 flex-1 hidden sm:block"
           />
         )}
       </div>
 
       {/* Right Section - User Navigation */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         <UserNav />
       </div>
     </header>

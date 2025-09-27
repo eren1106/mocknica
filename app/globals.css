@@ -8,6 +8,13 @@
   --topbar-height: 4rem;
 }
 
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  :root {
+    --topbar-height: 3rem;
+  }
+}
+
 @layer base {
   :root {
     --background: 223.8136 -172.5242% 100.0000%;
@@ -125,21 +132,21 @@ body {
 }
 
 h1 {
-  @apply text-4xl;
+  @apply text-2xl sm:text-3xl lg:text-4xl;
   @apply font-extrabold;
 }
 
 h2 {
-  @apply text-2xl;
+  @apply text-xl sm:text-2xl;
   @apply font-semibold;
 }
 
 h3 {
-  @apply text-xl;
+  @apply text-lg sm:text-xl;
   @apply font-medium;
 }
 
 h4 {
-  @apply text-lg;
+  @apply text-base sm:text-lg;
   @apply font-medium;
 }
