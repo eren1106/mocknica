@@ -1,4 +1,9 @@
+'use client'
+
 import { cn } from "@/lib/utils";
+import NextImage from "../next-image";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 interface BrandLogoProps {
   size?: "sm" | "md" | "lg";
@@ -24,33 +29,38 @@ const sizeClasses = {
   },
 };
 
-export const BrandLogo = ({ 
-  size = "md", 
-  showText = true, 
-  className 
+export const BrandLogo = ({
+  size = "md",
+  showText = true,
+  className,
 }: BrandLogoProps) => {
   const { container, icon, text } = sizeClasses[size];
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure component is mounted on client before using theme
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Use a default theme during SSR to prevent hydration mismatch
+  const currentTheme = mounted ? theme : 'light';
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <div className={cn(
-        "bg-gradient-to-br from-primary to-primary/60 rounded-lg flex items-center justify-center",
-        container
-      )}>
-        <svg
-          className={cn("text-primary-foreground", icon)}
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-        </svg>
-      </div>
+      <NextImage 
+        src={currentTheme === "dark" ? "/icon-dark.png" : "/icon-light.png"} 
+        alt="Logo" 
+        className={cn(container)} 
+      />
       {showText && (
-        <h1 className={cn(
-          "font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent",
-          text
-        )}>
-          MockA
+        <h1
+          className={cn(
+            "font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent",
+            text
+          )}
+        >
+          Mocknica
         </h1>
       )}
     </div>

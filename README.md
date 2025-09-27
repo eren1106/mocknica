@@ -1,8 +1,8 @@
-# MockA 🚀
+# Mocknica 🚀
 
 A powerful mock API platform that helps developers create, manage, and serve realistic mock APIs for development and testing purposes. Built with Next.js, TypeScript, and modern web technologies.
 
-<!-- ![MockA Demo](https://via.placeholder.com/800x400?text=MockA+Demo) -->
+<!-- ![Mocknica Demo](https://via.placeholder.com/800x400?text=Mocknica+Demo) -->
 
 ## ✨ Features
 
@@ -41,8 +41,8 @@ A powerful mock API platform that helps developers create, manage, and serve rea
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/eren1106/MockA.git
-   cd MockA
+   git clone https://github.com/eren1106/Mocknica.git
+   cd Mocknica
    ```
 
 2. **Install dependencies**
@@ -96,7 +96,7 @@ docker-compose up -d
 
 ### Using the Mock API Server
 
-MockA provides a RESTful mock API server that serves realistic data based on your defined schemas. Here's how to use it:
+Mocknica provides a RESTful mock API server that serves realistic data based on your defined schemas. Here's how to use it:
 
 #### Base URL Structure
 
@@ -106,7 +106,7 @@ http://localhost:3000/api/mock/{projectId}/{endpoint-path}
 
 #### Standard REST Endpoints
 
-MockA automatically generates standard CRUD endpoints when you create endpoints from schemas:
+Mocknica automatically generates standard CRUD endpoints when you create endpoints from schemas:
 
 ```
 GET    /api/mock/{projectId}/{endpoint}       # Get list of items
@@ -120,7 +120,7 @@ DELETE /api/mock/{projectId}/{endpoint}/:id   # Delete item by ID
 
 **1. E-commerce API Example**
 
-If you create a "products" schema with fields like name, price, description, MockA will serve:
+If you create a "products" schema with fields like name, price, description, Mocknica will serve:
 
 ```bash
 # Get all products (returns array)
@@ -315,7 +315,7 @@ If you're calling the API from a browser application on a different domain, make
 
 #### Static vs Dynamic Responses
 
-- **Schema-based**: MockA generates realistic fake data based on your schema definition
+- **Schema-based**: Mocknica generates realistic fake data based on your schema definition
 - **Static Response**: You can override with custom JSON for specific responses
 - **Data Lists**: Configure how many items to return in list endpoints (default: 3)
 
@@ -338,7 +338,7 @@ curl -X POST "http://localhost:3000/api/mock/proj_123/products" \
 
 ## 🤖 AI-Powered Features
 
-MockA integrates Google Gemini AI to help you rapidly create schemas and generate realistic mock responses, making API development faster and more intelligent.
+Mocknica integrates Google Gemini AI to help you rapidly create schemas and generate realistic mock responses, making API development faster and more intelligent.
 
 ### AI Schema Generation
 
@@ -614,9 +614,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 - 📧 Email: [erenkuek1106@gmail.com]
-- 🐛 Issues: [GitHub Issues](https://github.com/eren1106/MockA/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/eren1106/MockA/discussions)
-
----
-
-Made with ❤️ by [Eren1106](https://github.com/eren1106)
+- 🐛 Issues: [GitHub Issues](https://github.com/eren1106/Mocknica/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/eren1106/Mocknica/discussions)

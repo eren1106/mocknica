@@ -5,7 +5,7 @@ import Sidebar from "@/components/layout/Sidebar";
 import AuthGuard from "@/components/auth/AuthGuard";
 
 export const metadata: Metadata = {
-  title: "MockA",
+  title: "Mocknica",
   description: "Mock API Server",
 };
 
