@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { Copy } from "lucide-react";
 import { Button } from "./ui/button";
@@ -11,6 +11,12 @@ interface JsonViewerProps {
   className?: string;
 }
 
+interface Token {
+  type: string;
+  value: string;
+}
+
+// Memoized JSON formatting function
 const formatJSON = (jsonData: any): string => {
   try {
     return JSON.stringify(jsonData, null, 2);
@@ -19,9 +25,9 @@ const formatJSON = (jsonData: any): string => {
   }
 };
 
-const highlightJSON = (jsonString: string): React.ReactNode => {
-  // Split the JSON into tokens for safer parsing
-  const tokens: { type: string; value: string }[] = [];
+// Memoized JSON tokenization function
+const tokenizeJSON = (jsonString: string): Token[] => {
+  const tokens: Token[] = [];
   let i = 0;
   
   while (i < jsonString.length) {
@@ -61,13 +67,13 @@ const highlightJSON = (jsonString: string): React.ReactNode => {
         i++;
       }
       tokens.push({ type: 'number', value: numberValue });
-    } else if (jsonString.substr(i, 4) === 'true') {
+    } else if (jsonString.substring(i, 4) === 'true') {
       tokens.push({ type: 'boolean', value: 'true' });
       i += 4;
-    } else if (jsonString.substr(i, 5) === 'false') {
+    } else if (jsonString.substring(i, 5) === 'false') {
       tokens.push({ type: 'boolean', value: 'false' });
       i += 5;
-    } else if (jsonString.substr(i, 4) === 'null') {
+    } else if (jsonString.substring(i, 4) === 'null') {
       tokens.push({ type: 'null', value: 'null' });
       i += 4;
     } else if (/[{}[\],:]/.test(char)) {
@@ -79,63 +85,68 @@ const highlightJSON = (jsonString: string): React.ReactNode => {
     }
   }
   
-  // Render tokens with appropriate styling
-  return tokens.map((token, index) => {
-    switch (token.type) {
-      case 'key':
-        return (
-          <span key={index} className="text-blue-700 dark:text-blue-300 font-medium">
-            {token.value}
-          </span>
-        );
-      case 'string':
-        return (
-          <span key={index} className="text-green-600 dark:text-green-400 font-medium">
-            {token.value}
-          </span>
-        );
-      case 'number':
-        return (
-          <span key={index} className="text-orange-600 dark:text-orange-400 font-medium">
-            {token.value}
-          </span>
-        );
-      case 'boolean':
-        return (
-          <span key={index} className="text-purple-600 dark:text-purple-400 font-medium">
-            {token.value}
-          </span>
-        );
-      case 'null':
-        return (
-          <span key={index} className="text-gray-500 dark:text-gray-400 font-medium">
-            {token.value}
-          </span>
-        );
-      case 'punctuation':
-        return (
-          <span key={index} className="text-muted-foreground">
-            {token.value}
-          </span>
-        );
-      default:
-        return <span key={index}>{token.value}</span>;
-    }
-  });
+  return tokens;
 };
 
-export default function JsonViewer({ data, className }: JsonViewerProps) {
-  const copyToClipboard = async () => {
+// Memoized token component to prevent unnecessary re-renders
+const TokenSpan = React.memo(({ token, index }: { token: Token; index: number }) => {
+  const getTokenClassName = (type: string): string => {
+    switch (type) {
+      case 'key':
+        return "text-blue-700 dark:text-blue-300 font-medium";
+      case 'string':
+        return "text-green-600 dark:text-green-400 font-medium";
+      case 'number':
+        return "text-orange-600 dark:text-orange-400 font-medium";
+      case 'boolean':
+        return "text-purple-600 dark:text-purple-400 font-medium";
+      case 'null':
+        return "text-gray-500 dark:text-gray-400 font-medium";
+      case 'punctuation':
+        return "text-muted-foreground";
+      default:
+        return "";
+    }
+  };
+
+  return (
+    <span className={getTokenClassName(token.type)}>
+      {token.value}
+    </span>
+  );
+});
+
+TokenSpan.displayName = 'TokenSpan';
+
+// Memoized highlighted JSON component
+const HighlightedJSON = React.memo(({ tokens }: { tokens: Token[] }) => {
+  return (
+    <>
+      {tokens.map((token, index) => (
+        <TokenSpan key={index} token={token} index={index} />
+      ))}
+    </>
+  );
+});
+
+HighlightedJSON.displayName = 'HighlightedJSON';
+
+const JsonViewer = React.memo(({ data, className }: JsonViewerProps) => {
+  // Memoize the formatted JSON string - only recalculates when data changes
+  const formattedJson = useMemo(() => formatJSON(data), [data]);
+  
+  // Memoize the tokenized JSON - only recalculates when formatted JSON changes
+  const tokens = useMemo(() => tokenizeJSON(formattedJson), [formattedJson]);
+  
+  // Memoize the copy function to prevent unnecessary re-renders of the Button
+  const copyToClipboard = useCallback(async () => {
     try {
-      const jsonString = formatJSON(data);
-      await navigator.clipboard.writeText(jsonString);
+      await navigator.clipboard.writeText(formattedJson);
       toast.success("JSON copied to clipboard!");
     } catch (err) {
       toast.error("Failed to copy JSON");
     }
-  };
-
-  const formattedJson = formatJSON(data);
+  }, [formattedJson]);
 
   return (
     <div className={cn("relative", className)}>
@@ -152,9 +163,13 @@ export default function JsonViewer({ data, className }: JsonViewerProps) {
       
       <pre className="p-4 rounded-lg overflow-auto max-h-96 bg-muted/30 border font-mono text-sm leading-relaxed">
         <code>
-          {highlightJSON(formattedJson)}
+          <HighlightedJSON tokens={tokens} />
         </code>
       </pre>
     </div>
   );
-}
+});
+
+JsonViewer.displayName = 'JsonViewer';
+
+export default JsonViewer;
