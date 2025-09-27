@@ -1,21 +1,20 @@
 'use client'
 
 import { cn } from '@/lib/utils';
-import Image from 'next/image'
+import Image, { ImageProps } from 'next/image'
 import React from 'react'
 
-interface NextImageProps {
+interface NextImageProps extends ImageProps {
   src: string;
   alt: string;
   className?: string;
-  unoptimized?: boolean;
 }
 
 const NextImage = ({
   src,
   alt,
   className,
-  unoptimized=true,
+  ...props
 }: NextImageProps) => {
   return (
     <Image
@@ -25,7 +24,7 @@ const NextImage = ({
       width="0"
       height="0"
       className={cn("w-auto h-auto", className)}
-      unoptimized={unoptimized}
+      {...props}
     />
   )
 }

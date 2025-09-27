@@ -140,11 +140,11 @@ const Sidebar = ({ onNavItemClicked }: ISidebarProps) => {
         </nav>
 
         {/* Footer */}
-        <div className="border-t bg-background/50 p-4">
+        {/* <div className="border-t bg-background/50 p-4">
           <div className="text-xs text-muted-foreground text-center">
             Mocknica v1.0.0
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );
