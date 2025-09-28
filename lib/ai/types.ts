@@ -13,7 +13,7 @@ export enum AIProviderType {
 
 export type GeminiModelId = "gemini-2.0-flash" | "gemini-2.0-flash-exp" | "gemini-pro" | "gemini-1.5-pro";
 export type OpenAIModelId = "gpt-4o-mini" | "gpt-4o" | "gpt-4-turbo" | "gpt-4" | "gpt-3.5-turbo";
-export type OllamaModelId = "llama3.2" | "llama3.1" | "codellama" | "mistral" | "neural-chat" | "starcode";
+export type OllamaModelId = "llama3.2" | "llama3.1" | "deepseek-r1:7b" | "deepseek-r1:1.5b" | "mistral";
 export type AIModelId = GeminiModelId | OpenAIModelId | OllamaModelId;
 
 export interface AIModel {

@@ -46,7 +46,7 @@ export function validateAIConfiguration(): {
   }
 
   // Check Ollama (more lenient as it's local)
-  if (process.env.OLLAMA_BASE_URL || process.env.OLLAMA_ENABLED) {
+  if (process.env.OLLAMA_BASE_URL) {
     providers.push(AIProviderType.OLLAMA);
   }
 

@@ -31,28 +31,41 @@ export async function POST(req: NextRequest) {
 
     console.log("AI response:", completion.content);
 
+    // Clean the response content to handle any remaining formatting issues
+    const cleanedContent = completion.content
+      .replace(/<think>[\s\S]*?<\/think>/gi, '') // Remove <think></think> tags
+      .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '') // Remove <thinking></thinking> tags
+      .trim(); // Remove leading/trailing whitespace
+
+    console.log("Cleaned response:", cleanedContent);
+
     let response;
     try {
       // Try to parse the response as JSON directly
-      response = JSON.parse(completion.content);
+      response = JSON.parse(cleanedContent);
     } catch (parseError) {
       // If JSON parsing fails, try to extract JSON from markdown code blocks
-      const jsonMatch = completion.content.match(/```json\s*([\s\S]*?)\s*```/) || 
-                       completion.content.match(/```\s*([\s\S]*?)\s*```/) ||
-                       completion.content.match(/\{[\s\S]*\}/);
+      const jsonMatch = cleanedContent.match(/```json\s*([\s\S]*?)\s*```/) || 
+                       cleanedContent.match(/```\s*([\s\S]*?)\s*```/) ||
+                       cleanedContent.match(/\{[\s\S]*\}/);
       
       if (jsonMatch) {
         try {
-          const jsonContent = jsonMatch[1] || jsonMatch[0];
+          let jsonContent = jsonMatch[1] || jsonMatch[0];
+          // Additional cleaning for extracted JSON
+          jsonContent = jsonContent
+            .replace(/<think>[\s\S]*?<\/think>/gi, '')
+            .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '')
+            .trim();
           response = JSON.parse(jsonContent);
         } catch (extractError) {
           throw new Error(
-            `AI returned invalid JSON. Response: ${completion.content.substring(0, 200)}...`
+            `AI returned invalid JSON after extraction. Original: ${completion.content.substring(0, 200)}... Cleaned: ${cleanedContent.substring(0, 200)}...`
           );
         }
       } else {
         throw new Error(
-          `AI response does not contain valid JSON. Response: ${completion.content.substring(0, 200)}...`
+          `AI response does not contain valid JSON. Original: ${completion.content.substring(0, 200)}... Cleaned: ${cleanedContent.substring(0, 200)}...`
         );
       }
     }

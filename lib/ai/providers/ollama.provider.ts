@@ -82,16 +82,24 @@ export class OllamaProvider extends AIProvider {
         stream: false,
       });
 
-      if (!response.message?.content) {
+      let content = response.message?.content;
+
+      if (!content) {
         throw new AIGenerationError(
           "No response from Ollama",
           AIProviderType.OLLAMA
         );
       }
 
+      // Clean up the content by removing <think></think> tags and other potential issues
+      content = content
+        .replace(/<think>[\s\S]*?<\/think>/gi, '') // Remove <think></think> tags (case insensitive)
+        .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '') // Also handle <thinking> tags
+        .trim(); // Remove leading/trailing whitespace
+
       return {
-        content: response.message.content,
-        model: model,
+        content,
+        model,
         provider: AIProviderType.OLLAMA,
         usage: {
           promptTokens: response.prompt_eval_count,
@@ -127,6 +135,22 @@ export class OllamaProvider extends AIProvider {
           isLocal: true,
         },
         {
+          id: "deepseek-r1:7b",
+          name: "DeepSeek R1:7B",
+          provider: AIProviderType.OLLAMA,
+          description: "DeepSeek's latest R1 model",
+          maxTokens: 8192,
+          isLocal: true,
+        },
+        {
+          id: "deepseek-r1:1.5b",
+          name: "DeepSeek R1:1.5B",
+          provider: AIProviderType.OLLAMA,
+          description: "DeepSeek's latest R1 model",
+          maxTokens: 8192,
+          isLocal: true,
+        },
+        {
           id: "llama3.1",
           name: "Llama 3.1",
           provider: AIProviderType.OLLAMA,
@@ -135,35 +159,11 @@ export class OllamaProvider extends AIProvider {
           isLocal: true,
         },
         {
-          id: "codellama",
-          name: "Code Llama",
-          provider: AIProviderType.OLLAMA,
-          description: "Specialized for code generation and understanding",
-          maxTokens: 4096,
-          isLocal: true,
-        },
-        {
           id: "mistral",
           name: "Mistral 7B",
           provider: AIProviderType.OLLAMA,
           description: "Fast and efficient model from Mistral AI",
           maxTokens: 8192,
-          isLocal: true,
-        },
-        {
-          id: "neural-chat",
-          name: "Neural Chat",
-          provider: AIProviderType.OLLAMA,
-          description: "Optimized for conversational AI tasks",
-          maxTokens: 4096,
-          isLocal: true,
-        },
-        {
-          id: "starcode",
-          name: "StarCoder",
-          provider: AIProviderType.OLLAMA,
-          description: "Specialized for code completion and generation",
-          maxTokens: 4096,
           isLocal: true,
         },
       ];
