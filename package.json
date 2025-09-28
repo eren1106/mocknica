@@ -12,7 +12,7 @@
     "db-sync": "pnpm db-push && pnpm db-client",
     "db-push": "pnpm prisma db push",
     "db-client": "pnpm prisma generate",
-    "studio": "pnpm prisma studio",
+    "db-studio": "pnpm prisma studio",
     "prepare": "husky",
     "start:docker": "prisma db push --accept-data-loss && node server.js"
   },
