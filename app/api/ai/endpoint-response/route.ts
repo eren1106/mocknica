@@ -6,6 +6,13 @@ export async function POST(req: NextRequest) {
   try {
     const { prompt: userInput, model } = await req.json();
 
+    if (!aiServiceManager) {
+      return errorResponse(req, { 
+        message: 'AI services are not available. Please configure at least one AI provider (GEMINI_API_KEY, OPENAI_API_KEY, or run Ollama locally).',
+        statusCode: 503
+      });
+    }
+
     const systemPrompt = `
   You are a JSON-only generator. You must output only valid JSON—no markdown, no code fences, no explanations, no \`\`\`json blocks.
   
@@ -19,8 +26,7 @@ export async function POST(req: NextRequest) {
       `User request: ${userInput.trim()}`,
     ].join("\n\n");
 
-    const aiManager = aiServiceManager;
-    const completion = await aiManager.generateText({
+    const completion = await aiServiceManager.generateText({
       prompt,
       model,
     });

@@ -5,13 +5,18 @@ import { aiServiceManager } from "@/lib/ai";
 
 export async function GET(req: NextRequest) {
   try {
-    const aiManager = aiServiceManager;
+    if (!aiServiceManager) {
+      return errorResponse(req, { 
+        message: 'AI services are not available. Please configure at least one AI provider (GEMINI_API_KEY, OPENAI_API_KEY, or run Ollama locally).',
+        statusCode: 503
+      });
+    }
     
     // Get all available models from all providers
-    const models = await aiManager.getAllAvailableModels();
+    const models = await aiServiceManager.getAllAvailableModels();
     
     // Get health status to filter out unavailable providers
-    const healthStatus = await aiManager.getHealthStatus();
+    const healthStatus = await aiServiceManager.getHealthStatus();
     
     // Filter models to only include those from available providers
     const availableModels = models.filter((model: AIModel) => 
@@ -19,13 +24,16 @@ export async function GET(req: NextRequest) {
     );
 
     // Get the default model
-    const defaultModel = await aiManager.getDefaultModel();
+    const defaultModel = await aiServiceManager.getDefaultModel();
+
+    // Filter providers to only include those that are actually available
+    const availableProviders = aiServiceManager.getAvailableProviders()
+      .filter(provider => healthStatus[provider]?.available);
 
     return apiResponse(req, { 
       data: {
         models: availableModels,
-        providers: aiManager.getAvailableProviders(),
-        health: healthStatus,
+        providers: availableProviders,
         defaultModel
       }
     });

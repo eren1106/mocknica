@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -126,7 +125,7 @@ export function ModelSelector({
             ) : (
               <>
                 <Cpu className="h-4 w-4" />
-                <span className="text-muted-foreground">{placeholder}</span>
+                <span className="text-muted-foreground">{models?.length ? placeholder : 'No models available, please configure at least one AI provider.'} </span>
               </>
             )}
           </div>
@@ -143,12 +142,29 @@ export function ModelSelector({
                 <span className="text-sm text-muted-foreground">Loading models...</span>
               </div>
             ) : error ? (
-              <div className="p-4 text-center">
-                <p className="text-sm text-destructive mb-2">Failed to load models</p>
-                <p className="text-xs text-muted-foreground">{error.message}</p>
+              <div className="p-4 text-center space-y-2">
+                <p className="text-sm text-destructive font-medium">AI services unavailable</p>
+                <p className="text-xs text-muted-foreground">
+                  Please configure at least one AI provider:
+                </p>
+                <ul className="text-xs text-muted-foreground text-left list-disc list-inside space-y-1">
+                  <li>Set GEMINI_API_KEY environment variable</li>
+                  <li>Set OPENAI_API_KEY environment variable</li>
+                  <li>Run Ollama locally (http://localhost:11434)</li>
+                </ul>
               </div>
             ) : Object.keys(groupedModels).length === 0 ? (
-              <CommandEmpty>No models available.</CommandEmpty>
+              <div className="p-4 text-center space-y-2">
+                <p className="text-sm text-muted-foreground font-medium">No models available</p>
+                <p className="text-xs text-muted-foreground">
+                  All configured AI providers are currently unavailable. Please check:
+                </p>
+                <ul className="text-xs text-muted-foreground text-left list-disc list-inside space-y-1">
+                  <li>API keys are valid</li>
+                  <li>Network connectivity</li>
+                  <li>Ollama is running (for local models)</li>
+                </ul>
+              </div>
             ) : (
               Object.entries(groupedModels).map(([provider, providerModels]) => (
                 <CommandGroup 

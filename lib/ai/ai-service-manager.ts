@@ -56,9 +56,9 @@ export class AIServiceManager {
     }
 
     if (this.providers.size === 0) {
-      throw new AIConfigurationError(
-        'No AI providers could be initialized. Please check your configuration.',
-        AIProviderType.GEMINI // Default provider type for error
+      console.warn(
+        'No AI providers could be initialized. AI features will be unavailable. ' +
+        'Please configure at least one provider: GEMINI_API_KEY, OPENAI_API_KEY, or run Ollama locally.'
       );
     }
   }
@@ -343,9 +343,15 @@ export class AIServiceManager {
  * Singleton pattern for shared usage across the application
  */
 
-// Factory function to create a new AIServiceManager instance
+// Factory function to create a new AIServiceManager instance safely
 const aiServiceManagerSingleton = () => {
-  return new AIServiceManager();
+  try {
+    return new AIServiceManager();
+  } catch (error) {
+    console.error('Failed to initialize AI Service Manager:', error);
+    console.warn('AI features will be unavailable. Please configure at least one AI provider.');
+    return null;
+  }
 }
 
 // Extend globalThis type to include our singleton instance
@@ -358,6 +364,7 @@ declare const globalThis: {
 // - First check if instance exists on globalThis (for development hot reloads)
 // - If not found, create a new instance using the factory function
 // - This ensures only one instance exists across the entire application
+// - Returns null if initialization fails to prevent application crashes
 const aiServiceManager = globalThis.aiServiceManagerGlobal ?? aiServiceManagerSingleton();
 
 // Export the singleton instance directly (not a function)

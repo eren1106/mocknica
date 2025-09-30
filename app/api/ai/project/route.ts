@@ -8,6 +8,13 @@ export async function POST(req: NextRequest) {
   try {
     const { prompt: userInput, model } = await req.json();
 
+    if (!aiServiceManager) {
+      return errorResponse(req, { 
+        message: 'AI services are not available. Please configure at least one AI provider (GEMINI_API_KEY, OPENAI_API_KEY, or run Ollama locally).',
+        statusCode: 503
+      });
+    }
+
     // Get all existing schemas to provide as examples for object references
     const existingSchemas = await SchemaData.getAllSchemas();
 
@@ -332,11 +339,10 @@ RESPOND WITH ONLY JSON:`;
     ].join("\n\n");
 
     // Initialize AI service manager and generate response
-    const aiManager = aiServiceManager;
     
     let completion;
     try {
-      completion = await aiManager.generateText({
+      completion = await aiServiceManager.generateText({
         prompt,
         model,
       });
