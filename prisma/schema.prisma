@@ -30,8 +30,7 @@ model Endpoint {
   description       String?
   method            HttpMethod       @default(GET)
   path              String
-  // TODO: change staticResponse to response, and cannot be null
-  staticResponse    Json? // For hardcoded responses
+  staticResponse    Json
   schemaId          Int?
   schema            Schema?          @relation(fields: [schemaId], references: [id])
   responseWrapperId Int?

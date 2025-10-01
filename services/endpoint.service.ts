@@ -40,25 +40,32 @@ export class EndpointService {
 
   // display what the endpoint should return when user request the mock data
   static getEndpointResponse(endpoint: Endpoint, queryParams?: QueryParams) {
-    let response = endpoint.responseWrapper
-      ? ResponseWrapperService.generateResponseWrapperJson({
-          response: endpoint.staticResponse,
-          wrapper: endpoint.responseWrapper,
-        })
-      : endpoint.staticResponse;
+    let response: any;
 
-    // Apply query parameter processing for static responses if it's an array
+    // Handle schema-based responses
+    if (endpoint.schema) {
+      response = SchemaService.generateResponseFromSchema(
+        endpoint.schema,
+        endpoint.isDataList,
+        endpoint.numberOfData || undefined
+      );
+    } else {
+      // Handle static responses
+      response = endpoint.staticResponse;
+    }
+
+    // Apply response wrapper if present
+    if (endpoint.responseWrapper) {
+      response = ResponseWrapperService.generateResponseWrapperJson({
+        response: response,
+        wrapper: endpoint.responseWrapper,
+      });
+    }
+
+    // Apply query parameter processing if it's an array
     if (Array.isArray(response) && queryParams) {
       const result = QueryParamsHelper.processData(response, queryParams);
       response = result.data;
-
-      // If pagination is applied, wrap response with pagination info
-      // if (result.pagination) {
-      //   response = {
-      //     data: result.data,
-      //     pagination: result.pagination
-      //   };
-      // }
     }
 
     return response;
