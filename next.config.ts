@@ -4,7 +4,6 @@ import type { NextConfig } from "next";
 // const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || ["*"];
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
   // async headers() {
   //   // Create headers for each allowed origin
   //   const headerConfigs = allowedOrigins.map(origin => ({
