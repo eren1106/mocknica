@@ -6,10 +6,18 @@ export type Endpoint = Prisma.EndpointGetPayload<{
       include: {
         fields: {
           include: {
-            objectSchema: true;
+            objectSchema: {
+              include: {
+                fields: true;
+              };
+            };
             arrayType: {
               include: {
-                objectSchema: true;
+                objectSchema: {
+                  include: {
+                    fields: true;
+                  };
+                };
               };
             };
           };

@@ -2,7 +2,6 @@ import { apiRequest } from "@/helpers/api-request";
 import { Endpoint } from "@/models/endpoint.model";
 import { ResponseWrapperService } from "./response-wrapper.service";
 import { SchemaService } from "./schema.service";
-import { Schema } from "@/models/schema.model";
 import { QueryParams, QueryParamsHelper } from "@/helpers/query-params";
 
 export class EndpointService {
