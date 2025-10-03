@@ -66,9 +66,12 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# pnpm's dependency structure doesn't play well with copying Prisma Client
-# So we regenerate it in the runner stage to ensure it's available
-RUN pnpm prisma generate
+# Copy Prisma from builder stage (needed for migrations and client)
+# Standalone mode doesn't trace Prisma correctly due to binary dependencies
+COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/.bin ./node_modules/.bin
 
 USER nextjs
 
