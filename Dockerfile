@@ -57,9 +57,8 @@ COPY --from=builder /app/public ./public
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
-# Copy Prisma files - standalone will have traced node_modules
+# Copy Prisma schema for migrations
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/package.json ./package.json
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
@@ -67,10 +66,9 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# However, Prisma Client needs to be explicitly available
-# Copy Prisma Client from deps since it's generated during build
-COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=deps /app/node_modules/@prisma ./node_modules/@prisma
+# pnpm's dependency structure doesn't play well with copying Prisma Client
+# So we regenerate it in the runner stage to ensure it's available
+RUN pnpm prisma generate
 
 USER nextjs
 
@@ -81,4 +79,6 @@ ENV HOSTNAME="0.0.0.0"
 
 CMD ["pnpm", "start:docker"]
 
-# FYI: start:docker will call "prisma db push --accept-data-loss && node server.js". What's server.js? When build a Next.js application with output: 'standalone' in next.config.ts, Next.js automatically generates a server.js file in the .next/standalone directory during the build process. It serves your Next.js application
+# FYI: start:docker uses "prisma migrate deploy" which applies migration files safely (production-ready)
+# For dev/preview environments, you can override with: docker run ... pnpm start:docker:dev
+# This uses "db push --accept-data-loss" for quick schema syncing without migrations

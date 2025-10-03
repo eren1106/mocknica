@@ -14,7 +14,8 @@
     "db-client": "pnpm prisma generate",
     "db-studio": "pnpm prisma studio",
     "prepare": "husky",
-    "start:docker": "prisma db push --accept-data-loss && node server.js"
+    "start:docker": "prisma migrate deploy && node server.js",
+    "start:docker:dev": "prisma db push --accept-data-loss && node server.js"
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",
