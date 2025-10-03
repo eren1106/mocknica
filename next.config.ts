@@ -4,6 +4,9 @@ import type { NextConfig } from "next";
 // const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(',') || ["*"];
 
 const nextConfig: NextConfig = {
+  // Only enable standalone output in Docker builds (when DOCKER_BUILD env var is set)
+  // This avoids Windows symlink permission issues during local development
+  ...(process.env.DOCKER_BUILD === 'true' && { output: 'standalone' }),
   // async headers() {
   //   // Create headers for each allowed origin
   //   const headerConfigs = allowedOrigins.map(origin => ({
