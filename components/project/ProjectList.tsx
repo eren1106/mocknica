@@ -1,26 +1,26 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useProjects } from "@/hooks/useProject";
 import ProjectCard from "./ProjectCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FolderOpen } from "lucide-react";
+import ControlsBar from "@/components/controls-bar";
 
 type SortOrder = "name-asc" | "name-desc" | "created-asc" | "created-desc";
-// type FilterType = "all" | "public" | "private";
 
-interface ProjectListProps {
-  searchQuery?: string;
-  sortOrder?: SortOrder;
-  // filterType?: FilterType;
-}
-
-const ProjectList = ({ 
-  searchQuery = "",
-  sortOrder = "created-desc",
-  // filterType = "all",
-}: ProjectListProps) => {
+const ProjectList = () => {
   const { data: projects, isLoading } = useProjects();
+  const [sortOrder, setSortOrder] = useState<SortOrder>("created-desc");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Sort options for ControlsBar
+  const sortOptions = [
+    { value: "created-desc", label: "Newest First" },
+    { value: "created-asc", label: "Oldest First" },
+    { value: "name-asc", label: "Name A-Z" },
+    { value: "name-desc", label: "Name Z-A" },
+  ];
 
   const filteredAndSortedProjects = useMemo(() => {
     if (!projects) return [];
@@ -30,11 +30,6 @@ const ProjectList = ({
       const matchesSearch = searchQuery === "" || 
         project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         project.description?.toLowerCase().includes(searchQuery.toLowerCase());
-
-      // Visibility filter
-      // const matchesFilter = filterType === "all" || 
-      //   (filterType === "public" && project.permission === "PUBLIC") ||
-      //   (filterType === "private" && project.permission === "PRIVATE");
 
       return matchesSearch;
     });
@@ -58,45 +53,50 @@ const ProjectList = ({
     return filtered;
   }, [projects, searchQuery, sortOrder]);
 
-  if (isLoading) {
-    return (
-      <div className={`grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3`}>
-        {Array.from({ length: 6 }).map((_, index) => (
-          <Skeleton key={index} className="h-64" />
-        ))}
-      </div>
-    );
-  }
-
-  if (filteredAndSortedProjects.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <FolderOpen className="size-12 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-foreground mb-2">
-          {searchQuery
-            ? "No projects found"
-            : "No projects yet"
-          }
-        </h3>
-        <p className="text-muted-foreground mb-4">
-          {searchQuery
-            ? "Try adjusting your search or filter criteria"
-            : "Create your first project to get started with building your API"
-          }
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className={`grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3`}>
-      {filteredAndSortedProjects.map((project) => (
-        <ProjectCard 
-          key={project.id} 
-          project={project}
-        />
-      ))}
-    </div>
+    <>
+      <ControlsBar
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Search projects..."
+        sortValue={sortOrder}
+        onSortChange={(value) => setSortOrder(value as SortOrder)}
+        sortOptions={sortOptions}
+      />
+
+      {isLoading ? (
+        <div className={`grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3`}>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Skeleton key={index} className="h-64" />
+          ))}
+        </div>
+      ) : filteredAndSortedProjects.length === 0 ? (
+        <div className="text-center py-12">
+          <FolderOpen className="size-12 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">
+            {searchQuery
+              ? "No projects found"
+              : "No projects yet"
+            }
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            {searchQuery
+              ? "Try adjusting your search or filter criteria"
+              : "Create your first project to get started with building your API"
+            }
+          </p>
+        </div>
+      ) : (
+        <div className={`grid gap-4 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3`}>
+          {filteredAndSortedProjects.map((project) => (
+            <ProjectCard 
+              key={project.id} 
+              project={project}
+            />
+          ))}
+        </div>
+      )}
+    </>
   );
 };
 
