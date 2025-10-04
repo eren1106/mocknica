@@ -9,6 +9,7 @@ export function CreateProjectButton() {
     <DialogButton
       content={(close) => <ProjectForm onSuccess={close} />}
       className="w-fit self-start lg:self-center"
+      contentClassName="lg:w-[70vw]"
     >
       <Plus className="size-4 mr-2" />
       Create Project
