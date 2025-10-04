@@ -1,5 +1,5 @@
 import EndpointPageContainer from "@/components/endpoint/EndpointPageContainer";
 
-export default function ProjectOverviewPage() {
+export default function EndpointsPage() {
   return <EndpointPageContainer />;
 }

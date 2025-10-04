@@ -1,5 +1,5 @@
-import ProjectManagement from "@/components/project/ProjectManagement";
+import ProjectsPageContainer from "@/components/project/ProjectsPageContainer";
 
 export default function ProjectsPage() {
-  return <ProjectManagement />;
+  return <ProjectsPageContainer />;
 }

@@ -1,22 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import DialogButton from "@/components/dialog-button";
 import ControlsBar from "@/components/controls-bar";
-import { Plus, Grid3X3 } from "lucide-react";
+import { Plus } from "lucide-react";
 import ProjectList from "./ProjectList";
 import ProjectForm from "./ProjectForm";
 import { useAuth } from "@/hooks/useAuth";
-import { useProjects } from "@/hooks/useProject";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 type SortOrder = "name-asc" | "name-desc" | "created-asc" | "created-desc";
 // type FilterType = "all" | "public" | "private";
 
-const ProjectManagement = () => {
+const ProjectsPageContainer = () => {
   const { isAuthenticated } = useAuth();
-  const { data: projects, isLoading } = useProjects();
   const [sortOrder, setSortOrder] = useState<SortOrder>("created-desc");
   // const [filterType, setFilterType] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,25 +26,25 @@ const ProjectManagement = () => {
   ];
 
   // Filter options for ControlsBar
-  const filterOptions = [
-    { value: "all", label: "All Projects" },
-    { 
-      value: "public", 
-      label: "Public Only",
-      badge: {
-        text: "PUBLIC",
-        className: "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-300"
-      }
-    },
-    { 
-      value: "private", 
-      label: "Private Only",
-      badge: {
-        text: "PRIVATE",
-        className: "bg-orange-50 text-orange-700 dark:bg-orange-950/20 dark:text-orange-300"
-      }
-    },
-  ];
+  // const filterOptions = [
+  //   { value: "all", label: "All Projects" },
+  //   { 
+  //     value: "public", 
+  //     label: "Public Only",
+  //     badge: {
+  //       text: "PUBLIC",
+  //       className: "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-300"
+  //     }
+  //   },
+  //   { 
+  //     value: "private", 
+  //     label: "Private Only",
+  //     badge: {
+  //       text: "PRIVATE",
+  //       className: "bg-orange-50 text-orange-700 dark:bg-orange-950/20 dark:text-orange-300"
+  //     }
+  //   },
+  // ];
 
   // const stats = useMemo(() => {
   //   if (!projects) return { total: 0, public: 0, private: 0 };
@@ -151,4 +147,4 @@ const ProjectManagement = () => {
   );
 };
 
-export default ProjectManagement;
+export default ProjectsPageContainer;
