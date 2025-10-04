@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Check, ChevronDown, Loader2, Cpu, Cloud, Server } from "lucide-react";
+import { Check, ChevronDown, Loader2, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAiModels } from "@/hooks/useAiModels";
+import NextImage from "@/components/next-image";
 
 interface AIModel {
   id: string;
@@ -36,17 +37,79 @@ interface ModelSelectorProps {
   disabled?: boolean;
 }
 
-const providerIcons = {
-  gemini: Cloud,
-  openai: Cloud,
-  ollama: Server,
+const providerIconPaths = {
+  gemini: "/images/ai/gemini-color.svg",
+  openai: "/images/ai/openai.svg",
+  ollama: "/images/ai/ollama.svg",
 };
 
-const providerColors = {
-  gemini: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-  openai: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-  ollama: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+// Model-specific icons (maps model name patterns to icon paths)
+const getModelIcon = (modelId: string, provider: string): string | null => {
+  const lowerModelId = modelId.toLowerCase();
+  
+  // Gemini models
+  if (lowerModelId.includes('gemini')) {
+    return "/images/ai/gemini-color.svg";
+  }
+  
+  // OpenAI models (GPT)
+  if (lowerModelId.includes('gpt')) {
+    return "/images/ai/openai.svg";
+  }
+  
+  // DeepSeek models
+  if (lowerModelId.includes('deepseek')) {
+    return "/images/ai/deepseek-color.svg";
+  }
+  
+  // Mistral models
+  if (lowerModelId.includes('mistral')) {
+    return "/images/ai/mistral-color.svg";
+  }
+  
+  // Llama models (use Ollama icon as fallback)
+  if (lowerModelId.includes('llama')) {
+    return "/images/ai/meta-color.svg";
+  }
+  
+  // Default to provider icon
+  return providerIconPaths[provider as keyof typeof providerIconPaths] || null;
 };
+
+const ProviderIcon = ({ provider, className }: { provider: keyof typeof providerIconPaths; className?: string }) => (
+  <NextImage 
+    src={providerIconPaths[provider]} 
+    alt={`${provider} icon`}
+    className={cn(
+      className,
+      (provider === 'openai' || provider === 'ollama') && "dark:invert"
+    )}
+  />
+);
+
+const ModelIcon = ({ modelId, provider, className }: { modelId: string; provider: string; className?: string }) => {
+  const iconPath = getModelIcon(modelId, provider);
+  if (!iconPath) return null;
+  
+  const needsInvert = iconPath.includes('openai') || iconPath.includes('ollama');
+  
+  return (
+    <NextImage 
+      src={iconPath} 
+      alt={`${modelId} icon`}
+      className={cn(
+        className,
+        needsInvert && "dark:invert"
+      )}
+    />
+  );
+};
+
+// const providerColors = {
+//   gemini: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+//   openai: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+//   ollama: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+// };
 
 export function ModelSelector({ 
   value, 
@@ -86,7 +149,7 @@ export function ModelSelector({
       case 'openai':
         return 'OpenAI';
       case 'ollama':
-        return 'Ollama (Local)';
+        return 'Ollama';
       default:
         return provider.charAt(0).toUpperCase() + provider.slice(1);
     }
@@ -106,30 +169,32 @@ export function ModelSelector({
           <div className="flex items-center gap-2 min-w-0">
             {isLoading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="size-4 animate-spin" />
                 <span>Loading models...</span>
               </>
             ) : selectedModel ? (
               <>
-                {React.createElement(providerIcons[selectedModel.provider], {
-                  className: "h-4 w-4 flex-shrink-0"
-                })}
+                <ModelIcon 
+                  modelId={selectedModel.id}
+                  provider={selectedModel.provider} 
+                  className="size-4 flex-shrink-0"
+                />
                 <span className="truncate">{selectedModel.name}</span>
-                <Badge 
+                {/* <Badge 
                   variant="secondary" 
                   className={cn("ml-auto flex-shrink-0", providerColors[selectedModel.provider])}
                 >
                   {selectedModel.provider}
-                </Badge>
+                </Badge> */}
               </>
             ) : (
               <>
-                <Cpu className="h-4 w-4" />
+                <Cpu className="size-4" />
                 <span className="text-muted-foreground">{models?.length ? placeholder : 'No models available, please configure at least one AI provider.'} </span>
               </>
             )}
           </div>
-          <ChevronDown className="ml-2 h-4 w-4 flex-shrink-0 opacity-50" />
+          <ChevronDown className="ml-2 size-4 flex-shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
@@ -138,7 +203,7 @@ export function ModelSelector({
           <CommandList>
             {isLoading ? (
               <div className="flex items-center justify-center p-4">
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <Loader2 className="size-4 animate-spin mr-2" />
                 <span className="text-sm text-muted-foreground">Loading models...</span>
               </div>
             ) : error ? (
@@ -171,9 +236,10 @@ export function ModelSelector({
                   key={provider} 
                   heading={
                     <div className="flex items-center gap-2">
-                      {React.createElement(providerIcons[provider as keyof typeof providerIcons], {
-                        className: "h-4 w-4"
-                      })}
+                      <ProviderIcon 
+                        provider={provider as keyof typeof providerIconPaths} 
+                        className="size-4"
+                      />
                       {formatProviderName(provider)}
                     </div>
                   }
@@ -191,14 +257,19 @@ export function ModelSelector({
                       <div className="flex items-center gap-2 min-w-0 flex-1">
                         <Check
                           className={cn(
-                            "h-4 w-4 flex-shrink-0",
+                            "size-4 flex-shrink-0",
                             value === model.id ? "opacity-100" : "opacity-0"
                           )}
+                        />
+                        <ModelIcon 
+                          modelId={model.id}
+                          provider={model.provider}
+                          className="size-4 flex-shrink-0"
                         />
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <span className="font-medium truncate">{model.name}</span>
-                            {model.isLocal && (
+                            {/* {model.isLocal && (
                               <Tooltip>
                                 <TooltipTrigger>
                                   <Badge variant="outline" className="text-xs">
@@ -209,7 +280,7 @@ export function ModelSelector({
                                   <p>Runs locally on your machine</p>
                                 </TooltipContent>
                               </Tooltip>
-                            )}
+                            )} */}
                           </div>
                           {model.description && (
                             <p className="text-xs text-muted-foreground truncate">
@@ -234,12 +305,12 @@ export function ModelSelector({
                             </TooltipContent>
                           </Tooltip>
                         )}
-                        <Badge 
+                        {/* <Badge 
                           variant="secondary" 
                           className={cn("text-xs", providerColors[model.provider])}
                         >
                           {model.provider}
-                        </Badge>
+                        </Badge> */}
                       </div>
                     </CommandItem>
                   ))}
