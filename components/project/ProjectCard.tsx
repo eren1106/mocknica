@@ -3,12 +3,11 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Project } from "@/models/project.model";
-import { Edit, Trash, Users, Globe, Lock, Calendar, Eye } from "lucide-react";
+import { Edit, Trash, Users, Calendar, Eye } from "lucide-react";
 import DialogButton from "@/components/dialog-button";
 import ProjectForm from "./ProjectForm";
 import DeleteConfirmation from "@/components/delete-confirmation";
-import { Badge } from "@/components/ui/badge";
-import { convertEnumToTitleCase, formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import { useMutationProject } from "@/hooks/useProject";
 import LinkButton from "../link-button";
 
@@ -28,14 +27,14 @@ const ProjectCard = ({ project }: { project: Project }) => {
               <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
                 {project.name}
               </CardTitle>
-              <Badge variant="outline" className={`flex items-center gap-1`}>
+              {/* <Badge variant="outline" className={`flex items-center gap-1`}>
                 {project.permission === "PUBLIC" ? (
                   <Globe className="size-3" />
                 ) : (
                   <Lock className="size-3" />
                 )}
                 {convertEnumToTitleCase(project.permission)}
-              </Badge>
+              </Badge> */}
             </div>
 
             {project.description && (

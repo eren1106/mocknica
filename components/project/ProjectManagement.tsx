@@ -12,13 +12,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 type SortOrder = "name-asc" | "name-desc" | "created-asc" | "created-desc";
-type FilterType = "all" | "public" | "private";
+// type FilterType = "all" | "public" | "private";
 
 const ProjectManagement = () => {
   const { isAuthenticated } = useAuth();
   const { data: projects, isLoading } = useProjects();
   const [sortOrder, setSortOrder] = useState<SortOrder>("created-desc");
-  const [filterType, setFilterType] = useState<FilterType>("all");
+  // const [filterType, setFilterType] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Sort options for ControlsBar
@@ -50,15 +50,15 @@ const ProjectManagement = () => {
     },
   ];
 
-  const stats = useMemo(() => {
-    if (!projects) return { total: 0, public: 0, private: 0 };
+  // const stats = useMemo(() => {
+  //   if (!projects) return { total: 0, public: 0, private: 0 };
     
-    return {
-      total: projects.length,
-      public: projects.filter(p => p.permission === "PUBLIC").length,
-      private: projects.filter(p => p.permission === "PRIVATE").length,
-    };
-  }, [projects]);
+  //   return {
+  //     total: projects.length,
+  //     public: projects.filter(p => p.permission === "PUBLIC").length,
+  //     private: projects.filter(p => p.permission === "PRIVATE").length,
+  //   };
+  // }, [projects]);
 
   // This component should only be rendered within an AuthGuard,
   // but adding this as an extra safety measure
@@ -85,7 +85,7 @@ const ProjectManagement = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -127,7 +127,7 @@ const ProjectManagement = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
 
       {/* Controls Bar */}
       <ControlsBar
@@ -137,16 +137,15 @@ const ProjectManagement = () => {
         sortValue={sortOrder}
         onSortChange={(value) => setSortOrder(value as SortOrder)}
         sortOptions={sortOptions}
-        filterValue={filterType}
-        onFilterChange={(value) => setFilterType(value as FilterType)}
-        filterOptions={filterOptions}
+        // filterValue={filterType}
+        // onFilterChange={(value) => setFilterType(value as FilterType)}
+        // filterOptions={filterOptions}
       />
 
       {/* Project List */}
       <ProjectList 
         searchQuery={searchQuery}
         sortOrder={sortOrder}
-        filterType={filterType}
       />
     </div>
   );

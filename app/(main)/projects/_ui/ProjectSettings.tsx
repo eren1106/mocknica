@@ -67,7 +67,7 @@ export default function ProjectSettings() {
               <p className="">{project.description}</p>
             </div>
           )}
-          <div>
+          {/* <div>
             <label className="text-sm font-medium text-muted-foreground">
               Visibility
             </label>
@@ -76,7 +76,7 @@ export default function ProjectSettings() {
                 {project.permission.toLowerCase()}
               </Badge>
             </div>
-          </div>
+          </div> */}
           <div>
             <label className="text-sm font-medium text-muted-foreground">
               Token Authentication

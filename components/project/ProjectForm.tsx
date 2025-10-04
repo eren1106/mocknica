@@ -84,14 +84,14 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
       ? {
           name: project.name,
           description: project.description || "",
-          permission: project.permission,
+          // permission: project.permission,
           isNeedToken: project.isNeedToken || false,
           corsOrigins: project.corsOrigins || [],
         }
       : {
           name: "",
           description: "",
-          permission: ProjectPermission.PUBLIC,
+          // permission: ProjectPermission.PUBLIC,
           isNeedToken: false,
           corsOrigins: [],
         }
@@ -140,7 +140,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
         optional
       />
 
-      <GenericFormField
+      {/* <GenericFormField
         control={form.control}
         type="select"
         name="permission"
@@ -149,7 +149,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
           value: permission,
           label: convertEnumToTitleCase(permission),
         }))}
-      />
+      /> */}
 
       <GenericFormField
         control={form.control}

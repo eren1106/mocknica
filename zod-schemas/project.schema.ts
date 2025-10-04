@@ -41,7 +41,7 @@ const AIGeneratedDataSchema = z.object({
 export const ProjectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
   description: z.string().optional(),
-  permission: z.nativeEnum(ProjectPermission),
+  // permission: z.nativeEnum(ProjectPermission),
   isNeedToken: z.boolean(),
   corsOrigins: z.array(z.string().url("Please enter a valid URL")),
   aiGeneratedData: AIGeneratedDataSchema.optional(),

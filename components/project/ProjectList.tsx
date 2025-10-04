@@ -7,18 +7,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { FolderOpen } from "lucide-react";
 
 type SortOrder = "name-asc" | "name-desc" | "created-asc" | "created-desc";
-type FilterType = "all" | "public" | "private";
+// type FilterType = "all" | "public" | "private";
 
 interface ProjectListProps {
   searchQuery?: string;
   sortOrder?: SortOrder;
-  filterType?: FilterType;
+  // filterType?: FilterType;
 }
 
 const ProjectList = ({ 
   searchQuery = "",
   sortOrder = "created-desc",
-  filterType = "all",
+  // filterType = "all",
 }: ProjectListProps) => {
   const { data: projects, isLoading } = useProjects();
 
@@ -32,11 +32,11 @@ const ProjectList = ({
         project.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
       // Visibility filter
-      const matchesFilter = filterType === "all" || 
-        (filterType === "public" && project.permission === "PUBLIC") ||
-        (filterType === "private" && project.permission === "PRIVATE");
+      // const matchesFilter = filterType === "all" || 
+      //   (filterType === "public" && project.permission === "PUBLIC") ||
+      //   (filterType === "private" && project.permission === "PRIVATE");
 
-      return matchesSearch && matchesFilter;
+      return matchesSearch;
     });
 
     // Sort
@@ -56,7 +56,7 @@ const ProjectList = ({
     });
 
     return filtered;
-  }, [projects, searchQuery, sortOrder, filterType]);
+  }, [projects, searchQuery, sortOrder]);
 
   if (isLoading) {
     return (
@@ -73,13 +73,13 @@ const ProjectList = ({
       <div className="text-center py-12">
         <FolderOpen className="size-12 mx-auto mb-4" />
         <h3 className="text-lg font-medium text-foreground mb-2">
-          {searchQuery || filterType !== "all" 
+          {searchQuery
             ? "No projects found"
             : "No projects yet"
           }
         </h3>
         <p className="text-muted-foreground mb-4">
-          {searchQuery || filterType !== "all"
+          {searchQuery
             ? "Try adjusting your search or filter criteria"
             : "Create your first project to get started with building your API"
           }

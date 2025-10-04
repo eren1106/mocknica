@@ -2,11 +2,9 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useProjects } from "@/hooks/useProject";
-import { Clock, FolderOpen, Globe, Lock, Users } from "lucide-react";
+import { Clock, FolderOpen, Users } from "lucide-react";
 import Link from "next/link";
-import { convertEnumToTitleCase } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const RecentActivity = () => {
@@ -100,14 +98,14 @@ const RecentActivity = () => {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <h4 className="font-medium truncate">{project.name}</h4>
-                <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                {/* <Badge variant="outline" className="flex items-center gap-1 text-xs">
                   {project.permission === "PUBLIC" ? (
                     <Globe className="h-3 w-3" />
                   ) : (
                     <Lock className="h-3 w-3" />
                   )}
                   {convertEnumToTitleCase(project.permission)}
-                </Badge>
+                </Badge> */}
               </div>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">

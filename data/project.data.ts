@@ -10,7 +10,7 @@ export class ProjectData {
     const projectData = {
       name: data.name,
       description: data.description,
-      permission: data.permission,
+      // permission: data.permission,
       isNeedToken: data.isNeedToken || false,
       userId: data.userId,
       token: data.isNeedToken ? generateApiToken() : undefined,
