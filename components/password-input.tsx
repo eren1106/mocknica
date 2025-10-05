@@ -11,7 +11,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(({ classNam
   const disabled = props.value === '' || props.value === undefined || props.disabled
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       {/* Embedding the CSS styles in a <style> tag */}
       <style jsx>{`
         .hide-password-toggle::-ms-reveal,
