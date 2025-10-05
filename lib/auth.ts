@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import prisma from "./db"
+import { MIN_PASSWORD_LENGTH } from "@/constants"
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -8,6 +9,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: MIN_PASSWORD_LENGTH,
   },
   socialProviders: {
     google: {
