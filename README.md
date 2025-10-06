@@ -1,4 +1,11 @@
-# Mocknica 🚀
+<p align="center">
+  <picture>
+    <source srcset="public/icon-dark.png" media="(prefers-color-scheme: dark)">
+    <img src="public/icon-light.png" alt="Mocknica Logo" width="128" style="background-color: #000; padding: 10px;"/>
+  </picture>
+</p>
+
+# Mocknica 
 
 Create powerful mock APIs in seconds with AI assistance. Perfect for frontend development, API testing, and rapid prototyping.
 
