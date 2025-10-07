@@ -1,9 +1,5 @@
-<p align="center">
-  <picture>
-    <source srcset="public/icon-dark.png" media="(prefers-color-scheme: dark)">
-    <img src="public/icon-light.png" alt="Mocknica Logo" width="128" style="background-color: #000; padding: 10px;"/>
-  </picture>
-</p>
+
+<img width="1474" height="602" alt="Mocknica Banner" src="https://github.com/user-attachments/assets/6cc307c9-50e3-4500-8e29-b97d87f2cb7e" />
 
 # Mocknica 
 
