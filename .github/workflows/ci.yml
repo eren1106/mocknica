@@ -52,7 +52,7 @@ jobs:
 
     # Generate Prisma database client (ORM setup)
     - name: Generate Prisma client
-      run: pnpm db-client
+      run: pnpm db:generate
 
     # Check TypeScript types for errors (static analysis)
     - name: Run type check

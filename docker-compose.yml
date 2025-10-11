@@ -19,7 +19,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mocka
+      POSTGRES_DB: mocknica
     ports:
       - "5432:5432"
     volumes:

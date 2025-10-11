@@ -42,10 +42,3 @@ next-env.d.ts
 
 # turborepo
 .turbo
-
-# Build outputs
-apps/*/.next
-apps/*/out
-apps/*/build
-apps/*/dist
-apps/*/node_modules
