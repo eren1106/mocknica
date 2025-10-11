@@ -9,7 +9,7 @@ import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 import { Globe } from "lucide-react";
 import ControlsBar, { SortOption, FilterOption } from "../controls-bar";
 
-type SortOrder = "name-asc" | "name-desc" | "created-asc" | "created-desc" | "method-asc" | "path-asc";
+type SortOrder = "description-asc" | "description-desc" | "created-asc" | "created-desc" | "method-asc" | "path-asc";
 type FilterType = "all" | "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 export default function EndpointsList() {
@@ -34,8 +34,8 @@ export default function EndpointsList() {
   const sortOptions: SortOption[] = [
     { value: "created-desc", label: "Newest First" },
     { value: "created-asc", label: "Oldest First" },
-    { value: "name-asc", label: "Name A-Z" },
-    { value: "name-desc", label: "Name Z-A" },
+    { value: "description-asc", label: "Description A-Z" },
+    { value: "description-desc", label: "Description Z-A" },
     { value: "method-asc", label: "Method A-Z" },
     { value: "path-asc", label: "Path A-Z" },
   ];
@@ -75,7 +75,7 @@ export default function EndpointsList() {
     const filtered = endpoints.filter((endpoint) => {
       // Search filter
       const matchesSearch = searchQuery === "" || 
-        endpoint.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        endpoint.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         endpoint.path.toLowerCase().includes(searchQuery.toLowerCase()) ||
         endpoint.description?.toLowerCase().includes(searchQuery.toLowerCase());
 
@@ -88,10 +88,10 @@ export default function EndpointsList() {
     // Sort
     filtered.sort((a, b) => {
       switch (sortOrder) {
-        case "name-asc":
-          return a.name.localeCompare(b.name);
-        case "name-desc":
-          return b.name.localeCompare(a.name);
+        case "description-asc":
+          return a.description.localeCompare(b.description);
+        case "description-desc":
+          return b.description.localeCompare(a.description);
         case "created-asc":
           return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
         case "created-desc":

@@ -26,8 +26,7 @@ model Project {
 
 model Endpoint {
   id                String           @id @default(cuid())
-  name              String
-  description       String?
+  description       String
   method            HttpMethod       @default(GET)
   path              String
   staticResponse    Json

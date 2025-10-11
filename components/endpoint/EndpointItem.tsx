@@ -91,7 +91,7 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
           {/* Endpoint Info */}
           <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 text-left">
             <div className="flex-1 flex flex-col gap-1">
-              <p className="font-bold text-foreground">{endpoint.name}</p>
+              <p className="font-bold text-foreground">{endpoint.description}</p>
               <code className="text-sm text-muted-foreground bg-muted px-2 rounded w-fit">
                 {endpoint.path}
               </code>
@@ -177,12 +177,13 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
         </div>
 
         {/* Description, Schema, and Response Wrapper Info in One Row */}
-        {(endpoint.description ||
+        {(
+          // endpoint.description ||
           endpoint.schema ||
           endpoint.responseWrapper) && (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {/* Description */}
-            {endpoint.description && (
+            {/* {endpoint.description && (
               <div className="space-y-2">
                 <h4 className="font-medium text-sm flex items-center gap-2">
                   <FileText className="h-4 w-4 text-blue-500" />
@@ -199,7 +200,7 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
                   {endpoint.description}
                 </p>
               </div>
-            )}
+            )} */}
 
             {/* Schema Info */}
             {endpoint.schema && (

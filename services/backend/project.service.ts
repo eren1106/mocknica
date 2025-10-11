@@ -74,7 +74,6 @@ export class ProjectService {
             ) : null;
 
             await EndpointData.createEndpoint({
-              name: `${endpointData.method} ${endpointData.path}`,
               path: endpointData.path,
               method: endpointData.method,
               description: endpointData.description,

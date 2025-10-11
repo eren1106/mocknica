@@ -176,9 +176,9 @@ export class EndpointService {
       // Create all CRUD endpoints
       const endpoints: EndpointPrisma[] = [];
 
+      // TODO: need add type that follow endpoint schema
       const endpointConfigs = [
         {
-          name: `GET ${basePath}`,
           description: `GET ${basePath}`,
           method: HttpMethod.GET,
           path: basePath,
@@ -186,7 +186,6 @@ export class EndpointService {
           numberOfData: 3,
         },
         {
-          name: `GET ${basePath}/:id`,
           description: `GET ${basePath}/:id`,
           method: HttpMethod.GET,
           path: `${basePath}/:id`,
@@ -194,7 +193,6 @@ export class EndpointService {
           numberOfData: null,
         },
         {
-          name: `POST ${basePath}`,
           description: `POST ${basePath}`,
           method: HttpMethod.POST,
           path: basePath,
@@ -202,7 +200,6 @@ export class EndpointService {
           numberOfData: null,
         },
         {
-          name: `PUT ${basePath}/:id`,
           description: `PUT ${basePath}/:id`,
           method: HttpMethod.PUT,
           path: `${basePath}/:id`,
@@ -210,7 +207,6 @@ export class EndpointService {
           numberOfData: null,
         },
         {
-          name: `DELETE ${basePath}/:id`,
           description: `DELETE ${basePath}/:id`,
           method: HttpMethod.DELETE,
           path: `${basePath}/:id`,

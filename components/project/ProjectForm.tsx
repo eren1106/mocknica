@@ -323,7 +323,6 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
                 <AutoResizeTextarea
                   placeholder="Example: A blog API with posts, comments, and users. Include authentication and CRUD operations for all resources..."
                   minRows={6}
-                  maxChar={2000}
                   value={aiPrompt}
                   onChange={handleAIPromptChange}
                   className="font-mono text-sm"

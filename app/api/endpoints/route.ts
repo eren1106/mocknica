@@ -4,38 +4,20 @@ import { apiResponse, errorResponse } from '../_helpers/api-response';
 import { requireAuth } from '../_helpers/auth-guards';
 import { validateRequestBody, validateQueryParams } from '../_helpers/validation';
 import { EndpointService } from '@/services/backend/endpoint.service';
-import { z } from 'zod';
-
-// Validation schemas
-const CreateEndpointSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
-  method: z.enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH']),
-  path: z.string().min(1, "Path is required"),
-  schemaId: z.number().int().positive().nullable().optional(),
-  responseWrapperId: z.number().int().positive().nullable().optional(),
-  staticResponse: z.any().nullable().optional(),
-  isDataList: z.boolean().optional().default(false),
-  numberOfData: z.number().int().positive().nullable().optional(),
-  projectId: z.string().min(1, "Project ID is required"),
-});
-
-const GetEndpointsQuerySchema = z.object({
-  projectId: z.string().optional(),
-});
+import { EndpointSchemaBackend, GetEndpointsQuerySchema } from '@/zod-schemas/endpoint.schema';
 
 export async function POST(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
 
-    const validationResult = await validateRequestBody(req, CreateEndpointSchema);
+    const validationResult = await validateRequestBody(req, EndpointSchemaBackend);
     if (validationResult instanceof Response) return validationResult;
 
     const endpoint = await EndpointService.createEndpoint(
       {
         ...validationResult,
-        description: validationResult.description ?? null,
+        description: validationResult.description!,
         schemaId: validationResult.schemaId ?? null,
         responseWrapperId: validationResult.responseWrapperId ?? null,
         staticResponse: validationResult.staticResponse ?? null,

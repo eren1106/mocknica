@@ -50,10 +50,10 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
   const onSubmit = async (data: z.infer<typeof EndpointBySchemaSchema>) => {
     try {
       await createEndpointsBySchema(data);
+      onSuccess?.();
     } catch (e) {
       console.error(e);
     }
-    onSuccess?.();
   };
 
   const handleUseWrapperChange = (checked: boolean) => {

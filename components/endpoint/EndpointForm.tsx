@@ -72,7 +72,6 @@ export default function EndpointForm({
           projectId: endpoint.projectId,
         }
       : {
-          name: "",
           description: "",
           path: "",
           method: HttpMethod.GET,
@@ -105,6 +104,7 @@ export default function EndpointForm({
           id: endpoint.id,
           data: {
             ...values,
+            description: values.description || undefined,
             // cannot send stringified format, need send in object format, because the stringify process will be conducted automatically when send data via api
             staticResponse: parsedStaticResponse,
           },
@@ -112,6 +112,7 @@ export default function EndpointForm({
       } else {
         await createEndpoint({
           ...values,
+          description: values.description || undefined,
           // cannot send stringified format, need send in object format, because the stringify process will be conducted automatically when send data via api
           staticResponse: parsedStaticResponse,
         });
@@ -239,18 +240,9 @@ export default function EndpointForm({
       <GenericFormField
         control={form.control}
         type="input"
-        name="name"
-        label="Endpoint Name"
-        placeholder="Users API"
-      />
-
-      <GenericFormField
-        control={form.control}
-        type="input"
         name="description"
         label="Description"
         placeholder="API endpoint description"
-        optional
       />
 
       <div className="flex flex-col sm:flex-row gap-4">
