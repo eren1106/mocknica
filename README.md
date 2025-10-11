@@ -3,7 +3,7 @@
 
 # Mocknica 
 
-Create powerful mock APIs in seconds with AI assistance. Perfect for frontend development, API testing, and rapid prototyping.
+An Open-Source Mock API Platform for creating and managing mock APIs
 
 ## Why Mocknica?
 
@@ -11,38 +11,37 @@ Create powerful mock APIs in seconds with AI assistance. Perfect for frontend de
 
 ### ✨ Key Features
 
-- **🤖 AI-Powered Generation** - Generate realistic schemas and responses using OpenAI, Gemini, or local Ollama models
-- **⚡ Instant CRUD APIs** - Auto-generate RESTful endpoints from your data schemas
-- **🎯 Zero Configuration** - Start mocking APIs in under 2 minutes
-- **🔐 Production-Ready** - Token authentication, CORS, and response wrappers included
-- **🎨 Realistic Data** - Powered by Faker.js for authentic mock data
-- **📊 Project Management** - Organize endpoints by projects with team collaboration
+- **✅ Open-Source** - No hidden agendas, fully transparent.
+- **🤖 AI-Powered** - Generate mock endpoints with realistic response using LLMs.
+- **📝 Schema-Based** - Define reusable data schemas with type-safe fields and auto-generate CRUD endpoints.
+- **☁ Self Hosting Freedom** - Deploy anywhere with Docker or host locally - your data, your control.
+- **🔐 Production-Ready** - Token authentication, CORS, and response wrappers included.
+- **📊 Multiple Projects** - Organize mock APIs by project with isolated endpoints and configurations.
+- **🎨 Easy to Use** - Intuitive UI for creating endpoints, schemas, and managing mock data without code. 
 
 ### Perfect For
 
 - **Frontend Developers** building UIs before backend APIs are ready
-- **QA Teams** testing edge cases with controlled mock data
 - **Prototyping** new features and validating ideas quickly
-- **API Documentation** with interactive examples
 - **Demo Applications** with realistic data scenarios
+- **QA Teams** testing edge cases with controlled mock data
 
 ## 🛠️ Tech Stack
+Mocknica is built with modern and reliable technologies:
 
-- **Framework**: Next.js 15 with TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **UI**: Shadcn UI + Tailwind CSS
-- **Authentication**: Better Auth
-- **AI Integration**: OpenAI, Google Gemini, Ollama (local)
-- **Data Generation**: Faker.js
-- **Development**: Docker, ESLint, pnpm
+- **Frontend**: Next.js, React, TypeScript, TailwindCSS, Shadcn UI
+- **Backend**: Node.js, Prisma ORM
+- **Database**: PostgreSQL
+- **Authentication**: Better Auth, Google OAuth
+- **AI Integration**: OpenAI, Gemini, Ollama
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ and pnpm
-- PostgreSQL database
-- AI API key (OpenAI, Gemini) or Ollama locally (optional)
+- [Node.js](https://nodejs.org/en/download) (v18 or higher)
+- [pnpm](https://pnpm.io) (v10 or higher)
+- [Docker](https://docs.docker.com/engine/install/) (v20 or higher)
 
 ### Quick Setup
 
@@ -62,7 +61,7 @@ Create powerful mock APIs in seconds with AI assistance. Perfect for frontend de
    ```env
    DATABASE_URL="postgresql://..."
    
-   # AI Providers (choose one or more)
+   # AI Providers (choose one or more, Gemini is recommended because it offers a free tier)
    OPENAI_API_KEY="sk-..."
    GEMINI_API_KEY="your-gemini-key"
    # For Ollama: just install Ollama locally
@@ -70,6 +69,7 @@ Create powerful mock APIs in seconds with AI assistance. Perfect for frontend de
 
 3. **Setup database**
    ```bash
+   pnpm docker:db
    pnpm db-sync
    ```
 
@@ -83,7 +83,8 @@ Create powerful mock APIs in seconds with AI assistance. Perfect for frontend de
 ### Docker Alternative
 
 ```bash
-docker-compose up --build
+pnpm docker:up
+pnpm db-sync
 ```
 
 ### Creating Your First Mock API
@@ -163,25 +164,6 @@ We welcome contributions! Here's how to get started:
    pnpm test
    ```
 5. **Submit a pull request**
-
-### Contributing Guidelines
-
-- Follow the existing code style
-- Add tests for new features
-- Update documentation as needed
-- Keep commits focused and descriptive
-
-### Project Structure
-
-```
-├── app/                 # Next.js app router
-├── components/          # Reusable UI components
-├── lib/                 # Utilities and configurations
-│   └── ai/             # AI provider implementations
-├── services/           # Business logic
-├── models/             # Data models
-└── prisma/             # Database schema
-```
 
 ### Reporting Issues
 
