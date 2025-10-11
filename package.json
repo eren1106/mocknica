@@ -8,6 +8,7 @@
     "start": "turbo start",
     "lint": "turbo lint",
     "type-check": "turbo type-check",
+    "test": "turbo test",
     "db:generate": "turbo db:generate",
     "db:push": "turbo db:push",
     "db:studio": "turbo db:studio"

@@ -23,6 +23,10 @@
       "dependsOn": ["^type-check"],
       "outputs": []
     },
+    "test": {
+      "dependsOn": ["^test"],
+      "outputs": []
+    },
     "db:generate": {
       "cache": false
     },
