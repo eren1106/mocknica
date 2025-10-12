@@ -73,11 +73,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/dashboard/.next/standalone .
 COPY --from=builder --chown=nextjs:nodejs /app/apps/dashboard/.next/static ./apps/dashboard/.next/static
 
 # Copy Prisma from builder stage (needed for migrations and client)
+# In a pnpm monorepo, Prisma packages are in the app-specific node_modules
 # Standalone mode doesn't trace Prisma correctly due to binary dependencies
-COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
-COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/node_modules/.bin ./node_modules/.bin
+COPY --from=builder /app/apps/dashboard/node_modules/.prisma ./apps/dashboard/node_modules/.prisma
+COPY --from=builder /app/apps/dashboard/node_modules/@prisma ./apps/dashboard/node_modules/@prisma
+COPY --from=builder /app/apps/dashboard/node_modules/prisma ./apps/dashboard/node_modules/prisma
 
 USER nextjs
 
