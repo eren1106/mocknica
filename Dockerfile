@@ -89,7 +89,8 @@ ENV HOSTNAME="0.0.0.0"
 # Change working directory to dashboard app
 WORKDIR /app/apps/dashboard
 
-CMD ["sh", "-c", "pnpm prisma migrate deploy && cd /app && node apps/dashboard/server.js"]
+# Run migrations and start the server
+CMD ["sh", "-c", "pnpm prisma migrate deploy && node server.js"]
 
 # FYI: start:docker uses "prisma migrate deploy" which applies migration files safely (production-ready)
 # For dev/preview environments, you can override with: docker run ... pnpm start:docker:dev

@@ -1,32 +1,76 @@
 # Dependencies
 node_modules
+**/node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
 # Next.js
 .next
+**/.next
 out
+**/out
 build
+**/build
 
-# Environment variables
+# Environment variables (will be provided via docker-compose or runtime)
 .env
 .env.*
+**/.env
+**/.env.*
 !.env.example
+!**/.env.example
 
 # Testing
 coverage
+**/coverage
 .nyc_output
+**/.nyc_output
+
+# Turbo
+.turbo
+**/.turbo
+
+# Git
+.git
+.gitignore
+**/.git
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
 
 # Misc
-.DS_Store
 *.tgz
 *.tar.gz
+*.log
+README.md
+LICENSE
+
+# Docker
+**/Dockerfile
+**/docker-compose.yml
+**/.dockerignore
+
+# Husky
+.husky
+
+# GitHub
+.github
+
+# TypeScript build info
+*.tsbuildinfo
+**/*.tsbuildinfo
 
 # Debug
-*.log
-
-# Runtime data
 pids
 *.pid
 *.seed
@@ -38,65 +82,17 @@ pids
 # Optional REPL history
 .node_repl_history
 
-# Output of 'npm pack'
-*.tgz
-
 # Yarn Integrity file
 .yarn-integrity
 
-# parcel-bundler cache (https://parceljs.org/)
+# Parcel cache
 .cache
 .parcel-cache
 
-# next.js build output
-.next
-
-# nuxt.js build output
-.nuxt
-
-# vuepress build output
-.vuepress/dist
-
-# Serverless directories
-.serverless
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# TernJS port file
-.tern-port
-
-# IDE
-.vscode
-.idea
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Git
-.git
-.gitignore
-README.md
-
-# Docker
-Dockerfile*
-docker-compose*
-
-# GitHub
-.github
-
-# Docs
-docs
+# Vitest
+**/vitest.config.*
 
 # Test files
+**/__tests__
 **/*.test.*
 **/*.spec.*
-
-# TypeScript build info
-*.tsbuildinfo

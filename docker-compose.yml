@@ -1,12 +1,12 @@
 services:
   app:
     build:
-      context: .
+      context: .  # Build from monorepo root
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
     env_file:
-      - .env
+      - apps/dashboard/.env
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1

@@ -16,13 +16,7 @@
     "db:migrate": "prisma migrate dev",
     "prepare": "husky",
     "start:docker": "prisma migrate deploy && node server.js",
-    "start:docker:dev": "prisma db push --accept-data-loss && node server.js",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f",
-    "docker:db": "docker-compose up -d db",
-    "docker:db:down": "docker-compose down db",
-    "docker:rebuild": "docker-compose up -d --build"
+    "start:docker:dev": "prisma db push --accept-data-loss && node server.js"
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",

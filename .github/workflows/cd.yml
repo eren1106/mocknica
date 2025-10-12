@@ -94,7 +94,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v5
         with:
-          context: .                              # Use current directory as build context
+          context: .                              # Use monorepo root as build context
+          file: Dockerfile                        # Dockerfile is at root
           platforms: linux/amd64,linux/arm64     # Build for both x86_64 and ARM64
           push: true                              # Push images to registries
           tags: ${{ steps.meta.outputs.tags }}   # Apply generated tags
