@@ -36,8 +36,6 @@ jobs:
     # Install pnpm package manager (faster alternative to npm)
     - name: Setup pnpm
       uses: pnpm/action-setup@v4
-      with:
-        version: 9
 
     # Install and configure Node.js with pnpm caching for faster subsequent runs
     - name: Setup Node.js ${{ matrix.node-version }}
@@ -52,7 +50,7 @@ jobs:
 
     # Generate Prisma database client (ORM setup)
     - name: Generate Prisma client
-      run: pnpm db-client
+      run: pnpm db:generate
 
     # Check TypeScript types for errors (static analysis)
     - name: Run type check

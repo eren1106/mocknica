@@ -70,7 +70,7 @@ Mocknica is built with modern and reliable technologies:
 3. **Setup database**
    ```bash
    pnpm docker:db
-   pnpm db-sync
+   pnpm db:sync
    ```
 
 4. **Start developing**
@@ -84,7 +84,7 @@ Mocknica is built with modern and reliable technologies:
 
 ```bash
 pnpm docker:up
-pnpm db-sync
+pnpm db:sync
 ```
 
 ### Creating Your First Mock API
