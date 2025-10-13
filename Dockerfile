@@ -1,4 +1,4 @@
-# Multi-stage build for Next.js application
+# Multi-stage build for Next.js application with pnpm monorepo
 FROM node:18-alpine AS base
 
 # Install dependencies only when needed
@@ -7,8 +7,8 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm with corepack (recommended approach)
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
 # Copy workspace configuration files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
@@ -16,28 +16,42 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 # Copy all workspace package.json files for proper dependency resolution
 COPY apps/dashboard/package.json ./apps/dashboard/package.json
 
-# Copy Prisma schema
+# Copy Prisma schema (needed for postinstall scripts)
 COPY apps/dashboard/prisma ./apps/dashboard/prisma/
 
-# Install dependencies
+# Install dependencies with frozen lockfile for reproducible builds
 RUN pnpm install --frozen-lockfile
 
-# Generate Prisma client
+# Generate Prisma Client immediately after install
 RUN cd apps/dashboard && pnpm prisma generate
+
+# Debug: Show what was generated
+RUN echo "Checking Prisma generation..." && \
+    ls -la apps/dashboard/node_modules/@prisma/client/ && \
+    echo "Prisma Client generated successfully"
 
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy node_modules from deps stage (includes generated Prisma Client)
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/dashboard/node_modules ./apps/dashboard/node_modules
+
+# Copy all source code
 COPY . .
 
-# Install pnpm in builder stage
-RUN npm install -g pnpm
-
-# Build the application (Turbo will handle building the dashboard)
+# Build the application
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV DOCKER_BUILD=true
+
+# Accept build-time environment variables for Next.js
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+
 RUN pnpm build
 
 # Production image, copy all the files and run next
@@ -47,38 +61,34 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install openssl for Prisma
+# Install runtime dependencies (openssl for Prisma, pnpm for migration commands)
 RUN apk add --no-cache openssl
+RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Install pnpm for running Prisma commands
-RUN npm install -g pnpm
-
+# Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy the public folder from dashboard app
+# Copy public assets
 COPY --from=builder /app/apps/dashboard/public ./apps/dashboard/public
 
-# Set the correct permission for prerender cache
+# Create .next directory with correct permissions
 RUN mkdir -p apps/dashboard/.next
 RUN chown nextjs:nodejs apps/dashboard/.next
 
-# Copy Prisma schema for migrations
+# Copy Prisma schema and migrations for runtime
 COPY --from=builder /app/apps/dashboard/prisma ./apps/dashboard/prisma
 
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-# Standalone includes a minimal node_modules with only required dependencies
+# Copy Next.js standalone build output
+# Standalone mode includes a minimal server and required dependencies
 COPY --from=builder --chown=nextjs:nodejs /app/apps/dashboard/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/dashboard/.next/static ./apps/dashboard/.next/static
 
-# Copy Prisma from builder stage (needed for migrations and client)
-# In a pnpm monorepo, Prisma packages are in the app-specific node_modules
-# Standalone mode doesn't trace Prisma correctly due to binary dependencies
-COPY --from=builder /app/apps/dashboard/node_modules/.prisma ./apps/dashboard/node_modules/.prisma
-COPY --from=builder /app/apps/dashboard/node_modules/@prisma ./apps/dashboard/node_modules/@prisma
-COPY --from=builder /app/apps/dashboard/node_modules/prisma ./apps/dashboard/node_modules/prisma
+# Copy entire Prisma packages (includes generated client and binaries)
+# Standalone mode doesn't properly trace Prisma's native dependencies
+COPY --from=builder --chown=nextjs:nodejs /app/apps/dashboard/node_modules/@prisma ./apps/dashboard/node_modules/@prisma
 
+# Switch to non-root user
 USER nextjs
 
 EXPOSE 3000
@@ -86,12 +96,13 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Change working directory to dashboard app
+# Set working directory to dashboard app
 WORKDIR /app/apps/dashboard
 
-# Run migrations and start the server
-CMD ["sh", "-c", "pnpm prisma migrate deploy && node server.js"]
+# Health check to ensure container is ready
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})" || exit 1
 
-# FYI: start:docker uses "prisma migrate deploy" which applies migration files safely (production-ready)
-# For dev/preview environments, you can override with: docker run ... pnpm start:docker:dev
-# This uses "db push --accept-data-loss" for quick schema syncing without migrations
+# Run database migrations then start the server
+# Use npx to run prisma from local node_modules
+CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]

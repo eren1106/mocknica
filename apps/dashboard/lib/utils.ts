@@ -115,5 +115,7 @@ export const formatProjectEndpointBaseURL = (
   projectId: string,
   baseUrl = process.env.NEXT_PUBLIC_APP_URL
 ): string => {
-  return `${baseUrl}/api/mock/${projectId}/`;
+  // Fallback to window.location.origin if baseUrl is undefined (shouldn't happen with proper Docker config)
+  const finalBaseUrl = baseUrl || 'http://localhost:3000';
+  return `${finalBaseUrl}/api/mock/${projectId}/`;
 };

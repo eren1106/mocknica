@@ -3,6 +3,9 @@ services:
     build:
       context: .  # Build from monorepo root
       dockerfile: Dockerfile
+      args:
+        # Pass NEXT_PUBLIC_* vars as build args so they're embedded in the build
+        NEXT_PUBLIC_APP_URL: http://localhost:3000
     ports:
       - "3000:3000"
     env_file:
@@ -10,6 +13,8 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
+      # Also set at runtime (though build-time is what matters for NEXT_PUBLIC_*)
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
     depends_on:
       db:
         condition: service_healthy
