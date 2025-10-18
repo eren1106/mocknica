@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SchemaService } from '../schema.service';
 import { FakerService } from '../faker.service';
-import { ISchema, ISchemaField } from '@/types/schema.types';
+import { ISchema } from '@/types/schema.types';
 import { ESchemaFieldType, EIdFieldType, EFakerType } from '@/types/enums';
 
 // Mock the dependencies

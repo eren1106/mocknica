@@ -1,22 +1,27 @@
-import { EndpointData } from "@/data/endpoint.data";
 import { IEndpoint, EHttpMethod } from "@/types";
-import { AppError, handlePrismaError } from "@/data/helpers/error-handler";
+import { EndpointRepository } from "@/lib/repositories";
+import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { ProjectService } from "./project.service";
-import { SchemaService as BackendSchemaService } from "./schema.service";
-import { SchemaService } from "../schema.service";
+import { SchemaService } from "./schema.service";
 
 export class EndpointService {
+  constructor(
+    private readonly endpointRepository: EndpointRepository = endpointRepository,
+    private readonly projectService: ProjectService = projectService,
+    private readonly schemaService: SchemaService = schemaService
+  ) {}
+
   /**
    * Get endpoints for a project with ownership validation
    */
-  static async getProjectEndpoints(
+  async getProjectEndpoints(
     projectId: string,
     userId: string
   ): Promise<IEndpoint[]> {
     try {
       // Verify project ownership
-      const hasAccess = await ProjectService.verifyProjectOwnership(
+      const hasAccess = await this.projectService.verifyProjectOwnership(
         projectId,
         userId
       );
@@ -24,11 +29,11 @@ export class EndpointService {
         throw new AppError(
           "Project not found or access denied",
           STATUS_CODES.NOT_FOUND,
-          "NOT_FOUND" as any
+          ERROR_CODES.NOT_FOUND
         );
       }
 
-      return await EndpointData.getEndpoints({ where: { projectId } });
+      return await this.endpointRepository.findByProjectId(projectId);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -37,18 +42,16 @@ export class EndpointService {
   /**
    * Get all endpoints for user's projects
    */
-  static async getUserEndpoints(userId: string): Promise<IEndpoint[]> {
+  async getUserEndpoints(userId: string): Promise<IEndpoint[]> {
     try {
-      const userProjects = await ProjectService.getUserProjects(userId);
+      const userProjects = await this.projectService.getUserProjects(userId);
       const projectIds = userProjects.map((p) => p.id);
 
       if (projectIds.length === 0) {
         return [];
       }
 
-      return await EndpointData.getEndpoints({
-        where: { projectId: { in: projectIds } },
-      });
+      return await this.endpointRepository.findByProjectIds(projectIds);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -57,23 +60,23 @@ export class EndpointService {
   /**
    * Get a specific endpoint with ownership validation
    */
-  static async getEndpoint(
+  async getEndpoint(
     endpointId: string,
     userId: string
   ): Promise<IEndpoint> {
     try {
-      const endpoint = await EndpointData.getEndpointById(endpointId);
+      const endpoint = await this.endpointRepository.findById(endpointId);
 
       if (!endpoint) {
         throw new AppError(
           "Endpoint not found",
           STATUS_CODES.NOT_FOUND,
-          "NOT_FOUND" as any
+          ERROR_CODES.NOT_FOUND
         );
       }
 
       // Verify project ownership
-      const hasAccess = await ProjectService.verifyProjectOwnership(
+      const hasAccess = await this.projectService.verifyProjectOwnership(
         endpoint.projectId,
         userId
       );
@@ -81,7 +84,7 @@ export class EndpointService {
         throw new AppError(
           "Access denied",
           STATUS_CODES.FORBIDDEN,
-          "AUTH_ERROR" as any
+          ERROR_CODES.AUTH_ERROR
         );
       }
 
@@ -94,15 +97,15 @@ export class EndpointService {
   /**
    * Create a new endpoint with project ownership validation
    */
-  static async createEndpoint(
+  async createEndpoint(
     data: Omit<IEndpoint, "id" | "updatedAt" | "createdAt">,
     userId: string
   ): Promise<IEndpoint> {
     try {
       // Verify project ownership
-      await ProjectService.verifyProjectOwnership(data.projectId, userId);
+      await this.projectService.verifyProjectOwnership(data.projectId, userId);
 
-      return await EndpointData.createEndpoint(data);
+      return await this.endpointRepository.createEndpoint(data);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -111,7 +114,7 @@ export class EndpointService {
   /**
    * Update an endpoint with ownership validation
    */
-  static async updateEndpoint(
+  async updateEndpoint(
     endpointId: string,
     data: Partial<IEndpoint>,
     userId: string
@@ -120,7 +123,7 @@ export class EndpointService {
       // Verify ownership first
       await this.getEndpoint(endpointId, userId);
 
-      return await EndpointData.updateEndpoint(endpointId, data);
+      return await this.endpointRepository.updateEndpoint(endpointId, data);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -129,7 +132,7 @@ export class EndpointService {
   /**
    * Delete an endpoint with ownership validation
    */
-  static async deleteEndpoint(
+  async deleteEndpoint(
     endpointId: string,
     userId: string
   ): Promise<void> {
@@ -137,7 +140,7 @@ export class EndpointService {
       // Verify ownership first
       await this.getEndpoint(endpointId, userId);
 
-      await EndpointData.deleteEndpoint(endpointId);
+      await this.endpointRepository.delete({ id: endpointId });
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -146,7 +149,7 @@ export class EndpointService {
   /**
    * Create multiple endpoints from schema (CRUD operations)
    */
-  static async createEndpointsBySchema(
+  async createEndpointsBySchema(
     data: {
       schemaId: number;
       basePath: string;
@@ -157,7 +160,7 @@ export class EndpointService {
   ): Promise<IEndpoint[]> {
     try {
       // Verify project ownership
-      const hasAccess = await ProjectService.verifyProjectOwnership(
+      const hasAccess = await this.projectService.verifyProjectOwnership(
         data.projectId,
         userId
       );
@@ -165,7 +168,15 @@ export class EndpointService {
         throw new AppError(
           "Project not found or access denied",
           STATUS_CODES.NOT_FOUND,
-          "NOT_FOUND" as any
+          ERROR_CODES.NOT_FOUND
+        );
+      }
+
+      if (!this.schemaService) {
+        throw new AppError(
+          "Schema service not available",
+          STATUS_CODES.INTERNAL_SERVER_ERROR,
+          ERROR_CODES.INTERNAL_ERROR
         );
       }
 
@@ -174,8 +185,13 @@ export class EndpointService {
       // Create all CRUD endpoints
       const endpoints: IEndpoint[] = [];
 
-      // TODO: need add type that follow endpoint schema
-      const endpointConfigs = [
+      const endpointConfigs: Array<{
+        description: string;
+        method: EHttpMethod;
+        path: string;
+        isDataList: boolean;
+        numberOfData: number | null;
+      }> = [
         {
           description: `GET ${basePath}`,
           method: EHttpMethod.GET,
@@ -214,21 +230,21 @@ export class EndpointService {
       ];
 
       for (const config of endpointConfigs) {
-        // Generate static response for each endpoint
-        const schema = await BackendSchemaService.getSchema(schemaId, userId);
-        const generatedResponse = SchemaService.generateResponseFromSchema(
+        // Get schema and generate static response for each endpoint
+        const schema = await this.schemaService.getSchema(schemaId, userId);
+        const generatedResponse = this.schemaService.generateResponseFromSchema(
           schema,
           config.isDataList || false,
           config.numberOfData || undefined
         );
 
-        const endpoint = await EndpointData.createEndpoint({
+        const endpoint = await this.createEndpoint({
           ...config,
           schemaId,
           staticResponse: generatedResponse,
           responseWrapperId,
           projectId,
-        });
+        }, userId);
         endpoints.push(endpoint);
       }
 
@@ -238,3 +254,6 @@ export class EndpointService {
     }
   }
 }
+
+// Export singleton instance
+export const endpointService = new EndpointService();

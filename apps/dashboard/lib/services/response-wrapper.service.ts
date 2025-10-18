@@ -1,31 +1,36 @@
-import { ResponseWrapperData } from "@/data/response-wrapper.data";
 import { IResponseWrapper } from "@/types";
 import { ResponseWrapperSchemaType } from "@/zod-schemas/response-wrapper.schema";
-import { AppError, handlePrismaError } from "@/data/helpers/error-handler";
+import { ResponseWrapperRepository } from "@/lib/repositories";
+import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { ProjectService } from "./project.service";
 
 export class ResponseWrapperService {
+  constructor(
+    private readonly responseWrapperRepository: ResponseWrapperRepository = responseWrapperRepository,
+    private readonly projectService: ProjectService = projectService
+  ) {}
+
   /**
    * Create a new response wrapper with project ownership validation
    */
-  static async createResponseWrapper(
+  async createResponseWrapper(
     data: ResponseWrapperSchemaType,
     projectId: string,
     userId: string
   ): Promise<IResponseWrapper> {
     try {
       // Verify project ownership
-      const hasAccess = await ProjectService.verifyProjectOwnership(projectId, userId);
+      const hasAccess = await this.projectService.verifyProjectOwnership(projectId, userId);
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
           STATUS_CODES.NOT_FOUND,
-          "NOT_FOUND" as any
+          ERROR_CODES.NOT_FOUND
         );
       }
 
-      return await ResponseWrapperData.createResponseWrapper(data, projectId);
+      return await this.responseWrapperRepository.createWrapper(data, projectId);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -34,19 +39,19 @@ export class ResponseWrapperService {
   /**
    * Get all response wrappers for a project with ownership validation
    */
-  static async getProjectResponseWrappers(projectId: string, userId: string): Promise<IResponseWrapper[]> {
+  async getProjectResponseWrappers(projectId: string, userId: string): Promise<IResponseWrapper[]> {
     try {
       // Verify project ownership
-      const hasAccess = await ProjectService.verifyProjectOwnership(projectId, userId);
+      const hasAccess = await this.projectService.verifyProjectOwnership(projectId, userId);
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
           STATUS_CODES.NOT_FOUND,
-          "NOT_FOUND" as any
+          ERROR_CODES.NOT_FOUND
         );
       }
 
-      return await ResponseWrapperData.getResponseWrappers(projectId);
+      return await this.responseWrapperRepository.findByProjectId(projectId);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -55,17 +60,17 @@ export class ResponseWrapperService {
   /**
    * Get all response wrappers for user's projects
    */
-  static async getUserResponseWrappers(userId: string): Promise<IResponseWrapper[]> {
+  async getUserResponseWrappers(userId: string): Promise<IResponseWrapper[]> {
     try {
-      const userProjects = await ProjectService.getUserProjects(userId);
-      const projectIds = userProjects.map((p: any) => p.id);
+      const userProjects = await this.projectService.getUserProjects(userId);
+      const projectIds = userProjects.map((p) => p.id);
       
       if (projectIds.length === 0) {
         return [];
       }
 
       // Get all response wrappers for user's projects efficiently
-      return await ResponseWrapperData.getResponseWrappersByProjectIds(projectIds);
+      return await this.responseWrapperRepository.findByProjectIds(projectIds);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -74,26 +79,26 @@ export class ResponseWrapperService {
   /**
    * Get a specific response wrapper with ownership validation
    */
-  static async getResponseWrapper(responseWrapperId: number, userId: string): Promise<IResponseWrapper> {
+  async getResponseWrapper(responseWrapperId: number, userId: string): Promise<IResponseWrapper> {
     try {
-      const responseWrapper = await ResponseWrapperData.getResponseWrapperById(responseWrapperId);
+      const responseWrapper = await this.responseWrapperRepository.findById(responseWrapperId);
       
       if (!responseWrapper) {
         throw new AppError(
           "Response wrapper not found",
           STATUS_CODES.NOT_FOUND,
-          "NOT_FOUND" as any
+          ERROR_CODES.NOT_FOUND
         );
       }
 
       // Verify project ownership if the response wrapper has a projectId
       if (responseWrapper.projectId) {
-        const hasAccess = await ProjectService.verifyProjectOwnership(responseWrapper.projectId, userId);
+        const hasAccess = await this.projectService.verifyProjectOwnership(responseWrapper.projectId, userId);
         if (!hasAccess) {
           throw new AppError(
             "Access denied",
             STATUS_CODES.FORBIDDEN,
-            "AUTH_ERROR" as any
+            ERROR_CODES.AUTH_ERROR
           );
         }
       }
@@ -107,7 +112,7 @@ export class ResponseWrapperService {
   /**
    * Update a response wrapper with ownership validation
    */
-  static async updateResponseWrapper(
+  async updateResponseWrapper(
     responseWrapperId: number,
     data: Partial<ResponseWrapperSchemaType>,
     userId: string
@@ -116,7 +121,7 @@ export class ResponseWrapperService {
       // Verify ownership first
       await this.getResponseWrapper(responseWrapperId, userId);
       
-      return await ResponseWrapperData.updateResponseWrapper(responseWrapperId, data);
+      return await this.responseWrapperRepository.updateWrapper(responseWrapperId, data);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -125,12 +130,12 @@ export class ResponseWrapperService {
   /**
    * Delete a response wrapper with ownership validation
    */
-  static async deleteResponseWrapper(responseWrapperId: number, userId: string): Promise<IResponseWrapper> {
+  async deleteResponseWrapper(responseWrapperId: number, userId: string): Promise<IResponseWrapper> {
     try {
       // Verify ownership first
       await this.getResponseWrapper(responseWrapperId, userId);
       
-      return await ResponseWrapperData.deleteResponseWrapper(responseWrapperId);
+      return await this.responseWrapperRepository.deleteWrapper(responseWrapperId);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -139,16 +144,19 @@ export class ResponseWrapperService {
   /**
    * Verify if user has access to a response wrapper
    */
-  static async verifyResponseWrapperAccess(responseWrapperId: number, userId: string): Promise<boolean> {
+  async verifyResponseWrapperAccess(responseWrapperId: number, userId: string): Promise<boolean> {
     try {
-      const ownership = await ResponseWrapperData.getResponseWrapperOwnership(responseWrapperId);
+      const ownership = await this.responseWrapperRepository.getOwnership(responseWrapperId);
       if (!ownership) {
         return false;
       }
 
-      return await ProjectService.verifyProjectOwnership(ownership.projectId, userId);
+      return await this.projectService.verifyProjectOwnership(ownership.projectId, userId);
     } catch (error) {
       return false;
     }
   }
 }
+
+// Export singleton instance
+export const responseWrapperService = new ResponseWrapperService();

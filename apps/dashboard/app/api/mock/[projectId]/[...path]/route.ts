@@ -4,10 +4,13 @@ import { HttpMethod } from "@prisma/client";
 // import { Ollama } from 'ollama';
 import { errorResponse } from "../../../_helpers/api-response";
 import { IEndpoint } from "@/types";
-import { EndpointData } from "@/data/endpoint.data";
 import { EndpointService } from "@/services/endpoint.service";
-import { ProjectData } from "@/data/project.data";
 import { QueryParamsHelper } from "@/helpers/query-params";
+import { ProjectRepository, EndpointRepository } from "@/lib/repositories";
+
+// Use repositories directly for mock API (no auth needed)
+const projectRepository = new ProjectRepository();
+const endpointRepository = new EndpointRepository();
 
 // Define the proper params type for Next.js App Router
 type Params = Promise<{ projectId: string; path: string[] }>;
@@ -105,7 +108,7 @@ async function handleRequest(
     if (!fullPath) return errorResponse(req, { message: "Invalid path", statusCode: 400 });
 
     // Check if project exists and requires token authentication
-    const project = await ProjectData.getProject(projectId);
+    const project = await projectRepository.findById(projectId);
     if (!project) return errorResponse(req, { message: "Project not found", statusCode: 404 });
 
     // Get origin once for CORS checks
@@ -135,11 +138,9 @@ async function handleRequest(
 
     // Find matching endpoint by checking if the request path matches the endpoint path pattern
     // and belongs to the specified project
-    const endpoints = await EndpointData.getEndpoints({
-      where: {
-        method,
-        projectId,
-      },
+    const endpoints = await endpointRepository.findMany({
+      method,
+      projectId,
     });
 
     // Find the best matching endpoint and extract ID if present
@@ -147,8 +148,8 @@ async function handleRequest(
     // let extractedId: string | null = null;
 
     for (const endpoint of endpoints) {
-      const endpointParts = endpoint.path.split("/").filter((part) => part); // filter out empty strings
-      const requestParts = fullPath.split("/").filter((part) => part); // filter out empty strings
+      const endpointParts = endpoint.path.split("/").filter((part: string) => part); // filter out empty strings
+      const requestParts = fullPath.split("/").filter((part: string) => part); // filter out empty strings
 
       if (endpointParts.length !== requestParts.length) continue;
 

@@ -1,7 +1,7 @@
 import { apiResponse, errorResponse } from "@/app/api/_helpers/api-response";
 import { requireAuth } from "@/app/api/_helpers/auth-guards";
 import { validateRequestBody } from "@/app/api/_helpers/validation";
-import { EndpointService } from "@/services/backend/endpoint.service";
+import { endpointService } from "@/lib/services";
 import { NextRequest } from "next/server";
 import { z } from "zod";
 
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
         const validationResult = await validateRequestBody(req, CreateEndpointsBySchemaSchema);
         if (validationResult instanceof Response) return validationResult;
 
-        const endpoints = await EndpointService.createEndpointsBySchema(
+        const endpoints = await endpointService.createEndpointsBySchema(
             validationResult,
             sessionResult.user.id
         );

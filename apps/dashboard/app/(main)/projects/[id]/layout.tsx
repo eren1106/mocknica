@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
-import { ProjectData } from "@/data/project.data";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { ProjectRepository } from "@/lib/repositories";
+
+const projectRepository = new ProjectRepository();
 
 interface ProjectLayoutProps {
   children: React.ReactNode;
@@ -22,7 +24,7 @@ export default async function ProjectLayout({
   if (!session?.user?.id) redirect("/login");
 
   // Get project only if user owns it
-  const project = await ProjectData.getProjectByUserAndId(id, session.user.id);
+  const project = await projectRepository.findByIdAndUserId(id, session.user.id);
 
   if (!project) redirect("/");
 

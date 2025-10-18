@@ -2,7 +2,7 @@ import { apiResponse, errorResponse } from '../_helpers/api-response';
 import { NextRequest } from 'next/server';
 import { requireAuth } from '../_helpers/auth-guards';
 import { validateRequestBody, validateQueryParams } from '../_helpers/validation';
-import { ResponseWrapperService } from '@/services/backend/response-wrapper.service';
+import { responseWrapperService } from '@/lib/services';
 import { CreateResponseWrapperSchema } from '@/zod-schemas/response-wrapper.schema';
 import { z } from 'zod';
 
@@ -22,13 +22,13 @@ export async function GET(req: NextRequest) {
     const { projectId } = queryValidation;
 
     if (projectId) {
-      const wrappers = await ResponseWrapperService.getProjectResponseWrappers(
+      const wrappers = await responseWrapperService.getProjectResponseWrappers(
         projectId, 
         sessionResult.user.id
       );
       return apiResponse(req, { data: wrappers });
     } else {
-      const wrappers = await ResponseWrapperService.getUserResponseWrappers(
+      const wrappers = await responseWrapperService.getUserResponseWrappers(
         sessionResult.user.id
       );
       return apiResponse(req, { data: wrappers });
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     });
     if (validationResult instanceof Response) return validationResult;
 
-    const wrapper = await ResponseWrapperService.createResponseWrapper(
+    const wrapper = await responseWrapperService.createResponseWrapper(
       {
         name: validationResult.name,
         json: validationResult.json,
