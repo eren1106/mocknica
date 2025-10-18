@@ -1,13 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ResponseWrapperService } from '@/services/response-wrapper.service';
-import { ResponseWrapper } from '@prisma/client';
 import { toast } from 'sonner';
 import { ENDPOINTS_QUERY_KEY } from './useEndpoint';
+import { IResponseWrapper } from '@/types';
 
 const RESPONSE_WRAPPERS_QUERY_KEY = 'response-wrappers';
 
 export const useResponseWrappers = (projectId: string) => {
-  return useQuery<ResponseWrapper[]>({
+  return useQuery<IResponseWrapper[]>({
     queryKey: [RESPONSE_WRAPPERS_QUERY_KEY, projectId],
     queryFn: () => ResponseWrapperService.getAllResponseWrappers(projectId),
     staleTime: 1 * 60 * 1000, // 1 minute
@@ -15,7 +15,7 @@ export const useResponseWrappers = (projectId: string) => {
 };
 
 export const useResponseWrapper = ({ id, projectId }: { id: number; projectId: string }) => {
-  return useQuery<ResponseWrapper>({
+  return useQuery<IResponseWrapper>({
     queryKey: [RESPONSE_WRAPPERS_QUERY_KEY, projectId, id],
     // TODO: need to pass in projectId as well to validate
     queryFn: () => ResponseWrapperService.getResponseWrapperById(id),
@@ -31,8 +31,8 @@ export const useMutationResponseWrapper = () => {
     queryClient.invalidateQueries({ queryKey: [ENDPOINTS_QUERY_KEY] }); // refetch endpoints as well to reflect the changes immediately
   };
 
-  const createResponseWrapper = useMutation({ 
-    mutationFn: (data: Partial<ResponseWrapper>) => ResponseWrapperService.createResponseWrapper(data),
+  const createResponseWrapper = useMutation({
+    mutationFn: (data: Partial<IResponseWrapper>) => ResponseWrapperService.createResponseWrapper(data),
     onSuccess: () => {
       invalidateQueries();
       toast.success("Response wrapper created successfully");
@@ -40,7 +40,7 @@ export const useMutationResponseWrapper = () => {
   });
 
   const updateResponseWrapper = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<ResponseWrapper> }) =>
+    mutationFn: ({ id, data }: { id: number; data: Partial<IResponseWrapper> }) =>
       ResponseWrapperService.updateResponseWrapper(id, data),
     onSuccess: () => {
       invalidateQueries();

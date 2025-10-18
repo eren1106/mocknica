@@ -1,19 +1,19 @@
 import { apiRequest } from "@/helpers/api-request";
-import { Project } from "@/models/project.model";
+import { IProject } from "@/types";
 import { ProjectSchemaType } from "@/zod-schemas/project.schema";
 
 export class ProjectService {
-  static async getAllProjects(): Promise<Project[]> {
+  static async getAllProjects(): Promise<IProject[]> {
     const res = await apiRequest.get("projects");
     return res.data;
   }
 
-  static async getProject(id: string): Promise<Project> {
+  static async getProject(id: string): Promise<IProject> {
     const res = await apiRequest.get(`projects/${id}`);
     return res.data;
   }
 
-  static async createProject(data: ProjectSchemaType): Promise<Project> {
+  static async createProject(data: ProjectSchemaType): Promise<IProject> {
     const res = await apiRequest.post("projects", data);
     return res.data;
   }
@@ -21,7 +21,7 @@ export class ProjectService {
   static async updateProject(
     id: string,
     data: Partial<ProjectSchemaType>
-  ): Promise<Project> {
+  ): Promise<IProject> {
     const res = await apiRequest.put(`projects/${id}`, data);
     return res.data;
   }

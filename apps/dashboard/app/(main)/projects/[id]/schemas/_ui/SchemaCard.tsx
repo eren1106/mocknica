@@ -2,43 +2,42 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Schema } from "@/models/schema.model";
-import { SchemaFieldType } from "@prisma/client";
+import { ESchemaFieldType, ISchema } from "@/types";
 import { Edit, Trash, Database, Hash, Calendar, Code } from "lucide-react";
 import DialogButton from "@/components/dialog-button";
 import SchemaForm from "@/components/schema/SchemaForm";
 import SchemaTooltip from "./SchemaTooltip";
 import DeleteSchemaConfirmation from "./DeleteSchemaConfirmation";
-import { convertEnumToTitleCase, formatJSON } from "@/lib/utils";
+import { convertEnumToTitleCase } from "@/lib/utils";
 import { SchemaService } from "@/services/schema.service";
 import { Badge } from "@/components/ui/badge";
 import JsonViewer from "@/components/json-viewer";
 
-const SchemaCard = ({ schema }: { schema: Schema }) => {
+const SchemaCard = ({ schema }: { schema: ISchema }) => {
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString();
   };
 
   // TODO: dont hard-code color
-  const getFieldTypeColor = (type: SchemaFieldType) => {
+  const getFieldTypeColor = (type: ESchemaFieldType) => {
     switch (type) {
-      case SchemaFieldType.STRING:
+      case ESchemaFieldType.STRING:
         return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/20 dark:text-blue-300 dark:border-blue-800";
-      case SchemaFieldType.INTEGER:
+      case ESchemaFieldType.INTEGER:
         return "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-300 dark:border-green-800";
-      case SchemaFieldType.FLOAT:
+      case ESchemaFieldType.FLOAT:
         return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-300 dark:border-emerald-800";
-      case SchemaFieldType.BOOLEAN:
+      case ESchemaFieldType.BOOLEAN:
         return "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/20 dark:text-purple-300 dark:border-purple-800";
-      case SchemaFieldType.OBJECT:
+      case ESchemaFieldType.OBJECT:
         return "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/20 dark:text-orange-300 dark:border-orange-800";
-      case SchemaFieldType.ARRAY:
+      case ESchemaFieldType.ARRAY:
         return "bg-pink-50 text-pink-700 border-pink-200 dark:bg-pink-950/20 dark:text-pink-300 dark:border-pink-800";
-      case SchemaFieldType.ID:
+      case ESchemaFieldType.ID:
         return "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-300 dark:border-yellow-800";
-      case SchemaFieldType.FAKER:
+      case ESchemaFieldType.FAKER:
         return "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/20 dark:text-cyan-300 dark:border-cyan-800";
-      case SchemaFieldType.DATE:
+      case ESchemaFieldType.DATE:
         return "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/20 dark:text-violet-300 dark:border-violet-800";
       default:
         return "bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-950/20 dark:text-gray-300 dark:border-gray-800";
@@ -120,7 +119,7 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
                     >
                       {convertEnumToTitleCase(field.type)}
                     </Badge>
-                    {field.type === SchemaFieldType.ID && field.idFieldType && (
+                    {field.type === ESchemaFieldType.ID && field.idFieldType && (
                       // TODO: dont hard-code color
                       <Badge
                         variant="outline"
@@ -129,7 +128,7 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
                         {convertEnumToTitleCase(field.idFieldType)}
                       </Badge>
                     )}
-                    {field.type === SchemaFieldType.FAKER &&
+                    {field.type === ESchemaFieldType.FAKER &&
                       field.fakerType && (
                         // TODO: dont hard-code color
                         <Badge
@@ -139,7 +138,7 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
                           {convertEnumToTitleCase(field.fakerType)}
                         </Badge>
                       )}
-                    {field.type === SchemaFieldType.OBJECT &&
+                    {field.type === ESchemaFieldType.OBJECT &&
                       (field.objectSchema ? (
                         <SchemaTooltip objectSchema={field.objectSchema} />
                       ) : (
@@ -150,8 +149,8 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
                           {"{}"}
                         </Badge>
                       ))}
-                    {field.type === SchemaFieldType.ARRAY &&
-                      field.arrayType?.elementType === SchemaFieldType.OBJECT &&
+                    {field.type === ESchemaFieldType.ARRAY &&
+                      field.arrayType?.elementType === ESchemaFieldType.OBJECT &&
                       (field.arrayType?.objectSchema ? (
                         <SchemaTooltip
                           objectSchema={field.arrayType.objectSchema}
@@ -164,9 +163,9 @@ const SchemaCard = ({ schema }: { schema: Schema }) => {
                           {"{}"}
                         </Badge>
                       ))}
-                    {field.type === SchemaFieldType.ARRAY &&
+                    {field.type === ESchemaFieldType.ARRAY &&
                       field.arrayType?.elementType ===
-                        SchemaFieldType.FAKER && (
+                        ESchemaFieldType.FAKER && (
                         // TODO: dont hard-code color
                         <Badge
                           variant="outline"

@@ -1,5 +1,5 @@
 import { SchemaData } from "@/data/schema.data";
-import { Schema } from "@/models/schema.model";
+import { ISchema } from "@/types";
 import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
 import { AppError, handlePrismaError } from "@/data/helpers/error-handler";
 import { STATUS_CODES } from "@/constants/status-codes";
@@ -13,7 +13,7 @@ export class SchemaService {
     data: SchemaSchemaType,
     projectId: string,
     userId: string
-  ): Promise<Schema> {
+  ): Promise<ISchema> {
     try {
       // Verify project ownership
       const hasAccess = await ProjectService.verifyProjectOwnership(projectId, userId);
@@ -34,7 +34,7 @@ export class SchemaService {
   /**
    * Get all schemas for a project with ownership validation
    */
-  static async getProjectSchemas(projectId: string, userId: string): Promise<Schema[]> {
+  static async getProjectSchemas(projectId: string, userId: string): Promise<ISchema[]> {
     try {
       // Verify project ownership
       const hasAccess = await ProjectService.verifyProjectOwnership(projectId, userId);
@@ -55,7 +55,7 @@ export class SchemaService {
   /**
    * Get a specific schema with ownership validation
    */
-  static async getSchema(schemaId: number, userId: string): Promise<Schema> {
+  static async getSchema(schemaId: number, userId: string): Promise<ISchema> {
     try {
       const schema = await SchemaData.getSchema(schemaId);
       
@@ -92,7 +92,7 @@ export class SchemaService {
     schemaId: number,
     data: SchemaSchemaType,
     userId: string
-  ): Promise<Schema> {
+  ): Promise<ISchema> {
     try {
       // Verify ownership first
       await this.getSchema(schemaId, userId);
@@ -106,7 +106,7 @@ export class SchemaService {
   /**
    * Delete a schema with ownership validation
    */
-  static async deleteSchema(schemaId: number, userId: string): Promise<Partial<Schema>> {
+  static async deleteSchema(schemaId: number, userId: string): Promise<Partial<ISchema>> {
     try {
       // Verify ownership first
       await this.getSchema(schemaId, userId);

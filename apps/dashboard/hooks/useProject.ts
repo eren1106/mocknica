@@ -1,14 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ProjectService } from '@/services/project.service';
-import { Project } from '@/models/project.model';
 import { ProjectSchemaType } from '@/zod-schemas/project.schema';
 import { toast } from 'sonner';
+import { IProject } from '@/types';
 
 const PROJECTS_QUERY_KEY = 'projects';
 
 // TODO: need userId prop
 export const useProjects = () => {
-  return useQuery<Project[]>({
+  return useQuery<IProject[]>({
     queryKey: [PROJECTS_QUERY_KEY],
     queryFn: ProjectService.getAllProjects,
     staleTime: 1 * 60 * 1000, // 1 minute
@@ -16,7 +16,7 @@ export const useProjects = () => {
 };
 
 export const useProject = (id: string) => {
-  return useQuery<Project>({
+  return useQuery<IProject>({
     queryKey: [PROJECTS_QUERY_KEY, id],
     queryFn: () => ProjectService.getProject(id),
     staleTime: 1 * 60 * 1000, // 1 minute

@@ -1,17 +1,17 @@
 import { apiRequest } from "@/helpers/api-request";
-import { Endpoint } from "@/models/endpoint.model";
 import { ResponseWrapperService } from "./response-wrapper.service";
 import { SchemaService } from "./schema.service";
 import { QueryParams, QueryParamsHelper } from "@/helpers/query-params";
+import { IEndpoint } from "@/types";
 
 export class EndpointService {
-  static async getAllEndpoints(projectId?: string): Promise<Endpoint[]> {
+  static async getAllEndpoints(projectId?: string): Promise<IEndpoint[]> {
     const url = projectId ? `endpoints?projectId=${projectId}` : "endpoints";
     const res = await apiRequest.get(url);
     return res.data;
   }
 
-  static async createEndpoint(data: Partial<Endpoint>): Promise<Endpoint> {
+  static async createEndpoint(data: Partial<IEndpoint>): Promise<IEndpoint> {
     const res = await apiRequest.post("endpoints", data);
     return res.data;
   }
@@ -20,15 +20,15 @@ export class EndpointService {
     schemaId: number;
     basePath: string;
     responseWrapperId?: number;
-  }): Promise<Endpoint[]> {
+  }): Promise<IEndpoint[]> {
     const res = await apiRequest.post("endpoints/schema", data);
     return res.data;
   }
 
   static async updateEndpoint(
     id: string,
-    data: Partial<Endpoint>
-  ): Promise<Endpoint> {
+    data: Partial<IEndpoint>
+  ): Promise<IEndpoint> {
     const res = await apiRequest.put(`endpoints/${id}`, data);
     return res.data;
   }
@@ -38,14 +38,14 @@ export class EndpointService {
   }
 
   // display what the endpoint should return when user request the mock data
-  static getEndpointResponse(endpoint: Endpoint, queryParams?: QueryParams) {
+  static getEndpointResponse(endpoint: IEndpoint, queryParams?: QueryParams) {
     let response: any;
 
     // Handle schema-based responses
     if (endpoint.schema) {
       response = SchemaService.generateResponseFromSchema(
         endpoint.schema,
-        endpoint.isDataList,
+        endpoint.isDataList ?? false, // Convert null to false
         endpoint.numberOfData || undefined
       );
     } else {

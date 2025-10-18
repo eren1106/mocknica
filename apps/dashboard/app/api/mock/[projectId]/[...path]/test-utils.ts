@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server';
-import { HttpMethod, SchemaFieldType, IdFieldType } from '@prisma/client';
+import { EHttpMethod, ESchemaFieldType, EIdFieldType, EProjectPermission } from '@/types';
+import type { IProject, IEndpoint, ISchema } from '@/types';
 
 // Test factory utilities for creating mock data with proper types
 export class TestDataFactory {
-  static createMockProject(overrides = {}) {
+  static createMockProject(overrides: Partial<IProject> = {}): IProject {
     return {
       id: 'project-1',
       name: 'Test Project',
       description: 'Test project description',
-      permission: 'PUBLIC' as const,
+      permission: EProjectPermission.PUBLIC,
       isNeedToken: false,
-      token: null,
       corsOrigins: [],
       userId: 'user-1',
       createdAt: new Date(),
@@ -20,7 +20,6 @@ export class TestDataFactory {
         name: 'Test User',
         email: 'test@example.com',
         emailVerified: false,
-        image: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -31,28 +30,22 @@ export class TestDataFactory {
     };
   }
 
-  static createMockEndpoint(overrides = {}) {
+  static createMockEndpoint(overrides: Partial<IEndpoint> = {}): IEndpoint {
     return {
       id: 'endpoint-1',
-      name: 'Get Users',
       description: 'Get list of users',
-      method: 'GET' as HttpMethod,
+      method: EHttpMethod.GET,
       path: '/users',
       staticResponse: { message: 'success', data: [{ id: 1, name: 'John' }] },
-      schemaId: null,
-      responseWrapperId: null,
       isDataList: false,
-      numberOfData: null,
       projectId: 'project-1',
       createdAt: new Date(),
       updatedAt: new Date(),
-      schema: null,
-      responseWrapper: null,
       ...overrides,
     };
   }
 
-  static createMockSchema(overrides = {}) {
+  static createMockSchema(overrides: Partial<ISchema> = {}): ISchema {
     return {
       id: 1,
       name: 'User',
@@ -63,26 +56,15 @@ export class TestDataFactory {
         {
           id: 1,
           name: 'id',
-          type: SchemaFieldType.ID,
-          idFieldType: IdFieldType.AUTOINCREMENT,
+          type: ESchemaFieldType.ID,
+          idFieldType: EIdFieldType.AUTOINCREMENT,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
         },
         {
           id: 2,
           name: 'name',
-          type: SchemaFieldType.STRING,
-          idFieldType: null,
+          type: ESchemaFieldType.STRING,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
         },
       ],
       ...overrides,

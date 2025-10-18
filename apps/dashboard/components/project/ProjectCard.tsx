@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Project } from "@/models/project.model";
+import { IProject } from "@/types";
 import { Edit, Trash, Users, Calendar, Eye } from "lucide-react";
 import DialogButton from "@/components/dialog-button";
 import ProjectForm from "./ProjectForm";
@@ -11,7 +11,7 @@ import { formatDate } from "@/lib/utils";
 import { useMutationProject } from "@/hooks/useProject";
 import LinkButton from "../link-button";
 
-const ProjectCard = ({ project }: { project: Project }) => {
+const ProjectCard = ({ project }: { project: IProject }) => {
   const { deleteProject } = useMutationProject();
 
   const handleDelete = async () => {

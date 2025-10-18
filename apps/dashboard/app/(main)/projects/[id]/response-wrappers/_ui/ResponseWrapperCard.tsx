@@ -5,7 +5,7 @@ import DialogButton from "@/components/dialog-button";
 import ResponseWrapperForm from "./ResponseWrapperForm";
 import ResponseWrapperView from "./ResponseWrapperView";
 import DeleteConfirmationDialog from "@/components/delete-confirmation";
-import { ResponseWrapper } from "@prisma/client";
+import { IResponseWrapper } from "@/types";
 import {
   AlertCircleIcon,
   Edit,
@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 
 interface IResponseWrapperCardProps {
-  wrapper: ResponseWrapper;
+  wrapper: IResponseWrapper;
 }
 export default function ResponseWrapperCard({
   wrapper,

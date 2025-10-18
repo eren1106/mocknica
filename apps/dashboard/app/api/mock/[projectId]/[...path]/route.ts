@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { HttpMethod } from "@prisma/client";
 // import { Ollama } from 'ollama';
 import { errorResponse } from "../../../_helpers/api-response";
-import { Endpoint } from "@/models/endpoint.model";
+import { IEndpoint } from "@/types";
 import { EndpointData } from "@/data/endpoint.data";
 import { EndpointService } from "@/services/endpoint.service";
 import { ProjectData } from "@/data/project.data";
@@ -143,7 +143,7 @@ async function handleRequest(
     });
 
     // Find the best matching endpoint and extract ID if present
-    let matchingEndpoint: Endpoint | null = null;
+    let matchingEndpoint: IEndpoint | null = null;
     // let extractedId: string | null = null;
 
     for (const endpoint of endpoints) {

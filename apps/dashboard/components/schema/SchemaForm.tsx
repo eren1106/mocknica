@@ -9,14 +9,12 @@ import {
   convertFirstLetterToUpperCase,
   getZodFieldNames,
 } from "@/lib/utils";
-import { FakerType, IdFieldType, SchemaFieldType } from "@prisma/client";
+import { EFakerType, EIdFieldType, ESchemaFieldType, ISchemaField, ISchema } from "@/types";
 import { Input } from "../ui/input";
 import DynamicSelect from "../dynamic-select";
 import { Button } from "../ui/button";
 import { Plus, Sparkles, X } from "lucide-react";
-import { SchemaField } from "@/models/schema-field.model";
 import { SchemaSchema, SchemaSchemaType } from "@/zod-schemas/schema.schema";
-import { Schema } from "@/models/schema.model";
 import { useMutationSchema, useSchemas } from "@/hooks/useSchema";
 import DialogButton from "../dialog-button";
 import AutoResizeTextarea from "../auto-resize-textarea";
@@ -26,7 +24,7 @@ import { ModelSelector } from "../model-selector";
 
 const formFields = getZodFieldNames(SchemaSchema);
 interface SchemaFormProps {
-  schema?: Schema;
+  schema?: ISchema;
   onSuccess?: () => void;
 }
 const SchemaForm = (props: SchemaFormProps) => {
@@ -54,12 +52,12 @@ const SchemaForm = (props: SchemaFormProps) => {
           fields: [
             {
               name: "id",
-              type: SchemaFieldType.ID,
-              idFieldType: IdFieldType.AUTOINCREMENT,
+              type: ESchemaFieldType.ID,
+              idFieldType: EIdFieldType.AUTOINCREMENT,
             },
             {
               name: "name",
-              type: SchemaFieldType.STRING,
+              type: ESchemaFieldType.STRING,
             },
           ],
         }
@@ -84,7 +82,7 @@ const SchemaForm = (props: SchemaFormProps) => {
     }
   };
 
-  const fields = form.watch("fields") as SchemaField[];
+  const fields = form.watch("fields") as ISchemaField[];
 
   // Function to add a new field
   const addField = () => {
@@ -93,7 +91,7 @@ const SchemaForm = (props: SchemaFormProps) => {
       ...currentFields,
       {
         name: "",
-        type: SchemaFieldType.STRING,
+        type: ESchemaFieldType.STRING,
       },
     ]);
   };
@@ -116,7 +114,7 @@ const SchemaForm = (props: SchemaFormProps) => {
   };
 
   // Function to update a field's type
-  const updateFieldType = (index: number, newType: SchemaFieldType) => {
+  const updateFieldType = (index: number, newType: ESchemaFieldType) => {
     const currentFields = form.getValues("fields");
     const updatedFields = [...currentFields];
     updatedFields[index] = { ...updatedFields[index], type: newType };
@@ -161,7 +159,7 @@ const SchemaForm = (props: SchemaFormProps) => {
         // useFormNameAsLabel={false}
         customChildren={
           <div className="flex flex-col gap-3 w-full">
-            {fields.map((field: SchemaField, index) => {
+            {fields.map((field: ISchemaField, index) => {
               return (
                 <div key={index} className="flex items-center gap-3">
                   <Input
@@ -172,43 +170,43 @@ const SchemaForm = (props: SchemaFormProps) => {
                   />
                   <DynamicSelect
                     options={
-                      Object.values(SchemaFieldType).map((type) => ({
+                      Object.values(ESchemaFieldType).map((type) => ({
                         label: convertFirstLetterToUpperCase(type),
                         value: type,
                       })) as any
                     }
                     value={field.type}
                     onChange={(value) =>
-                      updateFieldType(index, value as SchemaFieldType)
+                      updateFieldType(index, value as ESchemaFieldType)
                     }
                     className="w-full max-w-40"
                   />
-                  {field.type === SchemaFieldType.ID && (
+                  {field.type === ESchemaFieldType.ID && (
                     <DynamicSelect
                       options={
-                        Object.values(IdFieldType).map((type) => ({
+                        Object.values(EIdFieldType).map((type) => ({
                           label: convertEnumToTitleCase(type),
                           value: type,
                         })) as any
                       }
-                      defaultValue={IdFieldType.AUTOINCREMENT}
+                      defaultValue={EIdFieldType.AUTOINCREMENT}
                       value={`${field.idFieldType}`}
                       onChange={(value) => {
                         const currentFields = form.getValues("fields");
                         const updatedFields = [...currentFields];
                         updatedFields[index] = {
                           ...updatedFields[index],
-                          idFieldType: value as IdFieldType,
+                          idFieldType: value as EIdFieldType,
                         };
                         form.setValue("fields", updatedFields);
                       }}
                       className="w-full max-w-40"
                     />
                   )}
-                  {field.type === SchemaFieldType.FAKER && (
+                  {field.type === ESchemaFieldType.FAKER && (
                     <DynamicSelect
                       options={
-                        Object.values(FakerType)
+                        Object.values(EFakerType)
                           .map((type) => ({
                             label: convertEnumToTitleCase(type),
                             value: type,
@@ -221,14 +219,14 @@ const SchemaForm = (props: SchemaFormProps) => {
                         const updatedFields = [...currentFields];
                         updatedFields[index] = {
                           ...updatedFields[index],
-                          fakerType: value as FakerType,
+                          fakerType: value as EFakerType,
                         };
                         form.setValue("fields", updatedFields);
                       }}
                       className="w-full max-w-40"
                     />
                   )}
-                  {field.type === SchemaFieldType.OBJECT && (
+                  {field.type === ESchemaFieldType.OBJECT && (
                     <DynamicSelect
                       options={[
                         {
@@ -253,12 +251,12 @@ const SchemaForm = (props: SchemaFormProps) => {
                       className="w-full max-w-40"
                     />
                   )}
-                  {field.type === SchemaFieldType.ARRAY && (
+                  {field.type === ESchemaFieldType.ARRAY && (
                     <>
                       <DynamicSelect
                         options={
-                          Object.values(SchemaFieldType)
-                            .filter((type) => type !== SchemaFieldType.ARRAY) // Filter out ARRAY type
+                          Object.values(ESchemaFieldType)
+                            .filter((type) => type !== ESchemaFieldType.ARRAY) // Filter out ARRAY type
                             .map((type) => ({
                               label: convertEnumToTitleCase(type),
                               value: type,
@@ -272,7 +270,7 @@ const SchemaForm = (props: SchemaFormProps) => {
                             ...updatedFields[index],
                             arrayType: {
                               ...updatedFields[index].arrayType,
-                              elementType: value as SchemaFieldType,
+                              elementType: value as ESchemaFieldType,
                             },
                           };
                           form.setValue("fields", updatedFields);
@@ -280,7 +278,7 @@ const SchemaForm = (props: SchemaFormProps) => {
                         className="w-full max-w-40"
                       />
                       {field.arrayType?.elementType ===
-                        SchemaFieldType.OBJECT && (
+                        ESchemaFieldType.OBJECT && (
                         <DynamicSelect
                           options={[
                             {
@@ -352,7 +350,7 @@ const SchemaForm = (props: SchemaFormProps) => {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">Schema Description</label>
+              <label className="text-sm font-medium">ISchema Description</label>
               <AutoResizeTextarea
                 placeholder="Generate a user profile schema with fields for id, name, email, role, and status"
                 minRows={5}

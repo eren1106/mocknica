@@ -1,4 +1,4 @@
-import { Endpoint } from "@/models/endpoint.model";
+import { IEndpoint } from "@/types";
 import {
   AccordionItem,
   AccordionTrigger,
@@ -17,17 +17,15 @@ import {
   Database,
   FileJson2,
   Clock,
-  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { EndpointService } from "@/services/endpoint.service";
 import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 import { Badge } from "../ui/badge";
-import { Card } from "../ui/card";
 
 interface IEndpointItemProps {
-  endpoint: Endpoint;
+  endpoint: IEndpoint;
 }
 
 export default function EndpointItem({ endpoint }: IEndpointItemProps) {

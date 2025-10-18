@@ -1,19 +1,18 @@
 import { apiRequest } from "@/helpers/api-request";
-import { SchemaField } from "@/models/schema-field.model";
-import { Schema } from "@/models/schema.model";
 import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
 import { IdFieldType, SchemaFieldType } from "@prisma/client";
 import { FakerService } from "./faker.service";
 import { generateUUID } from "@/lib/utils";
+import { ISchema, ISchemaField } from "@/types";
 
 export class SchemaService {
-  static async getAllSchemas(projectId: string): Promise<Schema[]> {
+  static async getAllSchemas(projectId: string): Promise<ISchema[]> {
     const url = `schema?projectId=${projectId}`;
     const res = await apiRequest.get(url);
     return res.data;
   }
 
-  static async createSchema(data: SchemaSchemaType & { projectId?: string }): Promise<Schema> {
+  static async createSchema(data: SchemaSchemaType & { projectId?: string }): Promise<ISchema> {
     const res = await apiRequest.post("schema", data);
     return res.data;
   }
@@ -21,7 +20,7 @@ export class SchemaService {
   static async updateSchema(
     id: number,
     data: SchemaSchemaType
-  ): Promise<Schema> {
+  ): Promise<ISchema> {
     const res = await apiRequest.put(`schema/${id}`, data);
     return res.data;
   }
@@ -31,7 +30,7 @@ export class SchemaService {
   }
 
   static generateSchemaFieldValue(
-    field: SchemaField,
+    field: ISchemaField,
     dataId?: number | string
   ) {
     if (field.type === SchemaFieldType.FAKER && field.fakerType) {
@@ -42,7 +41,7 @@ export class SchemaService {
       const result: any = {};
       for (const subField of field.objectSchema?.fields || []) {
         result[subField.name] = this.generateSchemaFieldValue(
-          subField as SchemaField
+          subField as ISchemaField
         );
       }
       return result;
@@ -56,7 +55,7 @@ export class SchemaService {
           const objResult: any = {};
           for (const subField of field.arrayType.objectSchema?.fields || []) {
             objResult[subField.name] = this.generateSchemaFieldValue(
-              subField as SchemaField
+              subField as ISchemaField
             );
           }
           result.push(objResult);
@@ -93,7 +92,7 @@ export class SchemaService {
   }
 
   static generateResponseFromSchema(
-    schema: Schema,
+    schema: ISchema,
     isList: boolean = false,
     numberOfData?: number,
   ) {
@@ -105,7 +104,7 @@ export class SchemaService {
         const item: any = {};
         for (const field of schema.fields) {
           item[field.name] = this.generateSchemaFieldValue(
-            field as SchemaField,
+            field as ISchemaField,
             field.idFieldType === IdFieldType.UUID ? generateUUID() : i + 1
           );
         }
@@ -117,7 +116,7 @@ export class SchemaService {
       const response: any = {};
       for (const field of schema.fields) {
         response[field.name] = this.generateSchemaFieldValue(
-          field as SchemaField
+          field as ISchemaField
         );
       }
       return response;

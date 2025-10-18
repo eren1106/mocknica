@@ -1,13 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { SchemaService } from "@/services/schema.service";
-import { Schema } from "@/models/schema.model";
+import { ISchema } from "@/types";
 import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
 import { toast } from "sonner";
 
 const SCHEMAS_QUERY_KEY = "schemas";
 
 export const useSchemas = (projectId: string) => {
-  return useQuery<Schema[]>({
+  return useQuery<ISchema[]>({
     queryKey: [SCHEMAS_QUERY_KEY, projectId],
     queryFn: () => SchemaService.getAllSchemas(projectId),
     staleTime: 1 * 60 * 1000, // 1 minute

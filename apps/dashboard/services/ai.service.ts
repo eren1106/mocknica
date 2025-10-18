@@ -1,11 +1,9 @@
 import { apiRequest } from "@/helpers/api-request";
-import { Endpoint } from "@/models/endpoint.model";
-import { SchemaField } from "@/models/schema-field.model";
-import { Schema } from "@/models/schema.model";
+import { IEndpoint, ISchemaField, ISchema } from "@/types";
 
 interface GenerateEndpointsAndSchemasByAIResponse {
-  endpoints: Endpoint[];
-  schemas: Schema[];
+  endpoints: IEndpoint[];
+  schemas: ISchema[];
 }
 
 export class AIService {
@@ -14,7 +12,7 @@ export class AIService {
     return res.data;
   }
 
-  static async generateSchemaByAI(prompt: string, model?: string): Promise<SchemaField[]> {
+  static async generateSchemaByAI(prompt: string, model?: string): Promise<ISchemaField[]> {
     const res = await apiRequest.post("ai/schema", { prompt, model });
     return res.data;
   }

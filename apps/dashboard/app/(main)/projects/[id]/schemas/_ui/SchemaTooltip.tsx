@@ -8,11 +8,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { convertEnumToTitleCase } from "@/lib/utils";
-import { SchemaFieldType } from "@prisma/client";
+import { ESchemaFieldType } from "@/types";
 
 interface SchemaField {
   name: string;
-  type: SchemaFieldType;
+  type: ESchemaFieldType;
 }
 
 interface ObjectSchema {
