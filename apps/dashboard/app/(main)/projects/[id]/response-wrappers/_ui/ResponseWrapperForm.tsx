@@ -10,7 +10,7 @@ import {
   ResponseWrapperSchemaType,
 } from "@/zod-schemas/response-wrapper.schema";
 import { getZodFieldNames } from "@/lib/utils";
-import { ResponseWrapper } from "@prisma/client";
+import { IResponseWrapper } from "@/types";
 import JsonEditor from "@/components/json-editor";
 import FormButton from "@/components/form-button";
 import { WRAPPER_DATA_STR } from "@/constants";
@@ -18,7 +18,7 @@ import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 const formFields = getZodFieldNames(ResponseWrapperSchema);
 interface ResponseWrapperFormProps {
-  responseWrapper?: ResponseWrapper;
+  responseWrapper?: IResponseWrapper;
   onSuccess?: () => void;
 }
 const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormProps) => {

@@ -8,20 +8,20 @@ datasource db {
 }
 
 model Project {
-  id            String   @id @default(cuid())
-  name          String
-  description   String?
-  permission    ProjectPermission @default(PUBLIC)
-  isNeedToken   Boolean  @default(false)
-  token         String?  @unique // Generated token for API access
-  corsOrigins   String[] @default([]) // List of allowed CORS origins
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  endpoints     Endpoint[]
-  schemas       Schema[]
+  id               String            @id @default(cuid())
+  name             String
+  description      String?
+  permission       ProjectPermission @default(PUBLIC)
+  isNeedToken      Boolean           @default(false)
+  token            String?           @unique // Generated token for API access
+  corsOrigins      String[]          @default([]) // List of allowed CORS origins
+  userId           String
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoints        Endpoint[]
+  schemas          Schema[]
   responseWrappers ResponseWrapper[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 }
 
 model Endpoint {
@@ -34,7 +34,7 @@ model Endpoint {
   schema            Schema?          @relation(fields: [schemaId], references: [id])
   responseWrapperId Int?
   responseWrapper   ResponseWrapper? @relation(fields: [responseWrapperId], references: [id])
-  isDataList        Boolean          @default(false) // if schema is used in the endpoint, then will need to check the data is return in list or not
+  isDataList        Boolean?         @default(false) // if schema is used in the endpoint, then will need to check the data is return in list or not
   numberOfData      Int? // if isDataList is true, then this field will be used to determine the number of data to return
   projectId         String
   project           Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)

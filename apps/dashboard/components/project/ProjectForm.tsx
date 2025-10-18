@@ -6,9 +6,8 @@ import ZodForm from "@/components/zod-form";
 import GenericFormField from "@/components/generic-form-field";
 import FormButton from "@/components/form-button";
 import { ProjectSchema, ProjectSchemaType } from "@/zod-schemas/project.schema";
-import { Project } from "@/models/project.model";
 import { useMutationProject } from "@/hooks/useProject";
-import { HttpMethod } from "@prisma/client";
+import { EHttpMethod, IProject, ISchemaField } from "@/types";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { CorsOriginsInput } from "../cors-origins-input";
@@ -31,26 +30,24 @@ import { Button } from "../ui/button";
 import { ModelSelector } from "../model-selector";
 import { AIService } from "@/services/ai.service";
 import { Badge } from "../ui/badge";
-import { SchemaField } from "@/models/schema-field.model";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { toast } from "sonner";
 import { Separator } from "../ui/separator";
-import { cva } from "class-variance-authority";
 
 interface ProjectFormProps {
-  project?: Project;
+  project?: IProject;
   onSuccess?: () => void;
 }
 
 interface AIGeneratedSchema {
   name: string;
   description?: string;
-  fields: SchemaField[];
+  fields: ISchemaField[];
 }
 
 interface AIGeneratedEndpoint {
   path: string;
-  method: HttpMethod;
+  method: EHttpMethod;
   description: string;
   schemaId?: number;
   isDataList?: boolean;
@@ -167,10 +164,9 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
           data,
         });
       } else {
-        // Create the project with AI-generated data if available
         const projectData = {
           ...data,
-          aiGeneratedData: aiGeneratedData || undefined,
+          aiGeneratedData: aiGeneratedData,
         };
 
         await createProject(projectData);
@@ -188,7 +184,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
         control={form.control}
         type="input"
         name="name"
-        label="Project Name"
+        label="IProject Name"
         placeholder="My Awesome API"
       />
 
@@ -258,7 +254,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
             "transition-all duration-500 ease-out",
             "text-white font-semibold"
           )}
-          title="Generate Project with AI ✨"
+          title="Generate IProject with AI ✨"
           description="Let AI create your entire project structure based on your description"
           content={(close) => (
             <div className="flex flex-col gap-6">
@@ -283,11 +279,11 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
 
               <Separator />
 
-              {/* Project Description */}
+              {/* IProject Description */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-semibold">
-                    Project Description *
+                    IProject Description *
                   </label>
                   <Button
                     type="button"
@@ -382,7 +378,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
               </div>
               <div className="flex flex-col items-start">
                 <p className="font-bold text-base leading-tight">
-                  Setup Project with AI
+                  Setup IProject with AI
                 </p>
                 <span className="text-xs font-normal text-purple-100">
                   Generate schemas & endpoints instantly
@@ -406,7 +402,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-purple-900 dark:text-purple-100">
-                      AI Generated Project Structure
+                      AI Generated IProject Structure
                     </h3>
                     <p className="text-xs text-purple-700 dark:text-purple-300 mt-0.5">
                       {aiGeneratedData.schemas.length} schema(s) •{" "}
@@ -607,7 +603,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
       )}
 
       <FormButton isLoading={isPending}>
-        {project ? "Update Project" : "Create Project"}
+        {project ? "Update IProject" : "Create IProject"}
       </FormButton>
     </ZodForm>
   );

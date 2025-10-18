@@ -1,20 +1,19 @@
 import { ProjectData } from "@/data/project.data";
 import { SchemaData } from "@/data/schema.data";
 import { EndpointData } from "@/data/endpoint.data";
-import { Project } from "@/models/project.model";
 import { ProjectSchemaType } from "@/zod-schemas/project.schema";
 import { AppError, ERROR_CODES, handlePrismaError } from "@/data/helpers/error-handler";
 import { STATUS_CODES } from "@/constants/status-codes";
-import { Schema } from "@/models/schema.model";
 import { SchemaService } from "../schema.service";
 import { WRAPPER_DATA_STR } from "@/constants";
 import { ResponseWrapperData } from "@/data/response-wrapper.data";
+import { IProject, IProjectLight, ISchema } from "@/types";
 
 export class ProjectService {
   /**
    * Create a new project for a user
    */
-  static async createProject(data: ProjectSchemaType, userId: string): Promise<Project> {
+  static async createProject(data: ProjectSchemaType, userId: string): Promise<IProject> {
     try {
       // If AI-generated data is provided, create everything step by step
       if (data.aiGeneratedData) {        
@@ -24,7 +23,7 @@ export class ProjectService {
 
         try {
           // Create schemas
-          const createdSchemas: Schema[] = [];
+          const createdSchemas: ISchema[] = [];
           for (const schemaData of aiGeneratedData.schemas) {
             const createdSchema = await SchemaData.createSchema(
               {
@@ -33,7 +32,7 @@ export class ProjectService {
               },
               project.id
             );
-            createdSchemas.push(createdSchema as Schema);
+            createdSchemas.push(createdSchema as ISchema);
           }
 
           // Create default response wrapper
@@ -52,14 +51,14 @@ export class ProjectService {
           for (const endpointData of aiGeneratedData.endpoints) {
             if(!endpointData.schemaId) {
               throw new AppError(
-                "Schema ID is missing in endpoint data",
+                "ISchema ID is missing in endpoint data",
                 STATUS_CODES.BAD_REQUEST,
                 ERROR_CODES.VALIDATION_ERROR
               );
             }
             
             let schemaId: number | null = null;
-            let schema: Schema | null = null;
+            let schema: ISchema | null = null;
             
             // Find the schema by index (1-based in AI response)
             if (endpointData.schemaId && endpointData.schemaId > 0 && endpointData.schemaId <= createdSchemas.length) {
@@ -78,9 +77,9 @@ export class ProjectService {
               method: endpointData.method,
               description: endpointData.description,
               projectId: project.id,
-              schemaId,
+              schemaId: schemaId || undefined,
               isDataList: endpointData.isDataList || false,
-              numberOfData: endpointData.numberOfData || null,
+              numberOfData: endpointData.numberOfData || undefined,
               responseWrapperId: responseWrapper.id,
               staticResponse: endpointResponse,
             });
@@ -113,7 +112,7 @@ export class ProjectService {
   /**
    * Get a specific project by ID with ownership validation
    */
-  static async getProject(projectId: string, userId: string): Promise<Project> {
+  static async getProject(projectId: string, userId: string): Promise<IProject> {
     try {
       const project = await ProjectData.getProjectByUserAndId(projectId, userId);
       
@@ -133,8 +132,9 @@ export class ProjectService {
 
   /**
    * Get all projects for a user
+   * Returns light version for better performance in list views
    */
-  static async getUserProjects(userId: string): Promise<Project[]> {
+  static async getUserProjects(userId: string): Promise<IProjectLight[]> {
     try {
       return await ProjectData.getUserProjects(userId);
     } catch (error) {
@@ -149,7 +149,7 @@ export class ProjectService {
     projectId: string, 
     data: Partial<ProjectSchemaType>, 
     userId: string
-  ): Promise<Project> {
+  ): Promise<IProject> {
     try {
       // Verify ownership first
       await this.getProject(projectId, userId);

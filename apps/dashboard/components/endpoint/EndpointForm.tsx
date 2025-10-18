@@ -1,7 +1,7 @@
 "use client";
 
 import { useZodForm } from "@/hooks/useZodForm";
-import { Endpoint, HttpMethod } from "@prisma/client";
+import { EHttpMethod } from "@/types";
 import { toast } from "sonner";
 import FormButton from "../form-button";
 import GenericFormField from "../generic-form-field";
@@ -29,9 +29,10 @@ import { SchemaService } from "@/services/schema.service";
 import { stringifyJSON } from "@/lib/utils";
 import JsonViewer from "../json-viewer";
 import { ModelSelector } from "../model-selector";
+import { IEndpoint } from "@/types";
 
 interface EndpointFormProps {
-  endpoint?: Endpoint;
+  endpoint?: IEndpoint;
   onSuccess?: () => void;
 }
 
@@ -74,7 +75,7 @@ export default function EndpointForm({
       : {
           description: "",
           path: "",
-          method: HttpMethod.GET,
+          method: EHttpMethod.GET,
           isDataList: false,
           numberOfData: 3,
           staticResponse: stringifyJSON({

@@ -3,10 +3,10 @@
 import { Badge } from "@/components/ui/badge";
 import { DATA_STR, WRAPPER_DATA_STR } from "@/constants";
 import { formatJSON } from "@/lib/utils";
+import { IResponseWrapper } from "@/types";
 import React, { useCallback } from "react";
-import { ResponseWrapper } from "@prisma/client";
 
-const ResponseWrapperView = ({wrapper}: {wrapper: ResponseWrapper}) => {
+const ResponseWrapperView = ({wrapper}: {wrapper: IResponseWrapper}) => {
   // Function to render JSON with Badge for DATA_STR
   const renderFormattedJson = useCallback(
     (json: any) => {

@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { HttpMethod } from "@prisma/client";
+import { EHttpMethod } from "@/types";
 
 export const EndPointSchema = z.object({
   description: z.string().min(1, "Description is required"),
-  method: z.nativeEnum(HttpMethod),
+  method: z.nativeEnum(EHttpMethod),
   path: z.string().min(1, "Path is required"),
   schemaId: z.union([z.coerce.number().int().positive(), z.literal(undefined)]),
-  isDataList: z.boolean().transform((val) => val ?? false),
-  numberOfData: z.coerce.number().int().positive(),
+  isDataList: z.boolean().transform((val) => val ?? false).nullish(),
+  numberOfData: z.coerce.number().int().positive().nullish(),
   responseWrapperId: z.union([
     z.coerce.number().int().positive(),
     z.literal(undefined),
