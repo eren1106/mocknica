@@ -18,11 +18,11 @@ export async function POST(req: NextRequest) {
       {
         ...validationResult,
         description: validationResult.description!,
-        schemaId: validationResult.schemaId ?? null,
-        responseWrapperId: validationResult.responseWrapperId ?? null,
-        staticResponse: validationResult.staticResponse ?? null,
-        numberOfData: validationResult.numberOfData ?? null,
-        isDataList: validationResult.isDataList ?? false,
+        schemaId: validationResult.schemaId,
+        responseWrapperId: validationResult.responseWrapperId,
+        staticResponse: validationResult.staticResponse,
+        numberOfData: validationResult.numberOfData,
+        isDataList: validationResult.isDataList,
       },
       sessionResult.user.id
     );

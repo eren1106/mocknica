@@ -2,9 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EndpointService } from '../endpoint.service';
 import { SchemaService } from '../schema.service';
 import { ResponseWrapperService } from '../response-wrapper.service';
-import { Endpoint } from '@/models/endpoint.model';
-import { Schema } from '@/models/schema.model';
-import { SchemaFieldType, IdFieldType, HttpMethod } from '@prisma/client';
+import { IEndpoint, ISchema, ESchemaFieldType, EIdFieldType, EHttpMethod } from '@/types';
 
 // Mock the dependencies
 vi.mock('../schema.service');
@@ -18,7 +16,7 @@ describe('EndpointService.getEndpointResponse', () => {
   describe('when endpoint has schema', () => {
     it('should generate response from schema without wrapper', () => {
       // Arrange
-      const mockSchema: Schema = {
+      const mockSchema: ISchema = {
         id: 1,
         name: 'User',
         projectId: 'project1',
@@ -28,43 +26,28 @@ describe('EndpointService.getEndpointResponse', () => {
           {
             id: 1,
             name: 'id',
-            type: SchemaFieldType.ID,
-            idFieldType: IdFieldType.AUTOINCREMENT,
+            type: ESchemaFieldType.ID,
+            idFieldType: EIdFieldType.AUTOINCREMENT,
             schemaId: 1,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayTypeId: null,
-            objectSchema: null,
-            arrayType: null,
           },
           {
             id: 2,
             name: 'name',
-            type: SchemaFieldType.STRING,
-            idFieldType: null,
-            schemaId: 1,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayTypeId: null,
-            objectSchema: null,
-            arrayType: null,
+            type: ESchemaFieldType.STRING,
           }
         ]
       };
 
-      const mockEndpoint: Endpoint = {
+      const mockEndpoint: IEndpoint = {
         id: '1',
         path: '/users',
-        method: HttpMethod.GET,
+        method: EHttpMethod.GET,
         description: 'Get User',
         projectId: 'project1',
         schemaId: 1,
         schema: mockSchema,
-        responseWrapperId: null,
-        responseWrapper: null,
         staticResponse: null,
         isDataList: false,
-        numberOfData: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -87,7 +70,7 @@ describe('EndpointService.getEndpointResponse', () => {
 
     it('should generate list response from schema without wrapper', () => {
       // Arrange
-      const mockSchema: Schema = {
+      const mockSchema: ISchema = {
         id: 1,
         name: 'User',
         projectId: 'project1',
@@ -97,28 +80,22 @@ describe('EndpointService.getEndpointResponse', () => {
           {
             id: 1,
             name: 'id',
-            type: SchemaFieldType.ID,
-            idFieldType: IdFieldType.AUTOINCREMENT,
+            type: ESchemaFieldType.ID,
+            idFieldType: EIdFieldType.AUTOINCREMENT,
             schemaId: 1,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayTypeId: null,
-            objectSchema: null,
-            arrayType: null,
           }
         ]
       };
 
-      const mockEndpoint: Endpoint = {
+      const mockEndpoint: IEndpoint = {
         id: '1',
         path: '/users',
-        method: HttpMethod.GET,
+        method: EHttpMethod.GET,
         description: 'Get Users List',
         projectId: 'project1',
         schemaId: 1,
         schema: mockSchema,
-        responseWrapperId: null,
-        responseWrapper: null,
+        responseWrapper: undefined,
         staticResponse: null,
         isDataList: true,
         numberOfData: 5,
@@ -150,7 +127,7 @@ describe('EndpointService.getEndpointResponse', () => {
 
     it('should generate response from schema with wrapper', () => {
       // Arrange
-      const mockSchema: Schema = {
+      const mockSchema: ISchema = {
         id: 1,
         name: 'User',
         projectId: 'project1',
@@ -160,14 +137,9 @@ describe('EndpointService.getEndpointResponse', () => {
           {
             id: 1,
             name: 'id',
-            type: SchemaFieldType.ID,
-            idFieldType: IdFieldType.AUTOINCREMENT,
+            type: ESchemaFieldType.ID,
+            idFieldType: EIdFieldType.AUTOINCREMENT,
             schemaId: 1,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayTypeId: null,
-            objectSchema: null,
-            arrayType: null,
           }
         ]
       };
@@ -181,10 +153,10 @@ describe('EndpointService.getEndpointResponse', () => {
         updatedAt: new Date(),
       };
 
-      const mockEndpoint: Endpoint = {
+      const mockEndpoint: IEndpoint = {
         id: '1',
         path: '/users',
-        method: HttpMethod.GET,
+        method: EHttpMethod.GET,
         description: 'Get User',
         projectId: 'project1',
         schemaId: 1,
@@ -193,7 +165,6 @@ describe('EndpointService.getEndpointResponse', () => {
         responseWrapper: mockWrapper,
         staticResponse: null,
         isDataList: false,
-        numberOfData: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -226,19 +197,16 @@ describe('EndpointService.getEndpointResponse', () => {
       // Arrange
       const mockStaticResponse = { message: 'Static response' };
 
-      const mockEndpoint: Endpoint = {
+      const mockEndpoint: IEndpoint = {
         id: '1',
         path: '/static',
-        method: HttpMethod.GET,
+        method: EHttpMethod.GET,
         description: 'Static response',
         projectId: 'project1',
-        schemaId: null,
-        schema: null,
-        responseWrapperId: null,
-        responseWrapper: null,
+        schema: undefined,
+        responseWrapper: undefined,
         staticResponse: mockStaticResponse,
         isDataList: false,
-        numberOfData: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -264,19 +232,17 @@ describe('EndpointService.getEndpointResponse', () => {
         updatedAt: new Date(),
       };
 
-      const mockEndpoint: Endpoint = {
+      const mockEndpoint: IEndpoint = {
         id: '1',
         path: '/static',
-        method: HttpMethod.GET,
+        method: EHttpMethod.GET,
         description: 'Static response',
         projectId: 'project1',
-        schemaId: null,
-        schema: null,
+        schema: undefined,
         responseWrapperId: 1,
         responseWrapper: mockWrapper,
         staticResponse: mockStaticResponse,
         isDataList: false,
-        numberOfData: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -301,7 +267,7 @@ describe('EndpointService.getEndpointResponse', () => {
   describe('edge cases', () => {
     it('should handle endpoint with schema but isDataList true and no numberOfData', () => {
       // Arrange
-      const mockSchema: Schema = {
+      const mockSchema: ISchema = {
         id: 1,
         name: 'User',
         projectId: 'project1',
@@ -311,31 +277,24 @@ describe('EndpointService.getEndpointResponse', () => {
           {
             id: 1,
             name: 'id',
-            type: SchemaFieldType.ID,
-            idFieldType: IdFieldType.AUTOINCREMENT,
+            type: ESchemaFieldType.ID,
+            idFieldType: EIdFieldType.AUTOINCREMENT,
             schemaId: 1,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayTypeId: null,
-            objectSchema: null,
-            arrayType: null,
           }
         ]
       };
 
-      const mockEndpoint: Endpoint = {
+      const mockEndpoint: IEndpoint = {
         id: '1',
         path: '/users',
-        method: HttpMethod.GET,
+        method: EHttpMethod.GET,
         description: 'Get Users List',
         projectId: 'project1',
         schemaId: 1,
         schema: mockSchema,
-        responseWrapperId: null,
-        responseWrapper: null,
+        responseWrapper: undefined,
         staticResponse: null,
         isDataList: true,
-        numberOfData: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };

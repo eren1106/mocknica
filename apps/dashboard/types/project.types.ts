@@ -11,7 +11,7 @@ export interface IResponseWrapper {
   id: number;
   name: string;
   json: any; // JSON value type
-  projectId?: string;
+  projectId: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,8 +26,8 @@ export interface IEndpoint {
   schema?: ISchema;
   responseWrapperId?: number;
   responseWrapper?: IResponseWrapper;
-  isDataList?: boolean;
-  numberOfData?: number;
+  isDataList?: boolean | null;
+  numberOfData?: number | null;
   projectId: string;
   createdAt: Date;
   updatedAt: Date;

@@ -2,6 +2,7 @@ import prisma from "@/lib/db";
 import { ProjectSchemaType } from "@/zod-schemas/project.schema";
 import { generateApiToken } from "@/lib/utils";
 import { PrismaIncludes, ProjectWithRelations, ProjectLight } from "./helpers/prisma-includes";
+import { mapProject, mapProjectLight } from "./helpers/type-mappers";
 
 export class ProjectData {
   static async createProject(
@@ -16,47 +17,57 @@ export class ProjectData {
       token: data.isNeedToken ? generateApiToken() : undefined,
     };
 
-    return prisma.project.create({
+    const project = await prisma.project.create({
       data: projectData,
       ...PrismaIncludes.projectInclude,
     });
+    
+    return mapProject(project);
   }
 
   static async getProject(id: string): Promise<ProjectWithRelations | null> {
-    return prisma.project.findUnique({
+    const project = await prisma.project.findUnique({
       where: { id },
       ...PrismaIncludes.projectInclude,
     });
+    
+    return project ? mapProject(project) : null;
   }
 
   static async getAllProjects(userId?: string): Promise<ProjectLight[]> {
-    return prisma.project.findMany({
+    const projects = await prisma.project.findMany({
       where: userId ? { userId } : undefined,
       ...PrismaIncludes.projectLightInclude,
       orderBy: {
         name: "asc",
       },
     });
+    
+    return projects.map(mapProjectLight);
   }
 
   static async getUserProjects(userId: string): Promise<ProjectLight[]> {
-    return prisma.project.findMany({
+    const projects = await prisma.project.findMany({
       where: { userId },
       ...PrismaIncludes.projectLightInclude,
       orderBy: {
         name: "asc",
       },
     });
+    
+    return projects.map(mapProjectLight);
   }
 
   static async getProjectByUserAndId(id: string, userId: string): Promise<ProjectWithRelations | null> {
-    return prisma.project.findFirst({
+    const project = await prisma.project.findFirst({
       where: { 
         id,
         userId 
       },
       ...PrismaIncludes.projectInclude,
     });
+    
+    return project ? mapProject(project) : null;
   }
 
   static async updateProject(
@@ -74,11 +85,13 @@ export class ProjectData {
       token: data.isNeedToken ? (currentProject?.token || generateApiToken()) : null,
     };
 
-    return prisma.project.update({
+    const project = await prisma.project.update({
       where: { id },
       data: updateData,
       ...PrismaIncludes.projectInclude,
     });
+    
+    return mapProject(project);
   }
 
   static async deleteProject(id: string): Promise<void> {

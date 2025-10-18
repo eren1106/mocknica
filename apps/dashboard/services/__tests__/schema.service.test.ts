@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SchemaService } from '../schema.service';
 import { FakerService } from '../faker.service';
-import { Schema } from '@/models/schema.model';
-import { SchemaField } from '@/models/schema-field.model';
-import { SchemaFieldType, IdFieldType, FakerType } from '@prisma/client';
+import { ISchema, ISchemaField } from '@/types/schema.types';
+import { ESchemaFieldType, EIdFieldType, EFakerType } from '@/types/enums';
 
 // Mock the dependencies
 vi.mock('../faker.service');
@@ -13,13 +12,13 @@ describe('SchemaService.generateResponseFromSchema', () => {
     vi.clearAllMocks();
     vi.mocked(FakerService.generateFakerValue).mockImplementation((fakerType) => {
       switch (fakerType) {
-        case FakerType.FIRST_NAME:
+        case EFakerType.FIRST_NAME:
           return 'John';
-        case FakerType.EMAIL:
+        case EFakerType.EMAIL:
           return 'john@example.com';
-        case FakerType.PHONE_NUMBER:
+        case EFakerType.PHONE_NUMBER:
           return '+1234567890';
-        case FakerType.COMPANY_NAME:
+        case EFakerType.COMPANY_NAME:
           return 'Acme Corp';
         default:
           return 'mock-value';
@@ -29,7 +28,7 @@ describe('SchemaService.generateResponseFromSchema', () => {
 
   it('should generate single object response for non-list endpoint', () => {
     // Arrange
-    const mockSchema: Schema = {
+    const mockSchema: ISchema = {
       id: 1,
       name: 'User',
       projectId: 'project1',
@@ -39,42 +38,23 @@ describe('SchemaService.generateResponseFromSchema', () => {
         {
           id: 1,
           name: 'id',
-          type: SchemaFieldType.ID,
-          idFieldType: IdFieldType.AUTOINCREMENT,
+          type: ESchemaFieldType.ID,
+          idFieldType: EIdFieldType.AUTOINCREMENT,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
         {
           id: 2,
           name: 'name',
-          type: SchemaFieldType.STRING,
-          idFieldType: null,
+          type: ESchemaFieldType.STRING,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
         {
           id: 3,
           name: 'email',
-          type: SchemaFieldType.FAKER,
-          fakerType: FakerType.EMAIL,
-          idFieldType: null,
+          type: ESchemaFieldType.FAKER,
+          fakerType: EFakerType.EMAIL,
           schemaId: 1,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        }
       ]
     };
 
@@ -87,12 +67,12 @@ describe('SchemaService.generateResponseFromSchema', () => {
       name: 'string',
       email: 'john@example.com'
     });
-    expect(FakerService.generateFakerValue).toHaveBeenCalledWith(FakerType.EMAIL);
+    expect(FakerService.generateFakerValue).toHaveBeenCalledWith(EFakerType.EMAIL);
   });
 
   it('should generate array response for list endpoint with default count', () => {
     // Arrange
-    const mockSchema: Schema = {
+    const mockSchema: ISchema = {
       id: 1,
       name: 'User',
       projectId: 'project1',
@@ -102,29 +82,17 @@ describe('SchemaService.generateResponseFromSchema', () => {
         {
           id: 1,
           name: 'id',
-          type: SchemaFieldType.ID,
-          idFieldType: IdFieldType.AUTOINCREMENT,
+          type: ESchemaFieldType.ID,
+          idFieldType: EIdFieldType.AUTOINCREMENT,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
         {
           id: 2,
           name: 'name',
-          type: SchemaFieldType.FAKER,
-          fakerType: FakerType.FIRST_NAME,
-          idFieldType: null,
+          type: ESchemaFieldType.FAKER,
+          fakerType: EFakerType.FIRST_NAME,
           schemaId: 1,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
       ]
     };
 
@@ -147,12 +115,12 @@ describe('SchemaService.generateResponseFromSchema', () => {
       name: 'John'
     });
     expect(FakerService.generateFakerValue).toHaveBeenCalledTimes(3);
-    expect(FakerService.generateFakerValue).toHaveBeenCalledWith(FakerType.FIRST_NAME);
+    expect(FakerService.generateFakerValue).toHaveBeenCalledWith(EFakerType.FIRST_NAME);
   });
 
   it('should generate array response with custom numberOfData', () => {
     // Arrange
-    const mockSchema: Schema = {
+    const mockSchema: ISchema = {
       id: 1,
       name: 'User',
       projectId: 'project1',
@@ -162,16 +130,10 @@ describe('SchemaService.generateResponseFromSchema', () => {
         {
           id: 1,
           name: 'id',
-          type: SchemaFieldType.ID,
-          idFieldType: IdFieldType.AUTOINCREMENT,
+          type: ESchemaFieldType.ID,
+          idFieldType: EIdFieldType.AUTOINCREMENT,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
       ]
     };
 
@@ -187,7 +149,7 @@ describe('SchemaService.generateResponseFromSchema', () => {
 
   it('should handle all basic field types correctly', () => {
     // Arrange
-    const mockSchema: Schema = {
+    const mockSchema: ISchema = {
       id: 1,
       name: 'TestSchema',
       projectId: 'project1',
@@ -197,68 +159,45 @@ describe('SchemaService.generateResponseFromSchema', () => {
         {
           id: 1,
           name: 'stringField',
-          type: SchemaFieldType.STRING,
-          idFieldType: null,
+          type: ESchemaFieldType.STRING,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
         {
           id: 2,
           name: 'integerField',
-          type: SchemaFieldType.INTEGER,
-          idFieldType: null,
+          type: ESchemaFieldType.INTEGER,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
         {
           id: 3,
           name: 'floatField',
-          type: SchemaFieldType.FLOAT,
-          idFieldType: null,
+          type: ESchemaFieldType.FLOAT,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
         {
           id: 4,
           name: 'booleanField',
-          type: SchemaFieldType.BOOLEAN,
-          idFieldType: null,
+          type: ESchemaFieldType.BOOLEAN,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
         {
           id: 5,
           name: 'dateField',
-          type: SchemaFieldType.DATE,
-          idFieldType: null,
+          type: ESchemaFieldType.DATE,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
+        {
+          id: 6,
+          name: 'booleanField',
+          type: ESchemaFieldType.BOOLEAN,
+          schemaId: 1,
+        },
+        {
+          id: 7,
+          name: 'dateField',
+          type: ESchemaFieldType.DATE,
+          schemaId: 1,
+        },
       ]
     };
 
@@ -275,7 +214,7 @@ describe('SchemaService.generateResponseFromSchema', () => {
 
   it('should handle UUID ID field type correctly', () => {
     // Arrange
-    const mockSchema: Schema = {
+    const mockSchema: ISchema = {
       id: 1,
       name: 'User',
       projectId: 'project1',
@@ -285,16 +224,10 @@ describe('SchemaService.generateResponseFromSchema', () => {
         {
           id: 1,
           name: 'id',
-          type: SchemaFieldType.ID,
-          idFieldType: IdFieldType.UUID,
+          type: ESchemaFieldType.ID,
+          idFieldType: EIdFieldType.UUID,
           schemaId: 1,
-          fakerType: null,
-          objectSchemaId: null,
-          arrayTypeId: null,
-          objectSchema: null,
-          arrayType: null,
-          objectType: null,
-        } as SchemaField,
+        },
       ]
     };
 
@@ -312,7 +245,7 @@ describe('SchemaService.generateSchemaFieldValue', () => {
     vi.clearAllMocks();
     vi.mocked(FakerService.generateFakerValue).mockImplementation((fakerType) => {
       switch (fakerType) {
-        case FakerType.COMPANY_NAME:
+        case EFakerType.COMPANY_NAME:
           return 'Acme Corp';
         default:
           return 'mock-value';
@@ -325,23 +258,18 @@ describe('SchemaService.generateSchemaFieldValue', () => {
     const field = {
       id: 1,
       name: 'company',
-      type: SchemaFieldType.FAKER,
-      fakerType: FakerType.COMPANY_NAME,
-      idFieldType: null,
+      type: ESchemaFieldType.FAKER,
+      fakerType: EFakerType.COMPANY_NAME,
       schemaId: 1,
-      objectSchemaId: null,
-      arrayTypeId: null,
-      objectSchema: null,
-      arrayType: null,
       objectType: null,
-    } as SchemaField;
+    };
 
     // Act
     const result = SchemaService.generateSchemaFieldValue(field);
 
     // Assert
     expect(result).toBe('Acme Corp');
-    expect(FakerService.generateFakerValue).toHaveBeenCalledWith(FakerType.COMPANY_NAME);
+    expect(FakerService.generateFakerValue).toHaveBeenCalledWith(EFakerType.COMPANY_NAME);
   });
 
   it('should return default values for basic types', () => {
@@ -349,44 +277,37 @@ describe('SchemaService.generateSchemaFieldValue', () => {
     const stringField = {
       id: 1,
       name: 'test',
-      type: SchemaFieldType.STRING,
-      fakerType: null,
-      idFieldType: null,
+      type: ESchemaFieldType.STRING,
       schemaId: 1,
-      objectSchemaId: null,
-      arrayTypeId: null,
-      objectSchema: null,
-      arrayType: null,
-      objectType: null,
-    } as SchemaField;
+    };
     expect(SchemaService.generateSchemaFieldValue(stringField)).toBe('string');
 
     // Test INTEGER
     const intField = {
       ...stringField,
-      type: SchemaFieldType.INTEGER,
-    } as SchemaField;
+      type: ESchemaFieldType.INTEGER,
+    };
     expect(SchemaService.generateSchemaFieldValue(intField)).toBe(1);
 
     // Test FLOAT
     const floatField = {
       ...stringField,
-      type: SchemaFieldType.FLOAT,
-    } as SchemaField;
+      type: ESchemaFieldType.FLOAT,
+    };
     expect(SchemaService.generateSchemaFieldValue(floatField)).toBe(1.0);
 
     // Test BOOLEAN
     const booleanField = {
       ...stringField,
-      type: SchemaFieldType.BOOLEAN,
-    } as SchemaField;
+      type: ESchemaFieldType.BOOLEAN,
+    };
     expect(SchemaService.generateSchemaFieldValue(booleanField)).toBe(true);
 
     // Test DATE
     const dateField = {
       ...stringField,
-      type: SchemaFieldType.DATE,
-    } as SchemaField;
+      type: ESchemaFieldType.DATE,
+    };
     expect(SchemaService.generateSchemaFieldValue(dateField)).toBeInstanceOf(Date);
   });
 
@@ -395,16 +316,10 @@ describe('SchemaService.generateSchemaFieldValue', () => {
     const field = {
       id: 1,
       name: 'id',
-      type: SchemaFieldType.ID,
-      idFieldType: IdFieldType.AUTOINCREMENT,
-      fakerType: null,
+      type: ESchemaFieldType.ID,
+      idFieldType: EIdFieldType.AUTOINCREMENT,
       schemaId: 1,
-      objectSchemaId: null,
-      arrayTypeId: null,
-      objectSchema: null,
-      arrayType: null,
-      objectType: null,
-    } as SchemaField;
+    };
 
     // Act
     const result = SchemaService.generateSchemaFieldValue(field, 42);
@@ -418,16 +333,9 @@ describe('SchemaService.generateSchemaFieldValue', () => {
     const field = {
       id: 1,
       name: 'unknown',
-      type: 'UNKNOWN_TYPE' as SchemaFieldType,
-      fakerType: null,
-      idFieldType: null,
+      type: 'UNKNOWN_TYPE' as ESchemaFieldType,
       schemaId: 1,
-      objectSchemaId: null,
-      arrayTypeId: null,
-      objectSchema: null,
-      arrayType: null,
-      objectType: null,
-    } as SchemaField;
+    };
 
     // Act
     const result = SchemaService.generateSchemaFieldValue(field);

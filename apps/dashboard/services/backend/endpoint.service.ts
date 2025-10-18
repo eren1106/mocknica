@@ -1,10 +1,8 @@
 import { EndpointData } from "@/data/endpoint.data";
-import { Endpoint } from "@/models/endpoint.model";
-import { Endpoint as EndpointPrisma } from "@prisma/client";
+import { IEndpoint, EHttpMethod } from "@/types";
 import { AppError, handlePrismaError } from "@/data/helpers/error-handler";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { ProjectService } from "./project.service";
-import { HttpMethod } from "@prisma/client";
 import { SchemaService as BackendSchemaService } from "./schema.service";
 import { SchemaService } from "../schema.service";
 
@@ -15,7 +13,7 @@ export class EndpointService {
   static async getProjectEndpoints(
     projectId: string,
     userId: string
-  ): Promise<Endpoint[]> {
+  ): Promise<IEndpoint[]> {
     try {
       // Verify project ownership
       const hasAccess = await ProjectService.verifyProjectOwnership(
@@ -39,7 +37,7 @@ export class EndpointService {
   /**
    * Get all endpoints for user's projects
    */
-  static async getUserEndpoints(userId: string): Promise<Endpoint[]> {
+  static async getUserEndpoints(userId: string): Promise<IEndpoint[]> {
     try {
       const userProjects = await ProjectService.getUserProjects(userId);
       const projectIds = userProjects.map((p) => p.id);
@@ -62,7 +60,7 @@ export class EndpointService {
   static async getEndpoint(
     endpointId: string,
     userId: string
-  ): Promise<Endpoint> {
+  ): Promise<IEndpoint> {
     try {
       const endpoint = await EndpointData.getEndpointById(endpointId);
 
@@ -97,9 +95,9 @@ export class EndpointService {
    * Create a new endpoint with project ownership validation
    */
   static async createEndpoint(
-    data: Omit<EndpointPrisma, "id" | "updatedAt" | "createdAt">,
+    data: Omit<IEndpoint, "id" | "updatedAt" | "createdAt">,
     userId: string
-  ): Promise<EndpointPrisma> {
+  ): Promise<IEndpoint> {
     try {
       // Verify project ownership
       await ProjectService.verifyProjectOwnership(data.projectId, userId);
@@ -115,9 +113,9 @@ export class EndpointService {
    */
   static async updateEndpoint(
     endpointId: string,
-    data: Partial<EndpointPrisma>,
+    data: Partial<IEndpoint>,
     userId: string
-  ): Promise<EndpointPrisma> {
+  ): Promise<IEndpoint> {
     try {
       // Verify ownership first
       await this.getEndpoint(endpointId, userId);
@@ -156,7 +154,7 @@ export class EndpointService {
       projectId: string;
     },
     userId: string
-  ): Promise<EndpointPrisma[]> {
+  ): Promise<IEndpoint[]> {
     try {
       // Verify project ownership
       const hasAccess = await ProjectService.verifyProjectOwnership(
@@ -174,41 +172,41 @@ export class EndpointService {
       const { schemaId, basePath, responseWrapperId, projectId } = data;
 
       // Create all CRUD endpoints
-      const endpoints: EndpointPrisma[] = [];
+      const endpoints: IEndpoint[] = [];
 
       // TODO: need add type that follow endpoint schema
       const endpointConfigs = [
         {
           description: `GET ${basePath}`,
-          method: HttpMethod.GET,
+          method: EHttpMethod.GET,
           path: basePath,
           isDataList: true,
           numberOfData: 3,
         },
         {
           description: `GET ${basePath}/:id`,
-          method: HttpMethod.GET,
+          method: EHttpMethod.GET,
           path: `${basePath}/:id`,
           isDataList: false,
           numberOfData: null,
         },
         {
           description: `POST ${basePath}`,
-          method: HttpMethod.POST,
+          method: EHttpMethod.POST,
           path: basePath,
           isDataList: false,
           numberOfData: null,
         },
         {
           description: `PUT ${basePath}/:id`,
-          method: HttpMethod.PUT,
+          method: EHttpMethod.PUT,
           path: `${basePath}/:id`,
           isDataList: false,
           numberOfData: null,
         },
         {
           description: `DELETE ${basePath}/:id`,
-          method: HttpMethod.DELETE,
+          method: EHttpMethod.DELETE,
           path: `${basePath}/:id`,
           isDataList: false,
           numberOfData: null,
@@ -228,7 +226,7 @@ export class EndpointService {
           ...config,
           schemaId,
           staticResponse: generatedResponse,
-          responseWrapperId: responseWrapperId ?? null,
+          responseWrapperId,
           projectId,
         });
         endpoints.push(endpoint);

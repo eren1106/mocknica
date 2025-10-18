@@ -1,14 +1,15 @@
 import prisma from "@/lib/db";
-import { SchemaField } from "@prisma/client";
 import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
 import { PrismaIncludes, SchemaWithFields } from "./helpers/prisma-includes";
+import { ISchemaField } from "@/types";
+import { mapSchema, mapSchemaField } from "./helpers/type-mappers";
 
 export class SchemaData {
   static async createSchema(
     data: SchemaSchemaType,
     projectId: string
   ): Promise<SchemaWithFields> {
-    return prisma.schema.create({
+    const schema = await prisma.schema.create({
       data: {
         name: data.name,
         project: { connect: { id: projectId } },
@@ -38,23 +39,29 @@ export class SchemaData {
       },
       ...PrismaIncludes.schemaInclude,
     });
+    
+    return mapSchema(schema);
   }
 
   static async getSchema(id: number): Promise<SchemaWithFields | null> {
-    return prisma.schema.findUnique({
+    const schema = await prisma.schema.findUnique({
       where: { id },
       ...PrismaIncludes.schemaInclude,
     });
+    
+    return schema ? mapSchema(schema) : null;
   }
 
   static async getAllSchemas(projectId?: string): Promise<SchemaWithFields[]> {
-    return prisma.schema.findMany({
+    const schemas = await prisma.schema.findMany({
       ...(projectId && { where: { projectId } }),
       ...PrismaIncludes.schemaInclude,
       orderBy: {
         name: "asc",
       },
     });
+    
+    return schemas.map(mapSchema);
   }
   
   static async updateSchema(
@@ -67,7 +74,7 @@ export class SchemaData {
     });
 
     // Then update schema with new fields
-    return prisma.schema.update({
+    const schema = await prisma.schema.update({
       where: { id },
       data: {
         name: data.name,
@@ -97,6 +104,8 @@ export class SchemaData {
       },
       ...PrismaIncludes.schemaInclude,
     });
+    
+    return mapSchema(schema);
   }
 
   static async deleteSchema(id: number): Promise<Partial<SchemaWithFields>> {
@@ -106,10 +115,12 @@ export class SchemaData {
     });
   }
 
-  static async removeFieldFromSchema(fieldId: number): Promise<SchemaField> {
-    return prisma.schemaField.delete({
+  static async removeFieldFromSchema(fieldId: number): Promise<ISchemaField> {
+    const field = await prisma.schemaField.delete({
       where: { id: fieldId },
     });
+    
+    return mapSchemaField(field);
   }
 
   // Light version for ownership checks

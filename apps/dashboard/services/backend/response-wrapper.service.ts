@@ -1,5 +1,5 @@
 import { ResponseWrapperData } from "@/data/response-wrapper.data";
-import { ResponseWrapper } from "@prisma/client";
+import { IResponseWrapper } from "@/types";
 import { ResponseWrapperSchemaType } from "@/zod-schemas/response-wrapper.schema";
 import { AppError, handlePrismaError } from "@/data/helpers/error-handler";
 import { STATUS_CODES } from "@/constants/status-codes";
@@ -13,7 +13,7 @@ export class ResponseWrapperService {
     data: ResponseWrapperSchemaType,
     projectId: string,
     userId: string
-  ): Promise<ResponseWrapper> {
+  ): Promise<IResponseWrapper> {
     try {
       // Verify project ownership
       const hasAccess = await ProjectService.verifyProjectOwnership(projectId, userId);
@@ -34,7 +34,7 @@ export class ResponseWrapperService {
   /**
    * Get all response wrappers for a project with ownership validation
    */
-  static async getProjectResponseWrappers(projectId: string, userId: string): Promise<ResponseWrapper[]> {
+  static async getProjectResponseWrappers(projectId: string, userId: string): Promise<IResponseWrapper[]> {
     try {
       // Verify project ownership
       const hasAccess = await ProjectService.verifyProjectOwnership(projectId, userId);
@@ -55,7 +55,7 @@ export class ResponseWrapperService {
   /**
    * Get all response wrappers for user's projects
    */
-  static async getUserResponseWrappers(userId: string): Promise<ResponseWrapper[]> {
+  static async getUserResponseWrappers(userId: string): Promise<IResponseWrapper[]> {
     try {
       const userProjects = await ProjectService.getUserProjects(userId);
       const projectIds = userProjects.map((p: any) => p.id);
@@ -74,7 +74,7 @@ export class ResponseWrapperService {
   /**
    * Get a specific response wrapper with ownership validation
    */
-  static async getResponseWrapper(responseWrapperId: number, userId: string): Promise<ResponseWrapper> {
+  static async getResponseWrapper(responseWrapperId: number, userId: string): Promise<IResponseWrapper> {
     try {
       const responseWrapper = await ResponseWrapperData.getResponseWrapperById(responseWrapperId);
       
@@ -111,7 +111,7 @@ export class ResponseWrapperService {
     responseWrapperId: number,
     data: Partial<ResponseWrapperSchemaType>,
     userId: string
-  ): Promise<ResponseWrapper> {
+  ): Promise<IResponseWrapper> {
     try {
       // Verify ownership first
       await this.getResponseWrapper(responseWrapperId, userId);
@@ -125,7 +125,7 @@ export class ResponseWrapperService {
   /**
    * Delete a response wrapper with ownership validation
    */
-  static async deleteResponseWrapper(responseWrapperId: number, userId: string): Promise<ResponseWrapper> {
+  static async deleteResponseWrapper(responseWrapperId: number, userId: string): Promise<IResponseWrapper> {
     try {
       // Verify ownership first
       await this.getResponseWrapper(responseWrapperId, userId);

@@ -45,7 +45,7 @@ export class EndpointService {
     if (endpoint.schema) {
       response = SchemaService.generateResponseFromSchema(
         endpoint.schema,
-        endpoint.isDataList,
+        endpoint.isDataList ?? false, // Convert null to false
         endpoint.numberOfData || undefined
       );
     } else {
