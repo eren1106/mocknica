@@ -108,3 +108,5 @@ export class ResponseWrapperRepository extends BaseRepository<
     return { id: result.id, projectId: result.projectId };
   }
 }
+
+export const responseWrapperRepository = new ResponseWrapperRepository();

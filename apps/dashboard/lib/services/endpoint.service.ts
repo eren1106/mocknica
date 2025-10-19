@@ -4,12 +4,15 @@ import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { ProjectService } from "./project.service";
 import { SchemaService } from "./schema.service";
+import { endpointRepository as endpointRepo } from "@/lib/repositories";
+import { projectService as projectSvc } from "./project.service";
+import { schemaService as schemaSvc } from "./schema.service";
 
 export class EndpointService {
   constructor(
-    private readonly endpointRepository: EndpointRepository = endpointRepository,
-    private readonly projectService: ProjectService = projectService,
-    private readonly schemaService: SchemaService = schemaService
+    private readonly endpointRepository: EndpointRepository = endpointRepo,
+    private readonly projectService: ProjectService = projectSvc,
+    private readonly schemaService: SchemaService = schemaSvc
   ) {}
 
   /**

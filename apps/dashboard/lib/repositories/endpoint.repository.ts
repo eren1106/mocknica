@@ -109,3 +109,5 @@ export class EndpointRepository extends BaseRepository<
     });
   }
 }
+
+export const endpointRepository = new EndpointRepository();

@@ -165,3 +165,5 @@ export class SchemaRepository extends BaseRepository<
     return { id: result.id, projectId: result.projectId };
   }
 }
+
+export const schemaRepository = new SchemaRepository();

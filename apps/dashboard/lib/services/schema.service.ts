@@ -7,11 +7,13 @@ import { ProjectService } from "./project.service";
 import { IdFieldType, SchemaFieldType } from "@prisma/client";
 import { FakerService } from "@/services/faker.service";
 import { generateUUID } from "@/lib/utils";
+import { schemaRepository as schemaRepo } from "@/lib/repositories";
+import { projectService as projectSvc } from "./project.service";
 
 export class SchemaService {
   constructor(
-    private readonly schemaRepository: SchemaRepository = schemaRepository,
-    private readonly projectService: ProjectService = projectService
+    private readonly schemaRepository: SchemaRepository = schemaRepo,
+    private readonly projectService: ProjectService = projectSvc
   ) {}
 
   /**

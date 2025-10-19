@@ -119,3 +119,5 @@ export class ProjectRepository extends BaseRepository<
     });
   }
 }
+
+export const projectRepository = new ProjectRepository();

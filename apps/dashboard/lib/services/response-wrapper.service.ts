@@ -4,11 +4,13 @@ import { ResponseWrapperRepository } from "@/lib/repositories";
 import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { ProjectService } from "./project.service";
+import { projectService as projectSvc } from "./project.service";
+import { responseWrapperRepository as responseWrapperRepo } from "@/lib/repositories";
 
 export class ResponseWrapperService {
   constructor(
-    private readonly responseWrapperRepository: ResponseWrapperRepository = responseWrapperRepository,
-    private readonly projectService: ProjectService = projectService
+    private readonly responseWrapperRepository: ResponseWrapperRepository = responseWrapperRepo,
+    private readonly projectService: ProjectService = projectSvc
   ) {}
 
   /**
