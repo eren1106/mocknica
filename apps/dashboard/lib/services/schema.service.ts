@@ -1,19 +1,19 @@
 import { ISchema, ISchemaField } from "@/types";
 import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
-import { SchemaRepository } from "@/lib/repositories";
+import { SchemaRepository, ProjectRepository } from "@/lib/repositories";
 import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
-import { ProjectService } from "./project.service";
-import { IdFieldType, SchemaFieldType } from "@prisma/client";
+import { IdFieldType, SchemaFieldType, Prisma } from "@prisma/client";
 import { FakerService } from "@/services/faker.service";
 import { generateUUID } from "@/lib/utils";
-import { schemaRepository as schemaRepo } from "@/lib/repositories";
-import { projectService as projectSvc } from "./project.service";
+import { schemaRepository as schemaRepo, projectRepository as projectRepo } from "@/lib/repositories";
+import { PrismaIncludes } from "@/lib/repositories/prisma-includes";
+import { mapSchema } from "@/lib/repositories/type-mappers";
 
 export class SchemaService {
   constructor(
     private readonly schemaRepository: SchemaRepository = schemaRepo,
-    private readonly projectService: ProjectService = projectSvc
+    private readonly projectRepository: ProjectRepository = projectRepo
   ) {}
 
   /**
@@ -26,7 +26,7 @@ export class SchemaService {
   ): Promise<ISchema> {
     try {
       // Verify project ownership
-      const hasAccess = await this.projectService.verifyProjectOwnership(projectId, userId);
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(projectId, userId);
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
@@ -35,7 +35,43 @@ export class SchemaService {
         );
       }
 
-      return await this.schemaRepository.createSchema(data, projectId);
+      // Convert SchemaSchemaType to Prisma.SchemaCreateInput
+      const schemaData: Prisma.SchemaCreateInput = {
+        name: data.name,
+        project: {
+          connect: { id: projectId },
+        },
+        fields: data.fields
+          ? {
+              create: data.fields.map((field) => ({
+                name: field.name,
+                type: field.type,
+                idFieldType: field.idFieldType ?? null,
+                fakerType: field.fakerType ?? null,
+                objectSchemaId: field.objectSchemaId ?? null,
+                arrayTypeId: field.arrayTypeId ?? null,
+              })),
+            }
+          : undefined,
+      };
+
+      const createdSchema = await this.schemaRepository.create(schemaData);
+      
+      // Fetch with full relations and map to domain type
+      const fullSchema = await this.schemaRepository.findById(
+        createdSchema.id,
+        PrismaIncludes.schemaInclude
+      );
+
+      if (!fullSchema) {
+        throw new AppError(
+          "Failed to retrieve created schema",
+          STATUS_CODES.INTERNAL_SERVER_ERROR,
+          ERROR_CODES.DATABASE_ERROR
+        );
+      }
+
+      return mapSchema(fullSchema);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -47,7 +83,7 @@ export class SchemaService {
   async getProjectSchemas(projectId: string, userId: string): Promise<ISchema[]> {
     try {
       // Verify project ownership
-      const hasAccess = await this.projectService.verifyProjectOwnership(projectId, userId);
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(projectId, userId);
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
@@ -56,7 +92,11 @@ export class SchemaService {
         );
       }
 
-      return await this.schemaRepository.findByProjectId(projectId);
+      const schemas = await this.schemaRepository.findByProjectId(
+        projectId,
+        PrismaIncludes.schemaInclude
+      );
+      return schemas.map(mapSchema);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -67,7 +107,10 @@ export class SchemaService {
    */
   async getSchema(schemaId: number, userId: string): Promise<ISchema> {
     try {
-      const schema = await this.schemaRepository.findById(schemaId);
+      const schema = await this.schemaRepository.findById(
+        schemaId,
+        PrismaIncludes.schemaInclude
+      );
       
       if (!schema) {
         throw new AppError(
@@ -79,7 +122,7 @@ export class SchemaService {
 
       // Verify project ownership if schema has projectId
       if (schema.projectId) {
-        const hasAccess = await this.projectService.verifyProjectOwnership(schema.projectId, userId);
+        const hasAccess = await this.projectRepository.existsByIdAndUserId(schema.projectId, userId);
         if (!hasAccess) {
           throw new AppError(
             "Access denied",
@@ -89,7 +132,7 @@ export class SchemaService {
         }
       }
 
-      return schema;
+      return mapSchema(schema);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -107,7 +150,41 @@ export class SchemaService {
       // Verify ownership first
       await this.getSchema(schemaId, userId);
       
-      return await this.schemaRepository.updateSchema(schemaId, data);
+      // Convert SchemaSchemaType to Prisma.SchemaUpdateInput
+      const schemaData: Prisma.SchemaUpdateInput = {
+        name: data.name,
+        fields: data.fields
+          ? {
+              deleteMany: {}, // Clear existing fields
+              create: data.fields.map((field) => ({
+                name: field.name,
+                type: field.type,
+                idFieldType: field.idFieldType ?? null,
+                fakerType: field.fakerType ?? null,
+                objectSchemaId: field.objectSchemaId ?? null,
+                arrayTypeId: field.arrayTypeId ?? null,
+              })),
+            }
+          : undefined,
+      };
+
+      await this.schemaRepository.update(schemaId.toString(), schemaData);
+      
+      // Fetch with full relations and map to domain type
+      const updatedSchema = await this.schemaRepository.findById(
+        schemaId,
+        PrismaIncludes.schemaInclude
+      );
+
+      if (!updatedSchema) {
+        throw new AppError(
+          "Failed to retrieve updated schema",
+          STATUS_CODES.INTERNAL_SERVER_ERROR,
+          ERROR_CODES.DATABASE_ERROR
+        );
+      }
+
+      return mapSchema(updatedSchema);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -121,7 +198,13 @@ export class SchemaService {
       // Verify ownership first
       await this.getSchema(schemaId, userId);
       
-      return await this.schemaRepository.deleteSchema(schemaId);
+      const deletedSchema = await this.schemaRepository.delete(schemaId.toString());
+      
+      return {
+        id: deletedSchema.id,
+        name: deletedSchema.name,
+        projectId: deletedSchema.projectId ?? undefined,
+      };
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -137,7 +220,7 @@ export class SchemaService {
         return false;
       }
       
-      return await this.projectService.verifyProjectOwnership(schema.projectId, userId);
+      return await this.projectRepository.existsByIdAndUserId(schema.projectId, userId);
     } catch (error) {
       return false;
     }

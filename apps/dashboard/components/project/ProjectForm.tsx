@@ -166,7 +166,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
       } else {
         const projectData = {
           ...data,
-          aiGeneratedData: aiGeneratedData,
+          aiGeneratedData,
         };
 
         await createProject(projectData);

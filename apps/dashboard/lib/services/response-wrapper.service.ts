@@ -1,16 +1,16 @@
 import { IResponseWrapper } from "@/types";
 import { ResponseWrapperSchemaType } from "@/zod-schemas/response-wrapper.schema";
-import { ResponseWrapperRepository } from "@/lib/repositories";
+import { ResponseWrapperRepository, ProjectRepository } from "@/lib/repositories";
 import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
-import { ProjectService } from "./project.service";
-import { projectService as projectSvc } from "./project.service";
-import { responseWrapperRepository as responseWrapperRepo } from "@/lib/repositories";
+import { Prisma } from "@prisma/client";
+import { responseWrapperRepository as responseWrapperRepo, projectRepository as projectRepo } from "@/lib/repositories";
+import { mapResponseWrapper } from "@/lib/repositories/type-mappers";
 
 export class ResponseWrapperService {
   constructor(
     private readonly responseWrapperRepository: ResponseWrapperRepository = responseWrapperRepo,
-    private readonly projectService: ProjectService = projectSvc
+    private readonly projectRepository: ProjectRepository = projectRepo
   ) {}
 
   /**
@@ -23,7 +23,7 @@ export class ResponseWrapperService {
   ): Promise<IResponseWrapper> {
     try {
       // Verify project ownership
-      const hasAccess = await this.projectService.verifyProjectOwnership(projectId, userId);
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(projectId, userId);
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
@@ -32,7 +32,17 @@ export class ResponseWrapperService {
         );
       }
 
-      return await this.responseWrapperRepository.createWrapper(data, projectId);
+      // Convert to Prisma input
+      const wrapperData: Prisma.ResponseWrapperCreateInput = {
+        name: data.name,
+        json: data.json ?? Prisma.JsonNull,
+        project: {
+          connect: { id: projectId },
+        },
+      };
+
+      const createdWrapper = await this.responseWrapperRepository.create(wrapperData);
+      return mapResponseWrapper(createdWrapper);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -44,7 +54,7 @@ export class ResponseWrapperService {
   async getProjectResponseWrappers(projectId: string, userId: string): Promise<IResponseWrapper[]> {
     try {
       // Verify project ownership
-      const hasAccess = await this.projectService.verifyProjectOwnership(projectId, userId);
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(projectId, userId);
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
@@ -53,7 +63,8 @@ export class ResponseWrapperService {
         );
       }
 
-      return await this.responseWrapperRepository.findByProjectId(projectId);
+      const wrappers = await this.responseWrapperRepository.findByProjectId(projectId);
+      return wrappers.map(mapResponseWrapper);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -64,7 +75,7 @@ export class ResponseWrapperService {
    */
   async getUserResponseWrappers(userId: string): Promise<IResponseWrapper[]> {
     try {
-      const userProjects = await this.projectService.getUserProjects(userId);
+      const userProjects = await this.projectRepository.findByUserId(userId);
       const projectIds = userProjects.map((p) => p.id);
       
       if (projectIds.length === 0) {
@@ -72,7 +83,8 @@ export class ResponseWrapperService {
       }
 
       // Get all response wrappers for user's projects efficiently
-      return await this.responseWrapperRepository.findByProjectIds(projectIds);
+      const wrappers = await this.responseWrapperRepository.findByProjectIds(projectIds);
+      return wrappers.map(mapResponseWrapper);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -95,7 +107,7 @@ export class ResponseWrapperService {
 
       // Verify project ownership if the response wrapper has a projectId
       if (responseWrapper.projectId) {
-        const hasAccess = await this.projectService.verifyProjectOwnership(responseWrapper.projectId, userId);
+        const hasAccess = await this.projectRepository.existsByIdAndUserId(responseWrapper.projectId, userId);
         if (!hasAccess) {
           throw new AppError(
             "Access denied",
@@ -105,7 +117,7 @@ export class ResponseWrapperService {
         }
       }
 
-      return responseWrapper;
+      return mapResponseWrapper(responseWrapper);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -123,7 +135,28 @@ export class ResponseWrapperService {
       // Verify ownership first
       await this.getResponseWrapper(responseWrapperId, userId);
       
-      return await this.responseWrapperRepository.updateWrapper(responseWrapperId, data);
+      // Convert to Prisma input
+      const updateData: Prisma.ResponseWrapperUpdateInput = {};
+      if (data.name !== undefined) {
+        updateData.name = data.name;
+      }
+      if (data.json !== undefined) {
+        updateData.json = data.json ?? Prisma.JsonNull;
+      }
+
+      await this.responseWrapperRepository.update(responseWrapperId.toString(), updateData);
+      
+      // Fetch updated wrapper
+      const updatedWrapper = await this.responseWrapperRepository.findById(responseWrapperId);
+      if (!updatedWrapper) {
+        throw new AppError(
+          "Failed to retrieve updated response wrapper",
+          STATUS_CODES.INTERNAL_SERVER_ERROR,
+          ERROR_CODES.DATABASE_ERROR
+        );
+      }
+
+      return mapResponseWrapper(updatedWrapper);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -137,7 +170,8 @@ export class ResponseWrapperService {
       // Verify ownership first
       await this.getResponseWrapper(responseWrapperId, userId);
       
-      return await this.responseWrapperRepository.deleteWrapper(responseWrapperId);
+      const deletedWrapper = await this.responseWrapperRepository.delete(responseWrapperId.toString());
+      return mapResponseWrapper(deletedWrapper);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -148,12 +182,12 @@ export class ResponseWrapperService {
    */
   async verifyResponseWrapperAccess(responseWrapperId: number, userId: string): Promise<boolean> {
     try {
-      const ownership = await this.responseWrapperRepository.getOwnership(responseWrapperId);
-      if (!ownership) {
+      const wrapper = await this.responseWrapperRepository.findById(responseWrapperId);
+      if (!wrapper || !wrapper.projectId) {
         return false;
       }
 
-      return await this.projectService.verifyProjectOwnership(ownership.projectId, userId);
+      return await this.projectRepository.existsByIdAndUserId(wrapper.projectId, userId);
     } catch (error) {
       return false;
     }

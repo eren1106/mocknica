@@ -105,8 +105,10 @@ describe('Mock API Route Handler', () => {
       
       expect(response).toBeDefined();
       expect(mockEndpointRepository.findMany).toHaveBeenCalledWith({
-        method: 'POST', 
-        projectId: 'project-1'
+        where: {
+          method: 'POST', 
+          projectId: 'project-1'
+        }
       });
     });
 
@@ -119,8 +121,10 @@ describe('Mock API Route Handler', () => {
       await PUT(request, { params });
       
       expect(mockEndpointRepository.findMany).toHaveBeenCalledWith({
-        method: 'PUT', 
-        projectId: 'project-1'
+        where: {
+          method: 'PUT', 
+          projectId: 'project-1'
+        }
       });
     });
 
@@ -133,8 +137,10 @@ describe('Mock API Route Handler', () => {
       await DELETE(request, { params });
       
       expect(mockEndpointRepository.findMany).toHaveBeenCalledWith({
-        method: 'DELETE', 
-        projectId: 'project-1'
+        where: {
+          method: 'DELETE', 
+          projectId: 'project-1'
+        }
       });
     });
 
@@ -147,8 +153,10 @@ describe('Mock API Route Handler', () => {
       await PATCH(request, { params });
       
       expect(mockEndpointRepository.findMany).toHaveBeenCalledWith({
-        method: 'PATCH', 
-        projectId: 'project-1'
+        where: {
+          method: 'PATCH', 
+          projectId: 'project-1'
+        }
       });
     });
   });
