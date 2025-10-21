@@ -1,6 +1,8 @@
 import { Prisma, Endpoint, Schema, SchemaField, ResponseWrapper } from "@prisma/client";
 import { BaseRepository } from "./base.repository";
 import prisma from "../db";
+import { IEndpoint } from "@/types";
+import { mapEndpoint } from "./type-mappers";
 
 // Define the Prisma entity type with relations
 type EndpointWithRelations = Endpoint & {
@@ -14,14 +16,19 @@ export class EndpointRepository extends BaseRepository<
   Prisma.EndpointCreateManyInput,
   Prisma.EndpointUpdateInput,
   Prisma.EndpointWhereInput,
-  Prisma.EndpointWhereUniqueInput
+  Prisma.EndpointWhereUniqueInput,
+  IEndpoint // MappedType
 > {
   protected delegate = prisma.endpoint;
+  
+  constructor() {
+    super(mapEndpoint);
+  }
 
   /**
    * Find endpoints by project ID
    */
-  async findByProjectId(projectId: string, options?: { select?: Prisma.EndpointSelect; include?: Prisma.EndpointInclude }): Promise<EndpointWithRelations[]> {
+  async findByProjectId(projectId: string, options?: { select?: Prisma.EndpointSelect; include?: Prisma.EndpointInclude }): Promise<IEndpoint[]> {
     return this.findMany({
       where: { projectId },
       ...options,
@@ -32,7 +39,7 @@ export class EndpointRepository extends BaseRepository<
   /**
    * Find endpoints by multiple project IDs
    */
-  async findByProjectIds(projectIds: string[], options?: { select?: Prisma.EndpointSelect; include?: Prisma.EndpointInclude }): Promise<EndpointWithRelations[]> {
+  async findByProjectIds(projectIds: string[], options?: { select?: Prisma.EndpointSelect; include?: Prisma.EndpointInclude }): Promise<IEndpoint[]> {
     return this.findMany({
       where: { projectId: { in: projectIds } },
       ...options,

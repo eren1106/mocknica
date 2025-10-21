@@ -1,8 +1,7 @@
-import { IProject, IProjectLight, ISchema } from "@/types";
+import { IProject, ISchema } from "@/types";
 import { ProjectSchemaType } from "@/zod-schemas/project.schema";
 import { projectRepository as projectRepo, ProjectRepository, schemaRepository as schemaRepo, SchemaRepository, endpointRepository as endpointRepo, EndpointRepository, responseWrapperRepository as responseWrapperRepo, ResponseWrapperRepository } from "@/lib/repositories";
 import { PrismaIncludes } from "@/lib/repositories/prisma-includes";
-import { mapProject, mapProjectLight, mapSchema } from "@/lib/repositories/type-mappers";
 import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { generateApiToken } from "@/lib/utils";
@@ -67,7 +66,7 @@ export class ProjectService {
             );
             
             if (fullSchema) {
-              createdSchemas.push(mapSchema(fullSchema));
+              createdSchemas.push(fullSchema);
             }
           }
 
@@ -133,7 +132,7 @@ export class ProjectService {
             throw new AppError("Failed to retrieve created project", STATUS_CODES.INTERNAL_SERVER_ERROR, ERROR_CODES.INTERNAL_ERROR);
           }
 
-          return mapProject(fullProject);
+          return fullProject;
         } catch (aiError) {
           // If AI data creation fails, delete the project to maintain consistency
           await this.projectRepository.delete(createdProject.id);
@@ -156,7 +155,7 @@ export class ProjectService {
         throw new AppError("Failed to create project", STATUS_CODES.INTERNAL_SERVER_ERROR, ERROR_CODES.INTERNAL_ERROR);
       }
 
-      return mapProject(createdProject);
+      return createdProject;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -177,7 +176,7 @@ export class ProjectService {
         );
       }
 
-      return mapProject(project);
+      return project;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -187,10 +186,9 @@ export class ProjectService {
    * Get all projects for a user
    * Returns light version for better performance in list views
    */
-  async getUserProjects(userId: string): Promise<IProjectLight[]> {
+  async getUserProjects(userId: string): Promise<IProject[]> {
     try {
-      const projects = await this.projectRepository.findByUserId(userId, PrismaIncludes.projectLightInclude);
-      return projects.map(mapProjectLight);
+      return await this.projectRepository.findByUserId(userId, PrismaIncludes.projectInclude);
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -218,14 +216,17 @@ export class ProjectService {
           : undefined,
       };
 
-      const entity = await this.projectRepository.update(projectId, updateData);
-      const fullProject = await this.projectRepository.findById(entity.id, PrismaIncludes.projectInclude);
+      const updatedProject = await this.projectRepository.update(
+        projectId, 
+        updateData,
+        // PrismaIncludes.projectInclude
+      );
       
-      if (!fullProject) {
+      if (!updatedProject) {
         throw new AppError("Failed to update project", STATUS_CODES.INTERNAL_SERVER_ERROR, ERROR_CODES.INTERNAL_ERROR);
       }
 
-      return mapProject(fullProject);
+      return updatedProject;
     } catch (error) {
       throw handlePrismaError(error);
     }

@@ -8,7 +8,6 @@ import { FakerService } from "@/services/faker.service";
 import { generateUUID } from "@/lib/utils";
 import { schemaRepository as schemaRepo, projectRepository as projectRepo } from "@/lib/repositories";
 import { PrismaIncludes } from "@/lib/repositories/prisma-includes";
-import { mapSchema } from "@/lib/repositories/type-mappers";
 
 export class SchemaService {
   constructor(
@@ -71,7 +70,7 @@ export class SchemaService {
         );
       }
 
-      return mapSchema(fullSchema);
+      return fullSchema;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -96,7 +95,7 @@ export class SchemaService {
         projectId,
         PrismaIncludes.schemaInclude
       );
-      return schemas.map(mapSchema);
+      return schemas;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -132,7 +131,7 @@ export class SchemaService {
         }
       }
 
-      return mapSchema(schema);
+      return schema;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -184,7 +183,7 @@ export class SchemaService {
         );
       }
 
-      return mapSchema(updatedSchema);
+      return updatedSchema;
     } catch (error) {
       throw handlePrismaError(error);
     }

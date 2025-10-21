@@ -27,55 +27,71 @@ export abstract class BaseRepository<
   CreateManyInput = Prisma.JsonObject,
   UpdateInput = Prisma.JsonObject,
   WhereInput = Prisma.JsonObject,
-  WhereUniqueInput = { id: string }
-> implements IBaseRepository<T> {
+  WhereUniqueInput = { id: string },
+  MappedType = T
+> implements IBaseRepository<T, MappedType> {
   protected abstract delegate: DelegateOperations<T, CreateInput, CreateManyInput, UpdateInput, WhereInput, WhereUniqueInput>;
+  
+  /**
+   * Optional mapper function to convert Prisma entities to domain types
+   * Override this in child repositories to enable mapped methods
+   */
+  protected mapper: (entity: T) => MappedType;
 
+  constructor(mapper: (entity: T) => MappedType) {
+    this.mapper = mapper;
+  }
   /**
    * Find a single record by ID
    * @param id - The ID of the record
    * @param options - Optional include/select options
    */
-  async findById(id: string | number, options?: BaseFindOptions): Promise<T | null> {
-    return this.delegate.findUnique({
+  async findById(id: string | number, options?: BaseFindOptions): Promise<MappedType | null> {
+    const entity = await this.delegate.findUnique({
       where: { id } as WhereUniqueInput,
       ...options,
     });
+    return entity ? this.mapper(entity) : null;
   }
 
   /**
    * Find multiple records with optional filtering, pagination, and relations
    * @param options - Query options (where, include, select, pagination, etc.)
    */
-  async findMany(options?: FindManyOptions): Promise<T[]> {
-    return this.delegate.findMany(options);
+  async findMany(options?: FindManyOptions): Promise<MappedType[]> {
+    const entities = await this.delegate.findMany(options);
+    return entities.map(this.mapper);
   }
 
   /**
    * Find the first record matching the criteria
    * @param options - Query options
    */
-  async findFirst(options?: FindManyOptions): Promise<T | null> {
-    return this.delegate.findFirst(options);
+  async findFirst(options?: FindManyOptions): Promise<MappedType | null> {
+    const entity = await this.delegate.findFirst(options);
+    return entity ? this.mapper(entity) : null;
   }
 
   /**
    * Create a new record
    * @param data - The data to create the record with
    */
-  async create(data: CreateInput): Promise<T> {
-    return this.delegate.create({ data });
+  async create(data: CreateInput, options?: BaseFindOptions): Promise<MappedType> {
+    const entity = await this.delegate.create({ data, ...options });
+    return this.mapper(entity);
   }
 
   /**
    * Create multiple records at once
    * @param data - Array of data to create records with
    */
-  async createMany(data: CreateManyInput[]): Promise<Prisma.BatchPayload> {
-    return this.delegate.createMany({
+  async createMany(data: CreateManyInput[], options?: FindManyOptions): Promise<Prisma.BatchPayload> {
+    const entities = await this.delegate.createMany({
       data,
       skipDuplicates: true,
+      ...options,
     });
+    return entities;
   }
 
   /**
@@ -83,11 +99,13 @@ export abstract class BaseRepository<
    * @param id - The ID of the record to update
    * @param data - The data to update
    */
-  async update(id: string, data: UpdateInput): Promise<T> {
-    return this.delegate.update({
+  async update(id: string, data: UpdateInput, options?: BaseFindOptions): Promise<MappedType> {
+    const entity = await this.delegate.update({
       where: { id } as WhereUniqueInput,
       data,
+      ...options,
     });
+    return this.mapper(entity);
   }
 
   /**
@@ -95,10 +113,11 @@ export abstract class BaseRepository<
    * @param where - Filter criteria
    * @param data - The data to update
    */
-  async updateMany(where: WhereInput, data: UpdateInput): Promise<Prisma.BatchPayload> {
+  async updateMany(where: WhereInput, data: UpdateInput, options?: BaseFindOptions): Promise<Prisma.BatchPayload> {
     return this.delegate.updateMany({
       where,
       data,
+      ...options,
     });
   }
 
@@ -106,18 +125,20 @@ export abstract class BaseRepository<
    * Delete a record by ID
    * @param id - The ID of the record to delete
    */
-  async delete(id: string): Promise<T> {
-    return this.delegate.delete({
+  async delete(id: string, options?: BaseFindOptions): Promise<MappedType> {
+    const entity = await this.delegate.delete({
       where: { id } as WhereUniqueInput,
+      ...options,
     });
+    return this.mapper(entity);
   }
 
   /**
    * Delete multiple records matching the criteria
    * @param where - Filter criteria
    */
-  async deleteMany(where: WhereInput): Promise<Prisma.BatchPayload> {
-    return this.delegate.deleteMany({ where });
+  async deleteMany(where: WhereInput, options?: BaseFindOptions): Promise<Prisma.BatchPayload> {
+    return this.delegate.deleteMany({ where, ...options });
   }
 
   /**
@@ -143,12 +164,13 @@ export abstract class BaseRepository<
    * @param create - Data to use if creating
    * @param update - Data to use if updating
    */
-  async upsert(where: WhereUniqueInput, create: CreateInput, update: UpdateInput): Promise<T> {
-    return this.delegate.upsert({
+  async upsert(where: WhereUniqueInput, create: CreateInput, update: UpdateInput): Promise<MappedType> {
+    const entity = await this.delegate.upsert({
       where,
       create,
       update,
     });
+    return this.mapper(entity);
   }
 
   /**

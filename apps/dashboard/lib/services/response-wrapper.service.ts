@@ -5,7 +5,6 @@ import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { Prisma } from "@prisma/client";
 import { responseWrapperRepository as responseWrapperRepo, projectRepository as projectRepo } from "@/lib/repositories";
-import { mapResponseWrapper } from "@/lib/repositories/type-mappers";
 
 export class ResponseWrapperService {
   constructor(
@@ -42,7 +41,7 @@ export class ResponseWrapperService {
       };
 
       const createdWrapper = await this.responseWrapperRepository.create(wrapperData);
-      return mapResponseWrapper(createdWrapper);
+      return createdWrapper;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -64,7 +63,7 @@ export class ResponseWrapperService {
       }
 
       const wrappers = await this.responseWrapperRepository.findByProjectId(projectId);
-      return wrappers.map(mapResponseWrapper);
+      return wrappers;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -84,7 +83,7 @@ export class ResponseWrapperService {
 
       // Get all response wrappers for user's projects efficiently
       const wrappers = await this.responseWrapperRepository.findByProjectIds(projectIds);
-      return wrappers.map(mapResponseWrapper);
+      return wrappers;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -117,7 +116,7 @@ export class ResponseWrapperService {
         }
       }
 
-      return mapResponseWrapper(responseWrapper);
+      return responseWrapper;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -156,7 +155,7 @@ export class ResponseWrapperService {
         );
       }
 
-      return mapResponseWrapper(updatedWrapper);
+      return updatedWrapper;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -171,7 +170,7 @@ export class ResponseWrapperService {
       await this.getResponseWrapper(responseWrapperId, userId);
       
       const deletedWrapper = await this.responseWrapperRepository.delete(responseWrapperId.toString());
-      return mapResponseWrapper(deletedWrapper);
+      return deletedWrapper;
     } catch (error) {
       throw handlePrismaError(error);
     }

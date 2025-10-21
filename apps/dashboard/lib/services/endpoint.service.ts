@@ -1,7 +1,6 @@
 import { IEndpoint } from "@/types";
 import { EndpointRepository, ProjectRepository, SchemaRepository } from "@/lib/repositories";
 import { PrismaIncludes } from "@/lib/repositories/prisma-includes";
-import { mapEndpoint, mapSchema } from "@/lib/repositories/type-mappers";
 import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { endpointRepository as endpointRepo, projectRepository as projectRepo, schemaRepository as schemaRepo } from "@/lib/repositories";
@@ -34,7 +33,7 @@ export class EndpointService {
       }
 
       const entities = await this.endpointRepository.findByProjectId(projectId, PrismaIncludes.endpointInclude);
-      return entities.map(mapEndpoint);
+      return entities;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -53,7 +52,7 @@ export class EndpointService {
       }
 
       const entities = await this.endpointRepository.findByProjectIds(projectIds, PrismaIncludes.endpointInclude);
-      return entities.map(mapEndpoint);
+      return entities;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -87,7 +86,7 @@ export class EndpointService {
         );
       }
 
-      return mapEndpoint(endpoint);
+      return endpoint;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -125,13 +124,12 @@ export class EndpointService {
       };
 
       const entity = await this.endpointRepository.create(endpointData);
-      const fullEndpoint = await this.endpointRepository.findById(entity.id, PrismaIncludes.endpointInclude);
       
-      if (!fullEndpoint) {
+      if (!entity) {
         throw new AppError("Failed to create endpoint", STATUS_CODES.INTERNAL_SERVER_ERROR, ERROR_CODES.INTERNAL_ERROR);
       }
 
-      return mapEndpoint(fullEndpoint);
+      return entity;
     } catch (error) {
       throw handlePrismaError(error);
     }
@@ -170,18 +168,15 @@ export class EndpointService {
         );
       }
 
-      // Map to domain type to ensure type safety
-      const mappedSchema = mapSchema(schema);
-
       // Create CRUD endpoints
       const basePath = data.basePath.startsWith('/') ? data.basePath : `/${data.basePath}`;
-      const singleResponse = SchemaService.generateResponseFromSchema(mappedSchema, false, 1);
-      const listResponse = SchemaService.generateResponseFromSchema(mappedSchema, true, 3);
+      const singleResponse = SchemaService.generateResponseFromSchema(schema, false, 1);
+      const listResponse = SchemaService.generateResponseFromSchema(schema, true, 3);
       const endpoints: Prisma.EndpointCreateInput[] = [
         {
           path: basePath,
           method: HttpMethod.GET,
-          description: `Get all ${mappedSchema.name}`,
+          description: `Get all ${schema.name}`,
           isDataList: true,
           numberOfData: 3,
           staticResponse: listResponse,
@@ -192,7 +187,7 @@ export class EndpointService {
         {
           path: `${basePath}/:id`,
           method: HttpMethod.GET,
-          description: `Get ${mappedSchema.name} by ID`,
+          description: `Get ${schema.name} by ID`,
           isDataList: false,
           staticResponse: singleResponse,
           project: { connect: { id: data.projectId } },
@@ -202,7 +197,7 @@ export class EndpointService {
         {
           path: basePath,
           method: HttpMethod.POST,
-          description: `Create new ${mappedSchema.name}`,
+          description: `Create new ${schema.name}`,
           isDataList: false,
           staticResponse: singleResponse,
           project: { connect: { id: data.projectId } },
@@ -212,7 +207,7 @@ export class EndpointService {
         {
           path: `${basePath}/:id`,
           method: HttpMethod.PUT,
-          description: `Update ${mappedSchema.name}`,
+          description: `Update ${schema.name}`,
           isDataList: false,
           staticResponse: singleResponse,
           project: { connect: { id: data.projectId } },
@@ -222,7 +217,7 @@ export class EndpointService {
         {
           path: `${basePath}/:id`,
           method: HttpMethod.DELETE,
-          description: `Delete ${mappedSchema.name}`,
+          description: `Delete ${schema.name}`,
           isDataList: false,
           staticResponse: singleResponse,
           project: { connect: { id: data.projectId } },
@@ -235,10 +230,9 @@ export class EndpointService {
       const createdEndpoints: IEndpoint[] = [];
       for (const endpointData of endpoints) {
         const entity = await this.endpointRepository.create(endpointData);
-        const fullEndpoint = await this.endpointRepository.findById(entity.id, PrismaIncludes.endpointInclude);
         
-        if (fullEndpoint) {
-          createdEndpoints.push(mapEndpoint(fullEndpoint));
+        if (entity) {
+          createdEndpoints.push(entity);
         }
       }
 
@@ -275,13 +269,12 @@ export class EndpointService {
       };
 
       const entity = await this.endpointRepository.update(endpointId, updateData);
-      const fullEndpoint = await this.endpointRepository.findById(entity.id, PrismaIncludes.endpointInclude);
       
-      if (!fullEndpoint) {
+      if (!entity) {
         throw new AppError("Failed to update endpoint", STATUS_CODES.INTERNAL_SERVER_ERROR, ERROR_CODES.INTERNAL_ERROR);
       }
 
-      return mapEndpoint(fullEndpoint);
+      return entity;
     } catch (error) {
       throw handlePrismaError(error);
     }

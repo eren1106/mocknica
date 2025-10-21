@@ -7,7 +7,6 @@ import { IEndpoint } from "@/types";
 import { EndpointService } from "@/services/endpoint.service";
 import { QueryParamsHelper } from "@/helpers/query-params";
 import { ProjectRepository, EndpointRepository } from "@/lib/repositories";
-import { mapEndpoint } from "@/lib/repositories/type-mappers";
 
 // Use repositories directly for mock API (no auth needed)
 const projectRepository = new ProjectRepository();
@@ -139,15 +138,12 @@ async function handleRequest(
 
     // Find matching endpoint by checking if the request path matches the endpoint path pattern
     // and belongs to the specified project
-    const endpointsFromDb = await endpointRepository.findMany({
+    const endpoints = await endpointRepository.findMany({
       where: {
         method,
         projectId,
       },
     });
-
-    // Map Prisma entities to domain types
-    const endpoints = endpointsFromDb.map(mapEndpoint);
 
     // Find the best matching endpoint and extract ID if present
     let matchingEndpoint: IEndpoint | null = null;
