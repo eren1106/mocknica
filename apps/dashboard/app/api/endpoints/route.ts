@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 import { apiResponse, errorResponse } from '../_helpers/api-response';
 import { requireAuth } from '../_helpers/auth-guards';
 import { validateRequestBody, validateQueryParams } from '../_helpers/validation';
-import { EndpointService } from '@/services/backend/endpoint.service';
+import { endpointService } from '@/lib/services';
 import { EndpointSchemaBackend, GetEndpointsQuerySchema } from '@/zod-schemas/endpoint.schema';
 
 export async function POST(req: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const validationResult = await validateRequestBody(req, EndpointSchemaBackend);
     if (validationResult instanceof Response) return validationResult;
 
-    const endpoint = await EndpointService.createEndpoint(
+    const endpoint = await endpointService.createEndpoint(
       {
         ...validationResult,
         description: validationResult.description!,
@@ -45,10 +45,10 @@ export async function GET(req: NextRequest) {
     const { projectId } = queryValidation;
 
     if (projectId) {
-      const endpoints = await EndpointService.getProjectEndpoints(projectId, sessionResult.user.id);
+      const endpoints = await endpointService.getProjectEndpoints(projectId, sessionResult.user.id);
       return apiResponse(req, { data: endpoints });
     } else {
-      const endpoints = await EndpointService.getUserEndpoints(sessionResult.user.id);
+      const endpoints = await endpointService.getUserEndpoints(sessionResult.user.id);
       return apiResponse(req, { data: endpoints });
     }
   } catch (error) {

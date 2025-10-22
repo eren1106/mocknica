@@ -2,7 +2,7 @@ import { apiResponse, errorResponse } from '../../_helpers/api-response';
 import { NextRequest } from 'next/server';
 import { requireAuth } from '../../_helpers/auth-guards';
 import { validateRequestBody } from '../../_helpers/validation';
-import { ResponseWrapperService } from '@/services/backend/response-wrapper.service';
+import { responseWrapperService } from '@/lib/services';
 import { ResponseWrapperSchema } from '@/zod-schemas/response-wrapper.schema';
 import { WRAPPER_DATA_STR } from '@/constants';
 
@@ -22,7 +22,7 @@ export async function GET(
       return errorResponse(req, { error: 'Invalid ID', statusCode: 400 });
     }
 
-    const wrapper = await ResponseWrapperService.getResponseWrapper(
+    const wrapper = await responseWrapperService.getResponseWrapper(
       parsedId,
       sessionResult.user.id
     );
@@ -57,7 +57,7 @@ export async function PUT(
     });
     if (validationResult instanceof Response) return validationResult;
 
-    const wrapper = await ResponseWrapperService.updateResponseWrapper(
+    const wrapper = await responseWrapperService.updateResponseWrapper(
       parsedId,
       {
         name: validationResult.name,
@@ -88,7 +88,7 @@ export async function DELETE(
       return errorResponse(req, { error: 'Invalid ID', statusCode: 400 });
     }
 
-    const data = await ResponseWrapperService.deleteResponseWrapper(
+    const data = await responseWrapperService.deleteResponseWrapper(
       parsedId,
       sessionResult.user.id
     );

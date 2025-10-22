@@ -29,6 +29,7 @@ export class SchemaService {
     await apiRequest.delete(`schema/${id}`);
   }
 
+  // TODO: move this function to helpers file
   static generateSchemaFieldValue(
     field: ISchemaField,
     dataId?: number | string
@@ -91,6 +92,7 @@ export class SchemaService {
     }
   }
 
+  // TODO: move this function to helpers file
   static generateResponseFromSchema(
     schema: ISchema,
     isList: boolean = false,

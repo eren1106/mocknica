@@ -1,19 +1,52 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { NextRequest, NextResponse } from 'next/server';
-import { GET, POST, PUT, DELETE, PATCH } from './route';
-import { ProjectData } from '@/data/project.data';
-import { EndpointData } from '@/data/endpoint.data';
-import { EndpointService } from '@/services/endpoint.service';
-import { QueryParamsHelper } from '@/helpers/query-params';
-import { errorResponse } from '../../../_helpers/api-response';
 import { TestDataFactory } from './test-utils';
 
-// Mock all dependencies
-vi.mock('@/data/project.data');
-vi.mock('@/data/endpoint.data');
+// Create mock instances BEFORE any imports (using vi.hoisted)
+const { mockProjectRepository, mockEndpointRepository, ProjectRepository, EndpointRepository } = vi.hoisted(() => {
+  const mockProjectRepository = {
+    findById: vi.fn(),
+    findByIdAndUserId: vi.fn(),
+    findByUserId: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  };
+
+  const mockEndpointRepository = {
+    findById: vi.fn(),
+    findMany: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  };
+
+  // Create mock constructors that return our mock instances
+  const ProjectRepository = vi.fn(() => mockProjectRepository);
+  const EndpointRepository = vi.fn(() => mockEndpointRepository);
+
+  return {
+    mockProjectRepository,
+    mockEndpointRepository,
+    ProjectRepository,
+    EndpointRepository,
+  };
+});
+
+// Mock all dependencies BEFORE importing the route
+vi.mock('@/lib/repositories', () => ({
+  ProjectRepository,
+  EndpointRepository,
+}));
 vi.mock('@/services/endpoint.service');
 vi.mock('@/helpers/query-params');
 vi.mock('../../../_helpers/api-response');
+
+// NOW import the route handlers (after mocks are set up)
+import { GET, POST, PUT, DELETE, PATCH } from './route';
+import { EndpointService } from '@/services/endpoint.service';
+import { QueryParamsHelper } from '@/helpers/query-params';
+import { errorResponse } from '../../../_helpers/api-response';
 
 // Mock console methods to avoid noise in tests
 const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {});
@@ -32,8 +65,8 @@ describe('Mock API Route Handler', () => {
     vi.clearAllMocks();
     
     // Default successful mocks
-    vi.mocked(ProjectData.getProject).mockResolvedValue(mockProject);
-    vi.mocked(EndpointData.getEndpoints).mockResolvedValue([mockEndpoint]);
+    mockProjectRepository.findById.mockResolvedValue(mockProject);
+    mockEndpointRepository.findMany.mockResolvedValue([mockEndpoint]);
     vi.mocked(EndpointService.getEndpointResponse).mockReturnValue({
       message: 'success',
       data: [{ id: 1, name: 'John' }]
@@ -59,7 +92,7 @@ describe('Mock API Route Handler', () => {
       const response = await GET(request, { params });
       
       expect(response).toBeDefined();
-      expect(ProjectData.getProject).toHaveBeenCalledWith('project-1');
+      expect(mockProjectRepository.findById).toHaveBeenCalledWith('project-1');
     });
 
     it('should handle POST requests', async () => {
@@ -71,8 +104,11 @@ describe('Mock API Route Handler', () => {
       const response = await POST(request, { params });
       
       expect(response).toBeDefined();
-      expect(EndpointData.getEndpoints).toHaveBeenCalledWith({
-        where: { method: 'POST', projectId: 'project-1' }
+      expect(mockEndpointRepository.findMany).toHaveBeenCalledWith({
+        where: {
+          method: 'POST', 
+          projectId: 'project-1'
+        }
       });
     });
 
@@ -84,8 +120,11 @@ describe('Mock API Route Handler', () => {
       
       await PUT(request, { params });
       
-      expect(EndpointData.getEndpoints).toHaveBeenCalledWith({
-        where: { method: 'PUT', projectId: 'project-1' }
+      expect(mockEndpointRepository.findMany).toHaveBeenCalledWith({
+        where: {
+          method: 'PUT', 
+          projectId: 'project-1'
+        }
       });
     });
 
@@ -97,8 +136,11 @@ describe('Mock API Route Handler', () => {
       
       await DELETE(request, { params });
       
-      expect(EndpointData.getEndpoints).toHaveBeenCalledWith({
-        where: { method: 'DELETE', projectId: 'project-1' }
+      expect(mockEndpointRepository.findMany).toHaveBeenCalledWith({
+        where: {
+          method: 'DELETE', 
+          projectId: 'project-1'
+        }
       });
     });
 
@@ -110,8 +152,11 @@ describe('Mock API Route Handler', () => {
       
       await PATCH(request, { params });
       
-      expect(EndpointData.getEndpoints).toHaveBeenCalledWith({
-        where: { method: 'PATCH', projectId: 'project-1' }
+      expect(mockEndpointRepository.findMany).toHaveBeenCalledWith({
+        where: {
+          method: 'PATCH', 
+          projectId: 'project-1'
+        }
       });
     });
   });
@@ -144,7 +189,7 @@ describe('Mock API Route Handler', () => {
 
   describe('Project Validation', () => {
     it('should return error when project is not found', async () => {
-      vi.mocked(ProjectData.getProject).mockResolvedValue(null);
+      mockProjectRepository.findById.mockResolvedValue(null);
       
       const request = new NextRequest('http://localhost:3000/api/mock/project-1/users');
       const params = Promise.resolve(mockParams);
@@ -160,7 +205,7 @@ describe('Mock API Route Handler', () => {
 
   describe('Token Authentication', () => {
     beforeEach(() => {
-      vi.mocked(ProjectData.getProject).mockResolvedValue({
+      mockProjectRepository.findById.mockResolvedValue({
         ...mockProject,
         isNeedToken: true,
         token: 'valid-token'
@@ -216,13 +261,13 @@ describe('Mock API Route Handler', () => {
       const response = await GET(request, { params });
       
       expect(response).toBeDefined();
-      expect(EndpointData.getEndpoints).toHaveBeenCalled();
+      expect(mockEndpointRepository.findMany).toHaveBeenCalled();
     });
   });
 
   describe('Endpoint Matching', () => {
     it('should return error when no matching endpoint is found', async () => {
-      vi.mocked(EndpointData.getEndpoints).mockResolvedValue([]);
+      mockEndpointRepository.findMany.mockResolvedValue([]);
       
       const request = new NextRequest('http://localhost:3000/api/mock/project-1/nonexistent');
       const params = Promise.resolve({ projectId: 'project-1', path: ['nonexistent'] });
@@ -240,7 +285,7 @@ describe('Mock API Route Handler', () => {
         ...mockEndpoint,
         path: '/users/profile'
       };
-      vi.mocked(EndpointData.getEndpoints).mockResolvedValue([endpoint]);
+      mockEndpointRepository.findMany.mockResolvedValue([endpoint]);
       
       const request = new NextRequest('http://localhost:3000/api/mock/project-1/users/profile');
       const params = Promise.resolve({ projectId: 'project-1', path: ['users', 'profile'] });
@@ -256,7 +301,7 @@ describe('Mock API Route Handler', () => {
         ...mockEndpoint,
         path: '/users/:id'
       };
-      vi.mocked(EndpointData.getEndpoints).mockResolvedValue([endpoint]);
+      mockEndpointRepository.findMany.mockResolvedValue([endpoint]);
       
       const request = new NextRequest('http://localhost:3000/api/mock/project-1/users/123');
       const params = Promise.resolve({ projectId: 'project-1', path: ['users', '123'] });
@@ -272,7 +317,7 @@ describe('Mock API Route Handler', () => {
         ...mockEndpoint,
         path: '/users/{id}'
       };
-      vi.mocked(EndpointData.getEndpoints).mockResolvedValue([endpoint]);
+      mockEndpointRepository.findMany.mockResolvedValue([endpoint]);
       
       const request = new NextRequest('http://localhost:3000/api/mock/project-1/users/abc-123');
       const params = Promise.resolve({ projectId: 'project-1', path: ['users', 'abc-123'] });
@@ -288,7 +333,7 @@ describe('Mock API Route Handler', () => {
         ...mockEndpoint,
         path: '/users/:id'
       };
-      vi.mocked(EndpointData.getEndpoints).mockResolvedValue([endpoint]);
+      mockEndpointRepository.findMany.mockResolvedValue([endpoint]);
       
       const request = new NextRequest('http://localhost:3000/api/mock/project-1/users/invalid-id-format');
       const params = Promise.resolve({ projectId: 'project-1', path: ['users', 'invalid-id-format'] });
@@ -306,7 +351,7 @@ describe('Mock API Route Handler', () => {
         ...mockEndpoint,
         path: '/users'
       };
-      vi.mocked(EndpointData.getEndpoints).mockResolvedValue([endpoint]);
+      mockEndpointRepository.findMany.mockResolvedValue([endpoint]);
       
       const request = new NextRequest('http://localhost:3000/api/mock/project-1/users/extra/path');
       const params = Promise.resolve({ projectId: 'project-1', path: ['users', 'extra', 'path'] });
@@ -336,7 +381,7 @@ describe('Mock API Route Handler', () => {
     });
 
     it('should allow specific origin when it matches CORS settings', async () => {
-      vi.mocked(ProjectData.getProject).mockResolvedValue({
+      mockProjectRepository.findById.mockResolvedValue({
         ...mockProject,
         corsOrigins: ['https://allowed.com', 'https://another.com']
       });
@@ -353,7 +398,7 @@ describe('Mock API Route Handler', () => {
     });
 
     it('should not add CORS headers when origin is not allowed', async () => {
-      vi.mocked(ProjectData.getProject).mockResolvedValue({
+      mockProjectRepository.findById.mockResolvedValue({
         ...mockProject,
         corsOrigins: ['https://allowed.com']
       });
@@ -397,7 +442,7 @@ describe('Mock API Route Handler', () => {
 
   describe('Error Handling', () => {
     it('should handle database errors gracefully', async () => {
-      vi.mocked(ProjectData.getProject).mockRejectedValue(new Error('Database connection failed'));
+      mockProjectRepository.findById.mockRejectedValue(new Error('Database connection failed'));
       
       const request = new NextRequest('http://localhost:3000/api/mock/project-1/users');
       const params = Promise.resolve(mockParams);
@@ -444,7 +489,7 @@ describe('Mock API Route Handler', () => {
 
   describe('Integration Scenarios', () => {
     it('should handle complete flow with token auth and CORS', async () => {
-      vi.mocked(ProjectData.getProject).mockResolvedValue({
+      mockProjectRepository.findById.mockResolvedValue({
         ...mockProject,
         isNeedToken: true,
         token: 'valid-token',
@@ -472,7 +517,7 @@ describe('Mock API Route Handler', () => {
         ...mockEndpoint,
         path: '/users/:userId/posts/{postId}/comments'
       };
-      vi.mocked(EndpointData.getEndpoints).mockResolvedValue([complexEndpoint]);
+      mockEndpointRepository.findMany.mockResolvedValue([complexEndpoint]);
       
       const request = new NextRequest('http://localhost:3000/api/mock/project-1/users/123/posts/abc-456/comments');
       const params = Promise.resolve({

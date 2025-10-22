@@ -28,6 +28,11 @@ import {
   EProjectPermission
 } from "@/types";
 
+/**
+ * Type mappers to convert Prisma entities to application domain types
+ * This abstraction layer allows us to decouple database schema from application types
+ */
+
 // Enum mappers
 export const mapHttpMethod = (method: HttpMethod): EHttpMethod => {
   return method as unknown as EHttpMethod;

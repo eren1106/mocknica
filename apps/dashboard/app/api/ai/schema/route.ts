@@ -1,11 +1,15 @@
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
-import { SchemaData } from "@/data/schema.data";
 import { aiServiceManager } from "@/lib/ai";
+import { schemaService } from "@/lib/services";
+import { requireAuth } from "../../_helpers/auth-guards";
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt: userInput, model } = await req.json();
+    const sessionResult = await requireAuth(req);
+    if (sessionResult instanceof Response) return sessionResult;
+
+    const { prompt: userInput, model, projectId } = await req.json();
 
     if (!aiServiceManager) {
       return errorResponse(req, { 
@@ -15,7 +19,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Get all existing schemas to provide as examples
-    const existingSchemas = await SchemaData.getAllSchemas();
+    const existingSchemas = projectId 
+      ? await schemaService.getProjectSchemas(projectId, sessionResult.user.id)
+      : [];
 
     // Create example schema field JSON structure
     const exampleSchemaFields = [

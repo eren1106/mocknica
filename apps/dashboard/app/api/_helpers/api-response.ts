@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { apiLog } from "./api-log";
 import { removeUndefinedFields } from "@/lib/utils";
-import { AppError, handlePrismaError } from "@/data/helpers/error-handler";
+import { AppError, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
 
 interface INextResponse {

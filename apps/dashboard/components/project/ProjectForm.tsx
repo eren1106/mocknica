@@ -166,7 +166,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
       } else {
         const projectData = {
           ...data,
-          aiGeneratedData: aiGeneratedData,
+          aiGeneratedData,
         };
 
         await createProject(projectData);
@@ -184,7 +184,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
         control={form.control}
         type="input"
         name="name"
-        label="IProject Name"
+        label="Project Name"
         placeholder="My Awesome API"
       />
 
@@ -254,7 +254,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
             "transition-all duration-500 ease-out",
             "text-white font-semibold"
           )}
-          title="Generate IProject with AI ✨"
+          title="Generate Project with AI ✨"
           description="Let AI create your entire project structure based on your description"
           content={(close) => (
             <div className="flex flex-col gap-6">
@@ -279,11 +279,11 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
 
               <Separator />
 
-              {/* IProject Description */}
+              {/* Project Description */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-semibold">
-                    IProject Description *
+                    Project Description *
                   </label>
                   <Button
                     type="button"
@@ -378,7 +378,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
               </div>
               <div className="flex flex-col items-start">
                 <p className="font-bold text-base leading-tight">
-                  Setup IProject with AI
+                  Setup Project with AI
                 </p>
                 <span className="text-xs font-normal text-purple-100">
                   Generate schemas & endpoints instantly
@@ -402,7 +402,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-purple-900 dark:text-purple-100">
-                      AI Generated IProject Structure
+                      AI Generated Project Structure
                     </h3>
                     <p className="text-xs text-purple-700 dark:text-purple-300 mt-0.5">
                       {aiGeneratedData.schemas.length} schema(s) •{" "}
@@ -603,7 +603,7 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
       )}
 
       <FormButton isLoading={isPending}>
-        {project ? "Update IProject" : "Create IProject"}
+        {project ? "Update Project" : "Create Project"}
       </FormButton>
     </ZodForm>
   );

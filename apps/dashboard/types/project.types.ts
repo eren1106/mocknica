@@ -7,6 +7,7 @@ import { EHttpMethod, EProjectPermission } from "./enums";
 import { IUser } from "./entities";
 import { ISchema } from "./schema.types";
 
+// TODO: move response-wrapper and endpoint types to another files
 export interface IResponseWrapper {
   id: number;
   name: string;

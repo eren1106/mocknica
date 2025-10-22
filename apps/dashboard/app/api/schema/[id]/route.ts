@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { apiResponse } from "../../_helpers/api-response";
 import { requireAuth } from "../../_helpers/auth-guards";
 import { validateRequestBody } from "../../_helpers/validation";
-import { SchemaService } from "@/services/backend/schema.service";
+import { schemaService } from "@/lib/services";
 import { SchemaSchema } from "@/zod-schemas/schema.schema";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -12,7 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     if (sessionResult instanceof Response) return sessionResult;
 
     const { id } = await params;
-    const schema = await SchemaService.getSchema(Number(id), sessionResult.user.id);
+    const schema = await schemaService.getSchema(Number(id), sessionResult.user.id);
     
     return apiResponse(req, { data: schema });
   } catch (error) {
@@ -32,7 +32,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const validationResult = await validateRequestBody(req, SchemaSchema);
     if (validationResult instanceof Response) return validationResult;
 
-    const schema = await SchemaService.updateSchema(
+    const schema = await schemaService.updateSchema(
       Number(id), 
       validationResult,
       sessionResult.user.id
@@ -51,7 +51,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const { id } = await params;
     
-    const schema = await SchemaService.deleteSchema(Number(id), sessionResult.user.id);
+    const schema = await schemaService.deleteSchema(Number(id), sessionResult.user.id);
     
     return apiResponse(req, { data: schema });
   } catch (error) {

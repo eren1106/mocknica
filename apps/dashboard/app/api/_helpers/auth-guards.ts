@@ -1,7 +1,9 @@
 import { NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
-import { ProjectData } from "@/data/project.data";
 import { errorResponse } from "./api-response";
+import { ProjectRepository } from "@/lib/repositories";
+
+const projectRepository = new ProjectRepository();
 
 export interface AuthSession {
   user: {
@@ -41,7 +43,7 @@ export async function requireProjectOwnership(
   userId: string
 ): Promise<true | Response> {
   try {
-    const project = await ProjectData.getProjectByUserAndId(projectId, userId);
+    const project = await projectRepository.findByIdAndUserId(projectId, userId);
     
     if (!project) {
       return errorResponse(req, { error: "Project not found", statusCode: 404 });

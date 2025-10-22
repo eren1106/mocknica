@@ -1,12 +1,9 @@
 import { Prisma } from "@prisma/client";
-import {
-  ISchema,
-  IEndpoint,
-  IProject,
-  IProjectLight,
-} from "@/types";
 
-// Centralized include configurations to reduce duplication
+/**
+ * Centralized include configurations for Prisma queries
+ * Reduces duplication and maintains consistent data fetching across the application
+ */
 export class PrismaIncludes {
   // Schema field includes with nested relationships
   static readonly schemaFieldsInclude = {
@@ -71,9 +68,3 @@ export class PrismaIncludes {
     },
   } as const;
 }
-
-// Type definitions for the includes - now using frontend types
-export type SchemaWithFields = ISchema;
-export type EndpointWithRelations = IEndpoint;
-export type ProjectWithRelations = IProject;
-export type ProjectLight = IProjectLight;

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
-import { EndpointData } from "@/data/endpoint.data";
 import { requireAuth, requireProjectOwnership } from "../../_helpers/auth-guards";
 import { errorResponse, apiResponse } from "../../_helpers/api-response";
+import { endpointService } from "@/lib/services";
 
 // NO NEED GET-BY-ID API FOR ENDPOINTS
 // export async function GET(
@@ -15,16 +15,10 @@ import { errorResponse, apiResponse } from "../../_helpers/api-response";
 //     }
 
 //     const { id } = await params;
-//     const endpoint = await EndpointData.getEndpointById(id);
+//     const endpoint = await endpointService.getEndpoint(id, sessionResult.user.id);
     
 //     if (!endpoint) {
 //       return errorResponse(req, { error: "Endpoint not found", statusCode: 404 });
-//     }
-
-//     // Verify project ownership
-//     const ownershipResult = await requireProjectOwnership(req, endpoint.projectId, sessionResult.user.id);
-//     if (ownershipResult instanceof Response) {
-//       return ownershipResult;
 //     }
 
 //     return apiResponse(req, { data: endpoint });
@@ -47,19 +41,13 @@ export async function PUT(
     const body = await req.json();
     const { id } = await params;
 
-    // Get current endpoint to verify ownership
-    const currentEndpoint = await EndpointData.getEndpointById(id);
+    // Get current endpoint to verify ownership (this also validates ownership)
+    const currentEndpoint = await endpointService.getEndpoint(id, sessionResult.user.id);
     if (!currentEndpoint) {
       return errorResponse(req, { error: "Endpoint not found", statusCode: 404 });
     }
 
-    // Verify project ownership
-    const ownershipResult = await requireProjectOwnership(req, currentEndpoint.projectId, sessionResult.user.id);
-    if (ownershipResult instanceof Response) {
-      return ownershipResult;
-    }
-
-    const endpoint = await EndpointData.updateEndpoint(id, body);
+    const endpoint = await endpointService.updateEndpoint(id, body, sessionResult.user.id);
     return apiResponse(req, { data: endpoint });
   } catch (error) {
     console.error('Error updating endpoint:', error);
@@ -79,19 +67,8 @@ export async function DELETE(
 
     const { id } = await params;
 
-    // Get current endpoint to verify ownership
-    const currentEndpoint = await EndpointData.getEndpointById(id);
-    if (!currentEndpoint) {
-      return errorResponse(req, { error: "Endpoint not found", statusCode: 404 });
-    }
-
-    // Verify project ownership
-    const ownershipResult = await requireProjectOwnership(req, currentEndpoint.projectId, sessionResult.user.id);
-    if (ownershipResult instanceof Response) {
-      return ownershipResult;
-    }
-
-    await EndpointData.deleteEndpoint(id);
+    // Delete endpoint (service validates ownership)
+    await endpointService.deleteEndpoint(id, sessionResult.user.id);
     return apiResponse(req, { data: { success: true } });
   } catch (error) {
     console.error('Error deleting endpoint:', error);
