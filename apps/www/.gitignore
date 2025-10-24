@@ -30,8 +30,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env file
-.env
+# env files (can opt-in for committing if needed)
+.env*
 
 # vercel
 .vercel
@@ -39,19 +39,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# turborepo
-.turbo
-
-# Build outputs
-apps/*/.next
-apps/*/out
-apps/*/build
-apps/*/dist
-apps/*/node_modules
-
-# Package outputs
-packages/*/dist
-packages/*/node_modules
-packages/*/.turbo
-packages/*/tsconfig.tsbuildinfo
