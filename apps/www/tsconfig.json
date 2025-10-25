@@ -1,5 +1,5 @@
 {
-  "extends": "@mocknica/typescript-config/nextjs.json",
+  "extends": "@mocknica/tsconfig/nextjs.json",
   "compilerOptions": {
     "paths": {
       "@/*": ["./*"]
@@ -11,7 +11,7 @@
 
 
 // {
-//   "extends": "@mocknica/typescript-config/nextjs.json",
+//   "extends": "@mocknica/tsconfig/nextjs.json",
 //   "compilerOptions": {
 //     "target": "ES2017",
 //     "lib": ["dom", "dom.iterable", "esnext"],

@@ -1,5 +1,5 @@
 {
-  "extends": "@mocknica/typescript-config/nextjs.json",
+  "extends": "@mocknica/tsconfig/nextjs.json",
   "compilerOptions": {
     "paths": {
       "@/*": ["./*"]

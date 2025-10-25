@@ -1,5 +1,5 @@
 {
-    "extends": "@mocknica/typescript-config/react-library.json",
+    "extends": "@mocknica/tsconfig/react-library.json",
     "compilerOptions": {
       "outDir": "dist",
       "rootDir": "src",

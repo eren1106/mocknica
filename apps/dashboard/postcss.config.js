@@ -1,6 +1,4 @@
-import postcssConfig from "@mocknica/tailwind-config/postcss";
-
-export default postcssConfig;
+module.exports = require("@mocknica/ui/postcss");
 
 // module.exports = {
 //   plugins: {
