@@ -131,6 +131,24 @@ body {
   font-family: "Poppins", sans-serif;
 }
 
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--background));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+}
+
 h1 {
   @apply text-2xl sm:text-3xl lg:text-4xl;
   @apply font-extrabold;

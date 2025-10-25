@@ -14,8 +14,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mocknica - API Mocking Made Simple",
-  description: "Create, manage, and deploy mock APIs with ease. Perfect for development and testing.",
+  title: "Mocknica - Open-Source AI-Powered Mock API Platform",
+  description: "Create, manage, and deploy realistic mock APIs in seconds with AI. Build faster, test smarter, and ship with confidence. 100% open source.",
+  keywords: ["mock api", "api mocking", "development tools", "testing", "frontend development", "open source", "AI-powered"],
+  authors: [{ name: "Mocknica Team" }],
+  openGraph: {
+    title: "Mocknica - Open-Source AI-Powered Mock API Platform",
+    description: "Create, manage, and deploy realistic mock APIs in seconds with AI. Build faster, test smarter, and ship with confidence.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
