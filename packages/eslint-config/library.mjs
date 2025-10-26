@@ -1,28 +1,21 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-/** @type {import("eslint").Linter.Config[]} */
 const config = [
-  ...compat.extends("eslint:recommended", "prettier", "eslint-config-turbo"),
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  
   {
-    languageOptions: {
-      globals: {
-        React: true,
-        JSX: true,
-      },
-    },
+    files: ["**/*.ts", "**/*.tsx"],
     rules: {
+      // Only disable rules you truly need to disable
       "@typescript-eslint/no-unused-vars": "off",
       "@typescript-eslint/no-explicit-any": "off",
     },
+  },
+  
+  {
+    ignores: ["dist/**", "node_modules/**", ".turbo/**", "build/**"],
   },
 ];
 

@@ -13,7 +13,7 @@ const PasswordInput = React.forwardRef<HTMLInputElement, InputProps>(({ classNam
   return (
     <div className="relative w-full">
       {/* Embedding the CSS styles in a <style> tag */}
-      <style jsx>{`
+      <style>{`
         .hide-password-toggle::-ms-reveal,
         .hide-password-toggle::-ms-clear {
           visibility: hidden;

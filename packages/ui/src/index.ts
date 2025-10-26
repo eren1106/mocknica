@@ -16,10 +16,10 @@ export * from "./components/ui/form";
 export * from "./components/ui/input";
 export * from "./components/ui/label";
 export * from "./components/ui/popover";
-export { 
-  Popover as PopoverForDialog, 
-  PopoverTrigger as PopoverTriggerForDialog, 
-  PopoverContent as PopoverContentForDialog 
+export {
+  Popover as PopoverForDialog,
+  PopoverTrigger as PopoverTriggerForDialog,
+  PopoverContent as PopoverContentForDialog,
 } from "./components/ui/popover-for-dialog";
 export * from "./components/ui/radio-group";
 export * from "./components/ui/scroll-area";
@@ -73,11 +73,10 @@ export * from "./components/providers/theme-provider";
 // ============================================
 // UTILS
 // ============================================
-export * from "./lib/utils";
+export { cn } from "./lib/utils";
 
 // ============================================
 // NOTE: The following are NOT exported (app-specific):
-// - auth-form, user-nav (uses @/lib/auth-client)
 // - layout/* (uses app routing/contexts/hooks)
 // - controls-bar, cors-origins-input (domain-specific)
 // - delete-confirmation, form-button (uses app schemas)
@@ -85,7 +84,6 @@ export * from "./lib/utils";
 // - generic-form-field (heavily app-coupled)
 // - input-tags (might work with fixes)
 // - link-button (might work)
-// - model-selector (uses app API hooks)
 // - my-tooltip (should work)
 // - zod-form (app-specific patterns)
 // ============================================

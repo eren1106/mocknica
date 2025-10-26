@@ -62,7 +62,7 @@ const tokenizeJSON = (jsonString: string): Token[] => {
     } else if (/\d/.test(char) || (char === '-' && /\d/.test(jsonString[i + 1] || ''))) {
       // Handle numbers
       let numberValue = '';
-      while (i < jsonString.length && /[\d\-\.]/.test(jsonString[i])) {
+      while (i < jsonString.length && /[\d\-.]/.test(jsonString[i])) {
         numberValue += jsonString[i];
         i++;
       }
