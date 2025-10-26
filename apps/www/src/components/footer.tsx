@@ -6,8 +6,6 @@ export function Footer() {
   const footerLinks = {
     product: [
       { label: "Features", href: "#features" },
-      { label: "Tech Stack", href: "#tech-stack" },
-      { label: "Documentation", href: "https://github.com/eren1106/mocknica#readme" },
       { label: "Dashboard", href: "http://localhost:3000" },
     ],
     resources: [

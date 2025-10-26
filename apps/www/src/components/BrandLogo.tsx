@@ -1,10 +1,8 @@
 "use client";
 
-import { cn } from "../../lib/utils";
-import NextImage from "../next-image";
+import { cn, Badge, NextImage } from "@mocknica/ui";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Badge } from "../ui/badge";
 
 interface BrandLogoProps {
   size?: "sm" | "md" | "lg";

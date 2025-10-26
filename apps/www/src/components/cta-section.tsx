@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button, Card } from "@mocknica/ui";
 import { ArrowRight, Github, Star, Users, Zap, CheckCircle } from "lucide-react";
+import { config } from "../../lib/config";
 
 export function CTASection() {
   const highlights = [
@@ -38,13 +39,13 @@ export function CTASection() {
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                   <Button size="lg" className="text-base group shadow-lg" asChild>
-                    <Link href="http://localhost:3000/signup">
+                    <Link href={`${config.dashboardUrl}/signup`}>
                       Get Started Now
                       <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" className="text-base bg-background/50 backdrop-blur" asChild>
-                    <Link href="https://github.com/eren1106/mocknica" target="_blank">
+                    <Link href={config.githubUrl} target="_blank">
                       <Github className="mr-2 h-4 w-4" />
                       Star on GitHub
                     </Link>

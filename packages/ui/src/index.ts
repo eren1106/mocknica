@@ -53,6 +53,9 @@ export * from "./components/mode-toggle";
 export * from "./components/password-input";
 export * from "./components/separator-with-text";
 export * from "./components/spinner";
+export * from "./components/link-button";
+export * from "./components/next-image";
+
 // export * from "./components/auto-resize-textarea"; // Has prop type issues
 // export * from "./components/combobox"; // Uses @/types/select-option
 // export * from "./components/dynamic-select"; // Uses @/types/select-option
@@ -65,7 +68,6 @@ export * from "./components/spinner";
 // ============================================
 // PROVIDERS
 // ============================================
-export * from "./components/providers/query-povider";
 export * from "./components/providers/theme-provider";
 
 // ============================================

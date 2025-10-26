@@ -1,8 +1,7 @@
-'use client'
+"use client";
 
-import { cn } from '../lib/utils';
-import Image, { ImageProps } from 'next/image'
-import React from 'react'
+import { cn } from "../lib/utils";
+import Image, { ImageProps } from "next/image";
 
 interface NextImageProps extends ImageProps {
   src: string;
@@ -10,12 +9,7 @@ interface NextImageProps extends ImageProps {
   className?: string;
 }
 
-const NextImage = ({
-  src,
-  alt,
-  className,
-  ...props
-}: NextImageProps) => {
+const NextImage = ({ src, alt, className, ...props }: NextImageProps) => {
   return (
     <Image
       loader={() => src}
@@ -26,7 +20,7 @@ const NextImage = ({
       className={cn("w-auto h-auto", className)}
       {...props}
     />
-  )
-}
+  );
+};
 
-export default NextImage
+export { NextImage };

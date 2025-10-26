@@ -14,7 +14,7 @@ import { Label } from "../ui/label";
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
 import ResponseWrapperView from "@/app/(main)/projects/[id]/response-wrappers/_ui/ResponseWrapperView";
-import LinkButton from "../link-button";
+import { LinkButton } from "../link-button";
 import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 
 const EndpointBySchemaSchema = z.object({
@@ -33,7 +33,7 @@ interface EndpointBySchemaFormProps {
 
 const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
   const projectId = useCurrentProjectId();
-  
+
   const { createEndpointsBySchema, isPending } = useMutationEndpoint();
   const { data: schemas, isLoading: isLoadingSchema } = useSchemas(projectId);
   const { data: responseWrappers, isLoading: isLoadingResponseWrapper } =
@@ -101,7 +101,8 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
       ) : (
         <div className="flex flex-col gap-3 p-4 border border-dashed rounded-lg">
           <p className="text-sm text-muted-foreground">
-            No schemas available for this project. Create a schema first to generate endpoints from schema.
+            No schemas available for this project. Create a schema first to
+            generate endpoints from schema.
           </p>
           <LinkButton
             href={`/projects/${projectId}/schemas`}
@@ -112,7 +113,7 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
           </LinkButton>
         </div>
       )}
-      
+
       {schemas && schemas.length > 0 && (
         <>
           <GenericFormField
@@ -154,21 +155,26 @@ const EndpointBySchemaForm = ({ onSuccess }: EndpointBySchemaFormProps) => {
 
           <p className="text-sm">Preview:</p>
           <p className="text-sm">
-            <span className="font-medium text-primary mr-2">GET</span>{basePath}
+            <span className="font-medium text-primary mr-2">GET</span>
+            {basePath}
           </p>
           <p className="text-sm">
-            <span className="font-medium text-primary mr-2">GET</span>{basePath}
+            <span className="font-medium text-primary mr-2">GET</span>
+            {basePath}
             /:id
           </p>
           <p className="text-sm">
-            <span className="font-medium text-primary mr-2">POST</span>{basePath}
+            <span className="font-medium text-primary mr-2">POST</span>
+            {basePath}
           </p>
           <p className="text-sm">
-            <span className="font-medium text-primary mr-2">PUT</span>{basePath}
+            <span className="font-medium text-primary mr-2">PUT</span>
+            {basePath}
             /:id
           </p>
           <p className="text-sm">
-            <span className="font-medium text-primary mr-2">DELETE</span>{basePath}
+            <span className="font-medium text-primary mr-2">DELETE</span>
+            {basePath}
             /:id
           </p>
 

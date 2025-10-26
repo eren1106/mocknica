@@ -9,7 +9,7 @@ importers:
   .:
     devDependencies:
       turbo:
-        specifier: latest
+        specifier: 2.5.8
         version: 2.5.8
 
   apps/dashboard:
@@ -228,12 +228,18 @@ importers:
       next:
         specifier: 16.0.0
         version: 16.0.0(@babel/core@7.28.4)(react-dom@19.2.0)(react@19.2.0)
+      next-themes:
+        specifier: ^0.4.4
+        version: 0.4.6(react-dom@19.2.0)(react@19.2.0)
       react:
         specifier: 19.2.0
         version: 19.2.0
       react-dom:
         specifier: 19.2.0
         version: 19.2.0(react@19.2.0)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.5.0(react@19.2.0)
     devDependencies:
       '@mocknica/eslint-config':
         specifier: workspace:*

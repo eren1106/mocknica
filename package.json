@@ -27,7 +27,7 @@
     "docker:rebuild": "docker-compose up -d --build"
   },
   "devDependencies": {
-    "turbo": "latest"
+    "turbo": "2.5.8"
   },
   "packageManager": "pnpm@8.15.0",
   "engines": {

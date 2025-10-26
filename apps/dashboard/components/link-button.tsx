@@ -20,4 +20,4 @@ const LinkButton = ({
   )
 }
 
-export default LinkButton
+export { LinkButton };
