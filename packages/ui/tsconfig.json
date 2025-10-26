@@ -1,0 +1,14 @@
+{
+    "extends": "@mocknica/tsconfig/react-library.json",
+    "compilerOptions": {
+      "outDir": "dist",
+      "rootDir": "src",
+      "composite": true,
+      "paths": {
+        "@/*": ["./src/*"]
+      }
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"]
+  }
+  

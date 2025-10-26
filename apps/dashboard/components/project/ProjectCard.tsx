@@ -9,7 +9,7 @@ import ProjectForm from "./ProjectForm";
 import DeleteConfirmation from "@/components/delete-confirmation";
 import { formatDate } from "@/lib/utils";
 import { useMutationProject } from "@/hooks/useProject";
-import LinkButton from "../link-button";
+import { LinkButton } from "../link-button";
 
 const ProjectCard = ({ project }: { project: IProject }) => {
   const { deleteProject } = useMutationProject();

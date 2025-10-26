@@ -1,0 +1,23 @@
+{
+  "name": "@mocknica/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./next": "./next.mjs",
+    "./library": "./library.mjs"
+  },
+  "files": [
+    "next.mjs",
+    "library.mjs"
+  ],
+  "devDependencies": {
+    "@next/eslint-plugin-next": "^15.0.0",
+    "eslint": "^9.38.0",
+    "eslint-config-next": "^15.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.35.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.46.2"
+  }
+}

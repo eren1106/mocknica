@@ -19,7 +19,6 @@ import ResponseWrapperView from "@/app/(main)/projects/[id]/response-wrappers/_u
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
 import { AIService } from "@/services/ai.service";
-import LinkButton from "../link-button";
 import {
   EndPointSchema,
   EndPointSchemaType,
@@ -30,6 +29,7 @@ import { stringifyJSON } from "@/lib/utils";
 import JsonViewer from "../json-viewer";
 import { ModelSelector } from "../model-selector";
 import { IEndpoint } from "@/types";
+import { LinkButton } from "../link-button";
 
 interface EndpointFormProps {
   endpoint?: IEndpoint;

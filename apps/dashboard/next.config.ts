@@ -34,6 +34,7 @@ const nextConfig: NextConfig = {
     
   //   return headerConfigs;
   // },
+  transpilePackages: ['@mocknica/ui'],
 };
 
 export default nextConfig;

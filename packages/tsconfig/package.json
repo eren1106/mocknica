@@ -1,0 +1,16 @@
+{
+    "name": "@mocknica/tsconfig",
+    "version": "0.0.0",
+    "private": true,
+    "main": "base.json",
+    "exports": {
+      "./base.json": "./base.json",
+      "./nextjs.json": "./nextjs.json",
+      "./react-library.json": "./react-library.json"
+    },
+    "files": [
+      "base.json",
+      "nextjs.json",
+      "react-library.json"
+    ]
+  }

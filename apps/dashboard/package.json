@@ -19,6 +19,7 @@
     "start:docker:dev": "prisma db push --accept-data-loss && node server.js"
   },
   "dependencies": {
+    "@mocknica/ui": "workspace:*",
     "@faker-js/faker": "^9.6.0",
     "@google/genai": "^1.12.0",
     "@hookform/resolvers": "^4.1.1",
@@ -66,6 +67,8 @@
     "@prisma/client": "^6.4.1"
   },
   "devDependencies": {
+    "@mocknica/eslint-config": "workspace:*",
+    "@mocknica/tsconfig": "workspace:*",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",

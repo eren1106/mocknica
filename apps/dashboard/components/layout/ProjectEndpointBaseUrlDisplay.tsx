@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Copy, ExternalLink } from "lucide-react";
 import { copyToClipboard, formatProjectEndpointBaseURL } from "@/lib/utils";
 import { cn } from "@/lib/utils";
-import LinkButton from "../link-button";
+import { LinkButton } from "../link-button";
 
 interface ProjectEndpointBaseUrlDisplayProps {
   projectId: string;
