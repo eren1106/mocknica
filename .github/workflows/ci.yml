@@ -23,8 +23,8 @@ jobs:
 
     strategy:
       matrix:
-        # Test against Node.js 18.x (can be expanded to test multiple versions)
-        node-version: [18.x]
+        # Test against Node.js 20.x (required for Next.js)
+        node-version: [20.x]
       # Continue testing other matrix combinations even if one fails
       fail-fast: false
 
