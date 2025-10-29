@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Check, ChevronDown, Loader2, Cpu } from "lucide-react";
+import { Check, ChevronDown, Loader2, Cpu, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAiModels } from "@/hooks/useAiModels";
 import NextImage from "@/components/next-image";
+import { ApiKeyConfigDialog } from "@/components/ai-key-config-dialog";
+import { useQueryClient } from "@tanstack/react-query";
+import { AI_MODELS_QUERY_KEY } from "@/hooks/useAiModels";
 
 interface AIModel {
   id: string;
@@ -117,11 +120,14 @@ export function ModelSelector({
   placeholder = "Select AI model...",
   disabled = false 
 }: ModelSelectorProps) {
-  const { data, isLoading, error } = useAiModels();
+  const { data, isLoading, error, refetch } = useAiModels();
   const [open, setOpen] = useState(false);
+  const [showConfigDialog, setShowConfigDialog] = useState(false);
+  const queryClient = useQueryClient();
 
   const models = data?.models;
   const defaultModel = data?.defaultModel;
+  const configurationRequired = data?.providers.length === 0;
 
   // Auto-select default model if no value is provided and default model is available
   useEffect(() => {
@@ -129,6 +135,12 @@ export function ModelSelector({
       onValueChange(defaultModel);
     }
   }, [value, defaultModel, models, onValueChange]);
+
+  const handleKeysConfigured = async () => {
+    // Invalidate and refetch the models query
+    await queryClient.invalidateQueries({ queryKey: [AI_MODELS_QUERY_KEY] });
+    await refetch();
+  };
 
   const selectedModel = models?.find(model => model.id === value);
 
@@ -156,8 +168,15 @@ export function ModelSelector({
   };
 
   return (
-    // set modal={true} to fix nested popover issue
-    <Popover open={open} onOpenChange={setOpen} modal={true}>
+    <>
+      <ApiKeyConfigDialog 
+        open={showConfigDialog} 
+        onOpenChange={setShowConfigDialog}
+        onKeysConfigured={handleKeysConfigured}
+      />
+      
+      {/* set modal={true} to fix nested popover issue */}
+      <Popover open={open} onOpenChange={setOpen} modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -206,29 +225,44 @@ export function ModelSelector({
                 <Loader2 className="size-4 animate-spin mr-2" />
                 <span className="text-sm text-muted-foreground">Loading models...</span>
               </div>
-            ) : error ? (
-              <div className="p-4 text-center space-y-2">
-                <p className="text-sm text-destructive font-medium">AI services unavailable</p>
-                <p className="text-xs text-muted-foreground">
-                  Please configure at least one AI provider:
-                </p>
-                <ul className="text-xs text-muted-foreground text-left list-disc list-inside space-y-1">
-                  <li>Set GEMINI_API_KEY environment variable</li>
-                  <li>Set OPENAI_API_KEY environment variable</li>
-                  <li>Run Ollama locally (http://localhost:11434)</li>
-                </ul>
-              </div>
-            ) : Object.keys(groupedModels).length === 0 ? (
-              <div className="p-4 text-center space-y-2">
-                <p className="text-sm text-muted-foreground font-medium">No models available</p>
-                <p className="text-xs text-muted-foreground">
-                  All configured AI providers are currently unavailable. Please check:
-                </p>
-                <ul className="text-xs text-muted-foreground text-left list-disc list-inside space-y-1">
-                  <li>API keys are valid</li>
-                  <li>Network connectivity</li>
-                  <li>Ollama is running (for local models)</li>
-                </ul>
+            ) : configurationRequired || error || Object.keys(groupedModels).length === 0 ? (
+              <div className="p-4 space-y-3">
+                <div className="text-center space-y-2">
+                  <p className="text-sm font-medium">No AI providers configured</p>
+                  <p className="text-xs text-muted-foreground">
+                    Configure your API keys to enable AI-powered features
+                  </p>
+                </div>
+                
+                <Button 
+                  onClick={() => {
+                    setOpen(false);
+                    setShowConfigDialog(true);
+                  }}
+                  className="w-full"
+                  variant="default"
+                >
+                  <Settings className="size-4 mr-2" />
+                  Configure AI Providers
+                </Button>
+                
+                <div className="pt-2 border-t">
+                  <p className="text-xs text-muted-foreground mb-2">Available providers:</p>
+                  <ul className="text-xs text-muted-foreground space-y-1">
+                    <li className="flex items-center gap-2">
+                      <NextImage src="/images/ai/gemini-color.svg" alt="Gemini" className="size-4" />
+                      Google Gemini
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <NextImage src="/images/ai/openai.svg" alt="OpenAI" className="size-4 dark:invert" />
+                      OpenAI (GPT models)
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <NextImage src="/images/ai/ollama.svg" alt="Ollama" className="size-4 dark:invert" />
+                      Ollama (Local models)
+                    </li>
+                  </ul>
+                </div>
               </div>
             ) : (
               Object.entries(groupedModels).map(([provider, providerModels]) => (
@@ -321,5 +355,6 @@ export function ModelSelector({
         </Command>
       </PopoverContent>
     </Popover>
+    </>
   );
 }

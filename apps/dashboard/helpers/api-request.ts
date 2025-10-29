@@ -1,17 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export const apiRequest = {
-  post: async (endpoint: string, data?: any, token?: string) => {
-    return requestWithFetch({ method: 'POST', endpoint, data, token });
+  post: async (endpoint: string, data?: any, token?: string, customHeaders?: Record<string, string>) => {
+    return requestWithFetch({ method: 'POST', endpoint, data, token, customHeaders });
   },
-  get: async (endpoint: string, token?: string) => {
-    return requestWithFetch({ method: 'GET', endpoint, token });
+  get: async (endpoint: string, token?: string, customHeaders?: Record<string, string>) => {
+    return requestWithFetch({ method: 'GET', endpoint, token, customHeaders });
   },
-  put: async (endpoint: string, data?: any, token?: string) => {
-    return requestWithFetch({ method: 'PUT', endpoint, data, token });
+  put: async (endpoint: string, data?: any, token?: string, customHeaders?: Record<string, string>) => {
+    return requestWithFetch({ method: 'PUT', endpoint, data, token, customHeaders });
   },
-  delete: async (endpoint: string, token?: string) => {
-    return requestWithFetch({ method: 'DELETE', endpoint, token });
+  delete: async (endpoint: string, token?: string, customHeaders?: Record<string, string>) => {
+    return requestWithFetch({ method: 'DELETE', endpoint, token, customHeaders });
   },
 };
 
@@ -20,13 +20,15 @@ interface FetchRequestParams {
   endpoint: string;
   data?: any;
   token?: string;
+  customHeaders?: Record<string, string>;
 }
 
 async function requestWithFetch({
   method,
   endpoint,
   data,
-  token
+  token,
+  customHeaders
 }: FetchRequestParams) {
   try {
     const res = await fetch(`/api/${endpoint}`, {
@@ -36,6 +38,7 @@ async function requestWithFetch({
         // Only set 'Content-Type' if the data is not FormData, as FormData sets its own headers
         ...(data instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(customHeaders || {}),
       },
       cache: 'no-store' // TODO: make sure this is for server side only
     });

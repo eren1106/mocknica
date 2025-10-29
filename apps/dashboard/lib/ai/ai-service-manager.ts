@@ -22,27 +22,30 @@ import { OllamaProvider } from './providers/ollama.provider';
 export class AIServiceManager {
   private providers: Map<AIProviderType, AIProvider> = new Map();
 
-  constructor() {
-    this.initializeProviders();
+  constructor(customKeys?: Partial<Record<AIProviderType, string>>) {
+    this.initializeProviders(customKeys);
   }
 
   /**
    * Initialize AI providers based on available configurations
+   * Accepts optional custom API keys that override environment variables
    */
-  private initializeProviders(): void {
+  private initializeProviders(customKeys?: Partial<Record<AIProviderType, string>>): void {
     // Initialize Gemini provider
-    if (process.env.GEMINI_API_KEY) {
+    const geminiKey = customKeys?.[AIProviderType.GEMINI] || process.env.GEMINI_API_KEY;
+    if (geminiKey) {
       try {
-        this.providers.set(AIProviderType.GEMINI, new GeminiProvider());
+        this.providers.set(AIProviderType.GEMINI, new GeminiProvider({ apiKey: geminiKey }));
       } catch (error) {
         console.warn('Failed to initialize Gemini provider:', error);
       }
     }
 
     // Initialize OpenAI provider
-    if (process.env.OPENAI_API_KEY) {
+    const openaiKey = customKeys?.[AIProviderType.OPENAI] || process.env.OPENAI_API_KEY;
+    if (openaiKey) {
       try {
-        this.providers.set(AIProviderType.OPENAI, new OpenAIProvider());
+        this.providers.set(AIProviderType.OPENAI, new OpenAIProvider({ apiKey: openaiKey }));
       } catch (error) {
         console.warn('Failed to initialize OpenAI provider:', error);
       }

@@ -1,22 +1,37 @@
 import { NextRequest } from "next/server";
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { AIModel } from "@/lib/ai/types";
-import { aiServiceManager } from "@/lib/ai";
+import { AIServiceManager } from "@/lib/ai/ai-service-manager";
+import { extractApiKeysFromHeaders } from "@/lib/ai/helpers";
 
 export async function GET(req: NextRequest) {
   try {
-    if (!aiServiceManager) {
-      return errorResponse(req, { 
-        message: 'AI services are not available. Please configure at least one AI provider (GEMINI_API_KEY, OPENAI_API_KEY, or run Ollama locally).',
-        statusCode: 503
+    // Create AI service manager with custom keys from headers
+    // This allows users to provide their own API keys via session storage
+    const customKeys = extractApiKeysFromHeaders(req);
+    const manager = new AIServiceManager(customKeys);
+    
+    if (!manager) {
+      return apiResponse(req, { 
+        data: {
+          models: [],
+          providers: [],
+          health: {},
+          defaultModel: null,
+          instructions: {
+            gemini: 'Get your API key from https://aistudio.google.com/app/apikey',
+            openai: 'Get your API key from https://platform.openai.com/api-keys',
+            ollama: 'Download and install from https://ollama.ai/download'
+          }
+        }
       });
     }
     
     // Get all available models from all providers
-    const models = await aiServiceManager.getAllAvailableModels();
+    const models = await manager.getAllAvailableModels();
     
     // Get health status to filter out unavailable providers
-    const healthStatus = await aiServiceManager.getHealthStatus();
+    const healthStatus = await manager.getHealthStatus();
     
     // Filter models to only include those from available providers
     const availableModels = models.filter((model: AIModel) => 
@@ -24,10 +39,10 @@ export async function GET(req: NextRequest) {
     );
 
     // Get the default model
-    const defaultModel = await aiServiceManager.getDefaultModel();
+    const defaultModel = await manager.getDefaultModel();
 
     // Filter providers to only include those that are actually available
-    const availableProviders = aiServiceManager.getAvailableProviders()
+    const availableProviders = manager.getAvailableProviders()
       .filter(provider => healthStatus[provider]?.available);
 
     return apiResponse(req, { 
