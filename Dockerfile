@@ -44,6 +44,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # Copy node_modules from deps stage (includes generated Prisma Client)
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/dashboard/node_modules ./apps/dashboard/node_modules
+COPY --from=deps /app/apps/www/node_modules ./apps/www/node_modules
 COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
 
 # Copy all source code
