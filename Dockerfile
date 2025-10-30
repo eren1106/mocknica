@@ -15,6 +15,10 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
 
 # Copy all workspace package.json files for proper dependency resolution
 COPY apps/dashboard/package.json ./apps/dashboard/package.json
+COPY apps/www/package.json ./apps/www/package.json
+COPY packages/ui/package.json ./packages/ui/package.json
+COPY packages/tsconfig/package.json ./packages/tsconfig/package.json
+COPY packages/eslint-config/package.json ./packages/eslint-config/package.json
 
 # Copy Prisma schema (needed for postinstall scripts)
 COPY apps/dashboard/prisma ./apps/dashboard/prisma/
@@ -40,6 +44,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # Copy node_modules from deps stage (includes generated Prisma Client)
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/dashboard/node_modules ./apps/dashboard/node_modules
+COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
 
 # Copy all source code
 COPY . .
