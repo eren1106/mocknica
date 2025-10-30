@@ -71,6 +71,8 @@ export function ApiKeyConfigDialog({
   onKeysConfigured,
   defaultProvider = AIProviderType.GEMINI,
 }: ApiKeyConfigDialogProps) {
+  const providers = Object.entries(providerInfo).filter(([provider, info]) => !info.isLocal); // temporary hide Ollama
+
   const [activeProvider, setActiveProvider] = useState<AIProviderType>(defaultProvider);
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({
     [AIProviderType.GEMINI]: "",
@@ -152,8 +154,8 @@ export function ApiKeyConfigDialog({
 
         {/* Provider Tabs */}
         <Tabs value={activeProvider} onValueChange={(v) => setActiveProvider(v as AIProviderType)}>
-          <TabsList className="grid w-full grid-cols-3">
-            {Object.entries(providerInfo).map(([provider, info]) => (
+          <TabsList className="grid w-full grid-cols-2">
+            {providers.map(([provider, info]) => (
               <TabsTrigger
                 key={provider}
                 value={provider}
@@ -175,7 +177,7 @@ export function ApiKeyConfigDialog({
             ))}
           </TabsList>
 
-          {Object.entries(providerInfo).map(([provider, info]) => (
+          {providers.map(([provider, info]) => (
             <TabsContent key={provider} value={provider} className="space-y-4 mt-4">
               <div className="space-y-3">
                 {/* Provider Info */}
@@ -266,9 +268,9 @@ export function ApiKeyConfigDialog({
                           {savedProviders.has(provider as AIProviderType) ? "Update" : "Save"}
                         </Button>
                       </div>
-                      <p className="text-xs text-muted-foreground">
+                      {/* <p className="text-xs text-muted-foreground">
                         Environment variable: <code className="bg-muted px-1 py-0.5 rounded">{info.envVarName}</code>
-                      </p>
+                      </p> */}
                     </div>
 
                     {/* Success Message */}

@@ -230,7 +230,7 @@ export function ModelSelector({
                 <div className="text-center space-y-2">
                   <p className="text-sm font-medium">No AI providers configured</p>
                   <p className="text-xs text-muted-foreground">
-                    Configure your API keys to enable AI-powered features
+                    No AI provider API keys have been configured by the host. You can add your own for quick testing; they will only persist in this browser-tab session.
                   </p>
                 </div>
                 
@@ -243,10 +243,10 @@ export function ModelSelector({
                   variant="default"
                 >
                   <Settings className="size-4 mr-2" />
-                  Configure AI Providers
+                  Configure Your Own API Keys
                 </Button>
                 
-                <div className="pt-2 border-t">
+                {/* <div className="pt-2 border-t">
                   <p className="text-xs text-muted-foreground mb-2">Available providers:</p>
                   <ul className="text-xs text-muted-foreground space-y-1">
                     <li className="flex items-center gap-2">
@@ -262,7 +262,7 @@ export function ModelSelector({
                       Ollama (Local models)
                     </li>
                   </ul>
-                </div>
+                </div> */}
               </div>
             ) : (
               Object.entries(groupedModels).map(([provider, providerModels]) => (
