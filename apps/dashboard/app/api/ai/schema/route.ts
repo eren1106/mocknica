@@ -1,6 +1,7 @@
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
-import { aiServiceManager } from "@/lib/ai";
+import { AIServiceManager } from "@/lib/ai/ai-service-manager";
+import { extractApiKeysFromHeaders } from "@/lib/ai/helpers";
 import { schemaService } from "@/lib/services";
 import { requireAuth } from "../../_helpers/auth-guards";
 
@@ -11,9 +12,13 @@ export async function POST(req: NextRequest) {
 
     const { prompt: userInput, model, projectId } = await req.json();
 
-    if (!aiServiceManager) {
+    // Create AI service manager with custom keys from headers
+    const customKeys = extractApiKeysFromHeaders(req);
+    const manager = new AIServiceManager(customKeys);
+    
+    if (!manager) {
       return errorResponse(req, { 
-        message: 'AI services are not available. Please configure at least one AI provider (GEMINI_API_KEY, OPENAI_API_KEY, or run Ollama locally).',
+        message: 'AI services are not available. Please configure at least one AI provider.',
         statusCode: 503
       });
     }
@@ -107,7 +112,7 @@ RESPOND WITH ONLY JSON:`;
       `User request: ${userInput.trim()}`,
     ].join("\n\n");
 
-    const completion = await aiServiceManager.generateText({
+    const completion = await manager.generateText({
       prompt,
       model,
     });

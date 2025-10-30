@@ -17,3 +17,9 @@ export { AIServiceManager } from './ai-service-manager';
 
 // Singleton instance (recommended for most use cases)
 export { default as aiServiceManager } from './ai-service-manager';
+
+// Session storage utilities (client-side only)
+export * from './session-storage';
+
+// Helper utilities
+export * from './helpers';
