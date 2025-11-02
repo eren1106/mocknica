@@ -8,6 +8,8 @@ import { FakerService } from "@/services/faker.service";
 import { generateUUID } from "@/lib/utils";
 import { schemaRepository as schemaRepo, projectRepository as projectRepo } from "@/lib/repositories";
 import { PrismaIncludes } from "@/lib/repositories/prisma-includes";
+import { endpointRepository } from "@/lib/repositories";
+import { SchemaService as ClientSchemaService } from "@/services/schema.service";
 
 export class SchemaService {
   constructor(
@@ -139,6 +141,7 @@ export class SchemaService {
 
   /**
    * Update a schema with ownership validation
+   * AUTOMATICALLY regenerates staticResponse for all endpoints using this schema
    */
   async updateSchema(
     schemaId: number,
@@ -167,7 +170,7 @@ export class SchemaService {
           : undefined,
       };
 
-      await this.schemaRepository.update(schemaId.toString(), schemaData);
+      await this.schemaRepository.update(schemaId, schemaData);
       
       // Fetch with full relations and map to domain type
       const updatedSchema = await this.schemaRepository.findById(
@@ -183,9 +186,51 @@ export class SchemaService {
         );
       }
 
+      // AUTO-REGENERATE: Update staticResponse for all endpoints using this schema
+      await this.regenerateEndpointResponsesForSchema(schemaId, updatedSchema);
+
       return updatedSchema;
     } catch (error) {
       throw handlePrismaError(error);
+    }
+  }
+
+  /**
+   * Regenerate staticResponse for all endpoints using a specific schema
+   * Called automatically when schema is updated
+   */
+  private async regenerateEndpointResponsesForSchema(
+    schemaId: number,
+    schema: ISchema
+  ): Promise<void> {
+    try {
+      // Find all endpoints that use this schema
+      const endpoints = await endpointRepository.findMany({
+        where: { schemaId: schemaId },
+      });
+
+      if (endpoints.length === 0) {
+        return;
+      }
+
+      // Regenerate staticResponse for each endpoint
+      for (const endpoint of endpoints) {
+        // Generate new response from updated schema
+        const newStaticResponse = ClientSchemaService.generateResponseFromSchema(
+          schema,
+          endpoint.isDataList ?? false,
+          endpoint.numberOfData ?? undefined
+        );
+
+        // Update endpoint with new staticResponse
+        await endpointRepository.update(endpoint.id, {
+          staticResponse: newStaticResponse as Prisma.InputJsonValue,
+        });
+      }
+    } catch (error) {
+      console.error("❌ [Schema Service] Error regenerating endpoint responses:", error);
+      // Don't throw - we don't want to fail the schema update if regeneration fails
+      // Just log the error
     }
   }
 
@@ -324,6 +369,39 @@ export class SchemaService {
         );
       }
       return response;
+    }
+  }
+
+  /**
+   * Bulk create schemas with fields
+   */
+  async bulkCreateSchemas(
+    schemasData: SchemaSchemaType[],
+    projectId: string,
+    userId: string
+  ): Promise<ISchema[]> {
+    try {
+      // Verify project ownership
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(projectId, userId);
+      if (!hasAccess) {
+        throw new AppError(
+          "Project not found or access denied",
+          STATUS_CODES.NOT_FOUND,
+          ERROR_CODES.NOT_FOUND
+        );
+      }
+
+      // Use transaction for bulk operations
+      const createdSchemas: ISchema[] = [];
+
+      for (const schemaData of schemasData) {
+        const created = await this.createSchema(schemaData, projectId, userId);
+        createdSchemas.push(created);
+      }
+
+      return createdSchemas;
+    } catch (error) {
+      throw handlePrismaError(error);
     }
   }
 }

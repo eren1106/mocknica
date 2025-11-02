@@ -111,13 +111,27 @@ export class EndpointService {
       }
 
       // Business logic: convert domain type to Prisma input
+      // CRITICAL FIX: Handle undefined staticResponse
+      // Prisma requires staticResponse to always be present (not undefined)
+      // If undefined, we need to explicitly set it to JsonNull or a valid value
+      let staticResponseValue: Prisma.InputJsonValue | Prisma.NullTypes.JsonNull;
+      if (data.staticResponse === null || data.staticResponse === undefined) {
+        staticResponseValue = Prisma.JsonNull;
+        // TODO: REMOVE LOG
+        console.log("⚠️ [Endpoint Service] staticResponse is null/undefined, using Prisma.JsonNull");
+      } else {
+        staticResponseValue = data.staticResponse as Prisma.InputJsonValue;
+        // TODO: REMOVE LOG
+        console.log("✅ [Endpoint Service] staticResponse has value:", staticResponseValue);
+      }
+
       const endpointData: Prisma.EndpointCreateInput = {
         path: data.path,
         method: data.method as any, // Prisma HttpMethod enum
         description: data.description,
         isDataList: data.isDataList ?? null,
         numberOfData: data.numberOfData ?? null,
-        staticResponse: data.staticResponse === null ? Prisma.JsonNull : (data.staticResponse as Prisma.InputJsonValue),
+        staticResponse: staticResponseValue,
         project: { connect: { id: data.projectId } },
         ...(data.schemaId && { schema: { connect: { id: data.schemaId } } }),
         ...(data.responseWrapperId && { responseWrapper: { connect: { id: data.responseWrapperId } } }),
@@ -292,6 +306,52 @@ export class EndpointService {
       await this.getEndpoint(endpointId, userId);
 
       await this.endpointRepository.delete(endpointId);
+    } catch (error) {
+      throw handlePrismaError(error);
+    }
+  }
+
+  /**
+   * Bulk create endpoints
+   */
+  async bulkCreateEndpoints(
+    endpointsData: Array<{
+      path: string;
+      method: any; // Will be cast to HttpMethod
+      description: string;
+      projectId: string;
+      schemaId?: number;
+      responseWrapperId?: number;
+      staticResponse?: any;
+      numberOfData?: number | null;
+      isDataList?: boolean | null;
+    }>,
+    userId: string
+  ): Promise<IEndpoint[]> {
+    try {
+      // Verify all endpoints belong to projects owned by the user
+      const projectIds = [...new Set(endpointsData.map(e => e.projectId))];
+      
+      for (const projectId of projectIds) {
+        const hasAccess = await this.projectRepository.existsByIdAndUserId(projectId, userId);
+        if (!hasAccess) {
+          throw new AppError(
+            "Project not found or access denied",
+            STATUS_CODES.NOT_FOUND,
+            ERROR_CODES.NOT_FOUND
+          );
+        }
+      }
+
+      // Create all endpoints
+      const createdEndpoints: IEndpoint[] = [];
+
+      for (const endpointData of endpointsData) {
+        const created = await this.createEndpoint(endpointData as any, userId);
+        createdEndpoints.push(created);
+      }
+
+      return createdEndpoints;
     } catch (error) {
       throw handlePrismaError(error);
     }

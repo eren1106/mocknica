@@ -350,7 +350,7 @@ const SchemaForm = (props: SchemaFormProps) => {
             </div>
             
             <div className="space-y-2">
-              <label className="text-sm font-medium">ISchema Description</label>
+              <label className="text-sm font-medium">Description</label>
               <AutoResizeTextarea
                 placeholder="Generate a user profile schema with fields for id, name, email, role, and status"
                 minRows={5}

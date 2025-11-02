@@ -14,7 +14,7 @@ describe('EndpointService.getEndpointResponse', () => {
   });
 
   describe('when endpoint has schema', () => {
-    it('should generate response from schema without wrapper', () => {
+    it('should return static response without wrapper', () => {
       // Arrange
       const mockSchema: ISchema = {
         id: 1,
@@ -38,6 +38,8 @@ describe('EndpointService.getEndpointResponse', () => {
         ]
       };
 
+      const mockStaticResponse = { id: 1, name: 'John Doe' };
+
       const mockEndpoint: IEndpoint = {
         id: '1',
         path: '/users',
@@ -46,29 +48,21 @@ describe('EndpointService.getEndpointResponse', () => {
         projectId: 'project1',
         schemaId: 1,
         schema: mockSchema,
-        staticResponse: null,
+        staticResponse: mockStaticResponse,
         isDataList: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      const mockGeneratedResponse = { id: 1, name: 'John Doe' };
-
-      vi.mocked(SchemaService.generateResponseFromSchema).mockReturnValue(mockGeneratedResponse);
-
       // Act
       const result = EndpointService.getEndpointResponse(mockEndpoint);
 
       // Assert
-      expect(SchemaService.generateResponseFromSchema).toHaveBeenCalledWith(
-        mockSchema,
-        false,
-        undefined
-      );
-      expect(result).toEqual(mockGeneratedResponse);
+      expect(SchemaService.generateResponseFromSchema).not.toHaveBeenCalled();
+      expect(result).toEqual(mockStaticResponse);
     });
 
-    it('should generate list response from schema without wrapper', () => {
+    it('should return list static response without wrapper', () => {
       // Arrange
       const mockSchema: ISchema = {
         id: 1,
@@ -87,6 +81,14 @@ describe('EndpointService.getEndpointResponse', () => {
         ]
       };
 
+      const mockStaticResponse = [
+        { id: 1 },
+        { id: 2 },
+        { id: 3 },
+        { id: 4 },
+        { id: 5 }
+      ];
+
       const mockEndpoint: IEndpoint = {
         id: '1',
         path: '/users',
@@ -96,36 +98,22 @@ describe('EndpointService.getEndpointResponse', () => {
         schemaId: 1,
         schema: mockSchema,
         responseWrapper: undefined,
-        staticResponse: null,
+        staticResponse: mockStaticResponse,
         isDataList: true,
         numberOfData: 5,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      const mockGeneratedResponse = [
-        { id: 1 },
-        { id: 2 },
-        { id: 3 },
-        { id: 4 },
-        { id: 5 }
-      ];
-
-      vi.mocked(SchemaService.generateResponseFromSchema).mockReturnValue(mockGeneratedResponse);
-
       // Act
       const result = EndpointService.getEndpointResponse(mockEndpoint);
 
       // Assert
-      expect(SchemaService.generateResponseFromSchema).toHaveBeenCalledWith(
-        mockSchema,
-        true,
-        5
-      );
-      expect(result).toEqual(mockGeneratedResponse);
+      expect(SchemaService.generateResponseFromSchema).not.toHaveBeenCalled();
+      expect(result).toEqual(mockStaticResponse);
     });
 
-    it('should generate response from schema with wrapper', () => {
+    it('should return static response with wrapper', () => {
       // Arrange
       const mockSchema: ISchema = {
         id: 1,
@@ -153,6 +141,8 @@ describe('EndpointService.getEndpointResponse', () => {
         updatedAt: new Date(),
       };
 
+      const mockStaticResponse = { id: 1 };
+
       const mockEndpoint: IEndpoint = {
         id: '1',
         path: '/users',
@@ -163,29 +153,23 @@ describe('EndpointService.getEndpointResponse', () => {
         schema: mockSchema,
         responseWrapperId: 1,
         responseWrapper: mockWrapper,
-        staticResponse: null,
+        staticResponse: mockStaticResponse,
         isDataList: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      const mockGeneratedResponse = { id: 1 };
       const mockWrappedResponse = { success: true, data: { id: 1 } };
 
-      vi.mocked(SchemaService.generateResponseFromSchema).mockReturnValue(mockGeneratedResponse);
       vi.mocked(ResponseWrapperService.generateResponseWrapperJson).mockReturnValue(mockWrappedResponse as any);
 
       // Act
       const result = EndpointService.getEndpointResponse(mockEndpoint);
 
       // Assert
-      expect(SchemaService.generateResponseFromSchema).toHaveBeenCalledWith(
-        mockSchema,
-        false,
-        undefined
-      );
+      expect(SchemaService.generateResponseFromSchema).not.toHaveBeenCalled();
       expect(ResponseWrapperService.generateResponseWrapperJson).toHaveBeenCalledWith({
-        response: mockGeneratedResponse,
+        response: mockStaticResponse,
         wrapper: mockWrapper,
       });
       expect(result).toEqual(mockWrappedResponse);
@@ -284,6 +268,8 @@ describe('EndpointService.getEndpointResponse', () => {
         ]
       };
 
+      const mockStaticResponse: any[] = [];
+
       const mockEndpoint: IEndpoint = {
         id: '1',
         path: '/users',
@@ -293,23 +279,18 @@ describe('EndpointService.getEndpointResponse', () => {
         schemaId: 1,
         schema: mockSchema,
         responseWrapper: undefined,
-        staticResponse: null,
+        staticResponse: mockStaticResponse,
         isDataList: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
 
-      vi.mocked(SchemaService.generateResponseFromSchema).mockReturnValue([]);
-
       // Act
-      EndpointService.getEndpointResponse(mockEndpoint);
+      const result = EndpointService.getEndpointResponse(mockEndpoint);
 
       // Assert
-      expect(SchemaService.generateResponseFromSchema).toHaveBeenCalledWith(
-        mockSchema,
-        true,
-        undefined
-      );
+      expect(SchemaService.generateResponseFromSchema).not.toHaveBeenCalled();
+      expect(result).toEqual(mockStaticResponse);
     });
   });
 });

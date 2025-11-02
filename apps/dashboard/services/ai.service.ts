@@ -24,9 +24,9 @@ export class AIService {
     return res.data;
   }
 
-  static async generateEndpointsAndSchemasByAI(prompt: string, model?: string): Promise<GenerateEndpointsAndSchemasByAIResponse> {
+  static async generateEndpointsAndSchemasByAI(prompt: string, model?: string, isGenerateSchemas: boolean = true): Promise<GenerateEndpointsAndSchemasByAIResponse> {
     const headers = this.getAIHeaders();
-    const res = await apiRequest.post("ai/project", { prompt, model }, undefined, headers);
+    const res = await apiRequest.post("ai/project", { prompt, model, isGenerateSchemas }, undefined, headers);
     return res.data;
   }
 

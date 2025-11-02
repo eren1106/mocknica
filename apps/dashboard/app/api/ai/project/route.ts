@@ -11,21 +11,27 @@ export async function POST(req: NextRequest) {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
 
-    const { prompt: userInput, model, projectId } = await req.json();
+    const {
+      prompt: userInput,
+      model,
+      projectId,
+      isGenerateSchemas = true,
+    } = await req.json();
 
     // Create AI service manager with custom keys from headers
     const customKeys = extractApiKeysFromHeaders(req);
     const manager = new AIServiceManager(customKeys);
-    
+
     if (!manager) {
-      return errorResponse(req, { 
-        message: 'AI services are not available. Please configure at least one AI provider.',
-        statusCode: 503
+      return errorResponse(req, {
+        message:
+          "AI services are not available. Please configure at least one AI provider.",
+        statusCode: 503,
       });
     }
 
     // Get all existing schemas to provide as examples for object references
-    const existingSchemas = projectId 
+    const existingSchemas = projectId
       ? await schemaService.getProjectSchemas(projectId, sessionResult.user.id)
       : [];
 
@@ -73,82 +79,128 @@ export async function POST(req: NextRequest) {
         description: "Get all users with pagination",
         schemaId: 1,
         isDataList: true,
-        numberOfData: 15
+        numberOfData: 15,
       },
       {
         path: "/users/:id",
-        method: "GET", 
+        method: "GET",
         description: "Get user by ID",
         schemaId: 1,
-        isDataList: false
+        isDataList: false,
       },
       {
         path: "/users",
         method: "POST",
         description: "Create new user",
         schemaId: 1,
-        isDataList: false
+        isDataList: false,
       },
       {
         path: "/users/:id",
         method: "PUT",
         description: "Update user by ID",
         schemaId: 1,
-        isDataList: false
+        isDataList: false,
       },
       {
         path: "/users/:id",
         method: "DELETE",
         description: "Delete user by ID",
         schemaId: 1,
-        isDataList: false
-      }
+        isDataList: false,
+      },
+    ];
+
+    // Example static response endpoints
+    const exampleStaticEndpoints = [
+      {
+        path: "/users",
+        method: "GET",
+        description: "Get list of users",
+        staticResponse: {
+          users: [
+            {
+              id: 1,
+              email: "john.doe@example.com",
+              firstName: "John",
+              lastName: "Doe",
+              isActive: true,
+              createdAt: "2024-01-15T10:30:00Z",
+            },
+            {
+              id: 2,
+              email: "jane.smith@example.com",
+              firstName: "Jane",
+              lastName: "Smith",
+              isActive: true,
+              createdAt: "2024-01-20T14:45:00Z",
+            },
+          ],
+          total: 2,
+          page: 1,
+          pageSize: 10,
+        },
+      },
+      {
+        path: "/users/:id",
+        method: "GET",
+        description: "Get single user by ID",
+        staticResponse: {
+          id: 1,
+          email: "john.doe@example.com",
+          firstName: "John",
+          lastName: "Doe",
+          profile: "Software Engineer",
+          isActive: true,
+          createdAt: "2024-01-15T10:30:00Z",
+        },
+      },
     ];
 
     const exampleSchemas = [
       {
         name: "User",
         description: "User profile and authentication schema",
-        fields: exampleSchemaFields
+        fields: exampleSchemaFields,
       },
       {
-        name: "Product", 
+        name: "Product",
         description: "Product catalog and inventory schema",
         fields: [
           {
             name: "id",
             type: "ID",
-            idFieldType: "AUTOINCREMENT"
+            idFieldType: "AUTOINCREMENT",
           },
           {
             name: "name",
             type: "FAKER",
-            fakerType: "PRODUCT_NAME"
+            fakerType: "PRODUCT_NAME",
           },
           {
             name: "description",
             type: "FAKER",
-            fakerType: "PARAGRAPH"
+            fakerType: "PARAGRAPH",
           },
           {
             name: "price",
-            type: "FAKER", 
-            fakerType: "PRICE"
+            type: "FAKER",
+            fakerType: "PRICE",
           },
           {
             name: "category",
             type: "FAKER",
-            fakerType: "WORD"
+            fakerType: "WORD",
           },
           {
             name: "inStock",
-            type: "BOOLEAN"
+            type: "BOOLEAN",
           },
           {
             name: "createdAt",
-            type: "DATE"
-          }
-        ]
+            type: "DATE",
+          },
+        ],
       },
       {
         name: "Order",
@@ -157,32 +209,32 @@ export async function POST(req: NextRequest) {
           {
             name: "id",
             type: "ID",
-            idFieldType: "UUID"
+            idFieldType: "UUID",
           },
           {
             name: "orderNumber",
             type: "FAKER",
-            fakerType: "DATABASE_ID"
+            fakerType: "DATABASE_ID",
           },
           {
             name: "customerEmail",
             type: "FAKER",
-            fakerType: "EMAIL"
+            fakerType: "EMAIL",
           },
           {
             name: "totalAmount",
             type: "FAKER",
-            fakerType: "AMOUNT"
+            fakerType: "AMOUNT",
           },
           {
             name: "status",
-            type: "STRING"
+            type: "STRING",
           },
           {
             name: "orderDate",
-            type: "DATE"
-          }
-        ]
+            type: "DATE",
+          },
+        ],
       },
       {
         name: "Customer",
@@ -191,40 +243,40 @@ export async function POST(req: NextRequest) {
           {
             name: "id",
             type: "ID",
-            idFieldType: "AUTOINCREMENT"
+            idFieldType: "AUTOINCREMENT",
           },
           {
             name: "firstName",
             type: "FAKER",
-            fakerType: "FIRST_NAME"
+            fakerType: "FIRST_NAME",
           },
           {
             name: "lastName",
             type: "FAKER",
-            fakerType: "LAST_NAME"
+            fakerType: "LAST_NAME",
           },
           {
             name: "email",
             type: "FAKER",
-            fakerType: "EMAIL"
+            fakerType: "EMAIL",
           },
           {
             name: "phone",
             type: "FAKER",
-            fakerType: "PHONE_NUMBER"
+            fakerType: "PHONE_NUMBER",
           },
           {
             name: "address",
             type: "FAKER",
-            fakerType: "STREET_ADDRESS"
+            fakerType: "STREET_ADDRESS",
           },
           {
             name: "city",
             type: "FAKER",
-            fakerType: "CITY"
-          }
-        ]
-      }
+            fakerType: "CITY",
+          },
+        ],
+      },
     ];
 
     const prismaTypes = `
@@ -261,61 +313,92 @@ export async function POST(req: NextRequest) {
 
 Your response must start with { and end with }. Nothing else.
 
-Generate a complete API project structure based on the user request. You need to create multiple schemas (minimum 5-8 schemas) and comprehensive CRUD endpoints for each schema.
+Generate a complete API project structure based EXACTLY on the user's request. Create ONLY what the user asks for - if they ask for 1 schema, create 1 schema. If they ask for a specific feature, focus on that feature.
+
+${
+  isGenerateSchemas
+    ? "IMPORTANT: Generate both schemas AND endpoints as requested. Endpoints should use schemaId to reference schemas."
+    : 'IMPORTANT: Generate ONLY endpoints with static responses. DO NOT generate any schemas. Set "schemas" to an empty array []. Each endpoint MUST have a "staticResponse" field containing the JSON object to return.'
+}
 
 ${prismaTypes}
 
 Expected response format:
 {
-  "schemas": [
+  "schemas": [${
+    isGenerateSchemas
+      ? `
     {
       "name": "SchemaName", 
       "description": "Schema description",
       "fields": [schema field objects]
-    }
+    }`
+      : " // EMPTY ARRAY - Do not generate schemas"
+  }
   ],
   "endpoints": [
     {
       "path": "/endpoint-path",
       "method": "GET|POST|PUT|DELETE|PATCH", 
-      "description": "Endpoint description",
+      "description": "Endpoint description",${
+        isGenerateSchemas
+          ? `
       "schemaId": 1, // Reference to schema by index (1-based)
       "isDataList": true|false, // true for list endpoints, false for single item
-      "numberOfData": 10 // only for list endpoints
+      "numberOfData": 10 // only for list endpoints`
+          : `
+      "staticResponse": { // Static JSON response object
+        "key": "value",
+        "data": "example"
+      }`
+      }
     }
   ]
 }
 
-Example schemas for small-medium company:
+${
+  isGenerateSchemas
+    ? `
+Example schemas for reference:
 ${JSON.stringify(exampleSchemas, null, 2)}
 
-Example CRUD endpoints (generate these patterns for EVERY schema):
+Example CRUD endpoints (generate these patterns for schemas when appropriate):
 ${JSON.stringify(exampleCrudEndpoints, null, 2)}
+`
+    : `
+Example static response endpoints:
+${JSON.stringify(exampleStaticEndpoints, null, 2)}
 
-MANDATORY REQUIREMENTS:
-1. Generate minimum 6-10 schemas covering typical business needs:
-   - User management (Users, Roles, Permissions)
-   - Product management (Products, Categories, Inventory)
-   - Customer management (Customers, Orders, Invoices)
-   - Content management (Posts, Comments, Media)
-   - Analytics (Analytics, Reports, Logs)
-   - Settings (Settings, Configurations)
+CRITICAL for static endpoints:
+- Every endpoint MUST have a "staticResponse" field
+- The staticResponse should be a valid JSON object representing the response
+- Make the response realistic and appropriate for the endpoint's purpose
+- DO NOT include schemaId, isDataList, or numberOfData fields
+`
+}
 
-2. For EVERY schema, generate complete CRUD operations:
-   - GET /{resource} - List all (with numberOfData: 10-20)
-   - GET /{resource}/:id - Get single item
-   - POST /{resource} - Create new item
-   - PUT /{resource}/:id - Update existing item
-   - DELETE /{resource}/:id - Delete item
+IMPORTANT REQUIREMENTS:
+1. Follow the user's request EXACTLY - if they ask for 1 car schema and 1 car endpoint, generate exactly that
+2. Do NOT add extra schemas or endpoints unless explicitly requested
+3. If the user doesn't specify, you can create a reasonable small set (2-4 ${
+      isGenerateSchemas ? "schemas" : "endpoints"
+    })
+${
+  isGenerateSchemas
+    ? "4. For each schema mentioned, consider generating basic CRUD operations unless user specifies otherwise"
+    : "4. Each endpoint must return a meaningful static response appropriate to its purpose"
+}
+${
+  !isGenerateSchemas
+    ? "\n5. CRITICAL: Since schema generation is disabled, generate ONLY endpoints with staticResponse field.\n6. DO NOT include schemaId, isDataList, or numberOfData in endpoints."
+    : ""
+}
 
-3. Schema complexity requirements:
-   - Each schema must have 5-10 fields minimum
-   - Include variety of field types (ID, FAKER, STRING, INTEGER, BOOLEAN, DATE)
-   - Use meaningful business field names
-   - Include common audit fields (createdAt, updatedAt, isActive)
-
-Rules for schemas:
-1. Schema names should be PascalCase (e.g., "User", "Product", "BlogPost")
+${
+  isGenerateSchemas
+    ? `
+Schema requirements:
+1. Schema names should be PascalCase (e.g., "User", "Product", "Car")
 2. Field names MUST be camelCase (e.g., "firstName", "userEmail", "createdAt")
 3. Each schema must have at least an "id" field
 4. If type is "ID", optionally include "idFieldType" (UUID or AUTOINCREMENT)
@@ -323,8 +406,9 @@ Rules for schemas:
 6. DO NOT use "OBJECT" type or reference other schemas with "objectSchemaId" in AI generation
 7. DO NOT use "ARRAY" type with object references in AI generation - use simple arrays only
 8. Keep schemas independent and self-contained for AI generation
+9. Each schema should have 3-8 fields for meaningful data structure
 
-Rules for endpoints:
+Endpoint requirements:
 1. Create REST endpoints following patterns: /resource, /resource/:id
 2. Use proper HTTP methods (GET for read, POST for create, PUT for update, DELETE for delete)
 3. schemaId should reference schemas by their index in the schemas array (1-based)
@@ -332,15 +416,23 @@ Rules for endpoints:
 5. Use isDataList=false for endpoints that return single items (like GET /users/:id)
 6. numberOfData should be specified for list endpoints (typically 10-25)
 7. Paths should start with / and use kebab-case for multi-word resources
-8. Generate 5 endpoints per schema (complete CRUD)
+`
+    : `
+Endpoint requirements for static responses:
+1. Create REST endpoints with descriptive paths
+2. Use proper HTTP methods (GET for read, POST for create, PUT for update, DELETE for delete)
+3. Each endpoint MUST have a "staticResponse" field with a JSON object
+4. The staticResponse should be realistic and match the endpoint's purpose
+5. DO NOT include schemaId, isDataList, or numberOfData fields
+6. Paths should start with / and use kebab-case for multi-word resources
+`
+}
 
 Available existing schemas: ${JSON.stringify(
       existingSchemas.map((s) => ({ id: s.id, name: s.name })),
       null,
       2
     )}
-
-GENERATE AT LEAST 6-10 SCHEMAS WITH COMPLETE CRUD ENDPOINTS (30-50 endpoints total).
 
 RESPOND WITH ONLY JSON:`;
 
@@ -350,29 +442,34 @@ RESPOND WITH ONLY JSON:`;
     ].join("\n\n");
 
     // Initialize AI service manager and generate response
-    
+
     let completion;
     try {
       completion = await manager.generateText({
         prompt,
         model,
       });
+
     } catch (aiError) {
       // If AI generation fails, throw a more descriptive error
-      const errorMessage = aiError instanceof Error ? aiError.message : 'Unknown AI generation error';
+      const errorMessage =
+        aiError instanceof Error
+          ? aiError.message
+          : "Unknown AI generation error";
       throw new Error(`AI generation failed: ${errorMessage}`);
     }
 
     let response;
     let rawResponse = "";
-    
+
     try {
       // Try to parse the response as JSON
       if (!completion.content) {
         throw new Error("No response from AI service");
       }
-      
+
       rawResponse = completion.content;
+
       response = JSON.parse(rawResponse);
     } catch (parseError) {
       // If JSON parsing fails, try to extract JSON from the response
@@ -383,40 +480,48 @@ RESPOND WITH ONLY JSON:`;
         } catch (extractError) {
           // If response seems truncated, try to repair it
           let repairedJson = jsonMatch[0];
-          
+
           // Common truncation repairs
-          if (!repairedJson.endsWith('}')) {
+          if (!repairedJson.endsWith("}")) {
             // Count unclosed braces and arrays
             const openBraces = (repairedJson.match(/\{/g) || []).length;
             const closeBraces = (repairedJson.match(/\}/g) || []).length;
             const openBrackets = (repairedJson.match(/\[/g) || []).length;
             const closeBrackets = (repairedJson.match(/\]/g) || []).length;
-            
+
             // Add missing closing brackets/braces
             for (let i = 0; i < openBrackets - closeBrackets; i++) {
-              repairedJson += ']';
+              repairedJson += "]";
             }
             for (let i = 0; i < openBraces - closeBraces; i++) {
-              repairedJson += '}';
+              repairedJson += "}";
             }
-            
+
             try {
               response = JSON.parse(repairedJson);
-              console.log("Successfully repaired truncated JSON response");
             } catch (repairError) {
               throw new Error(
-                `AI returned malformed JSON that couldn't be repaired. Response: ${rawResponse.substring(0, 500)}...`
+                `AI returned malformed JSON that couldn't be repaired. Response: ${rawResponse.substring(
+                  0,
+                  500
+                )}...`
               );
             }
           } else {
             throw new Error(
-              `AI returned invalid JSON. Response: ${rawResponse.substring(0, 500)}...`
+              `AI returned invalid JSON. Response: ${rawResponse.substring(
+                0,
+                500
+              )}...`
             );
           }
         }
       } else {
         throw new Error(
-          `AI response does not contain valid JSON. Response: ${rawResponse.substring(0, 500)}...`
+          `AI response does not contain valid JSON. Response: ${rawResponse.substring(
+            0,
+            500
+          )}...`
         );
       }
     }
@@ -431,71 +536,82 @@ RESPOND WITH ONLY JSON:`;
       throw new Error("AI response must contain an 'endpoints' array");
     }
 
-    // Validate minimum schema count for comprehensive business coverage
-    if (response.schemas.length < 5) {
-      throw new Error(`Insufficient schemas generated. Expected minimum 5, got ${response.schemas.length}. Please generate more comprehensive business schemas.`);
-    }
+    // Validate schemas (only if isGenerateSchemas is true)
+    if (isGenerateSchemas) {
+      for (const schema of response.schemas) {
+        if (!schema.name || !schema.fields || !Array.isArray(schema.fields)) {
+          throw new Error("Each schema must have 'name' and 'fields' array");
+        }
 
-    // Validate schemas
-    for (const schema of response.schemas) {
-      if (!schema.name || !schema.fields || !Array.isArray(schema.fields)) {
-        throw new Error("Each schema must have 'name' and 'fields' array");
+        // Validate minimum field count for meaningful schemas
+        if (schema.fields.length < 1) {
+          throw new Error(
+            `Schema '${schema.name}' has no fields. Each schema should have at least 1 field.`
+          );
+        }
       }
-      
-      // Validate minimum field count for meaningful schemas
-      if (schema.fields.length < 3) {
-        throw new Error(`Schema '${schema.name}' has insufficient fields. Each schema should have at least 3 fields.`);
-      }
-      
-      // Validate that schema has an ID field
-      const hasIdField = schema.fields.some((field: any) => field.type === 'ID');
-      if (!hasIdField) {
-        throw new Error(`Schema '${schema.name}' must have an ID field.`);
+    } else {
+      // When isGenerateSchemas is false, schemas array should be empty
+      if (response.schemas.length > 0) {
+        throw new Error(
+          "Schemas array must be empty when isGenerateSchemas is false"
+        );
       }
     }
 
     // Validate endpoints
-    const requiredMethods = ['GET', 'POST', 'PUT', 'DELETE'];
-    const schemaEndpointCoverage = new Map();
-    
     for (const endpoint of response.endpoints) {
+
       if (!endpoint.path || !endpoint.method || !endpoint.description) {
-        throw new Error("Each endpoint must have 'path', 'method', and 'description'");
+        throw new Error(
+          "Each endpoint must have 'path', 'method', and 'description'"
+        );
       }
-      
+
       // Validate method is valid
       if (!Object.values(HttpMethod).includes(endpoint.method)) {
         throw new Error(`Invalid HTTP method: ${endpoint.method}`);
       }
-      
-      // Track CRUD coverage per schema
-      if (endpoint.schemaId) {
-        const schemaId = endpoint.schemaId;
-        if (!schemaEndpointCoverage.has(schemaId)) {
-          schemaEndpointCoverage.set(schemaId, new Set());
+
+      // Validate endpoint structure based on isGenerateSchemas flag
+      if (isGenerateSchemas) {
+        // When generating schemas, endpoints should have schemaId
+        if (endpoint.schemaId === undefined) {
+          throw new Error(
+            `Endpoint ${endpoint.path} must have a schemaId when generating schemas`
+          );
         }
-        schemaEndpointCoverage.get(schemaId).add(endpoint.method);
+      } else {
+        // When not generating schemas, endpoints should have staticResponse
+        if (!endpoint.staticResponse) {
+          throw new Error(
+            `Endpoint ${endpoint.path} must have a staticResponse when isGenerateSchemas is false`
+          );
+        }
+
+        // Check if staticResponse is an empty object - THIS IS LIKELY THE BUG!
+        if (
+          typeof endpoint.staticResponse === "object" &&
+          Object.keys(endpoint.staticResponse).length === 0
+        ) {
+          // Instead of just warning, we should throw an error or provide a default
+          throw new Error(
+            `Endpoint ${endpoint.path} has an empty staticResponse object {}. The AI must provide a meaningful response object.`
+          );
+        }
+
+        // Ensure no schema-related fields are present
+        if (
+          endpoint.schemaId !== undefined ||
+          endpoint.isDataList !== undefined ||
+          endpoint.numberOfData !== undefined
+        ) {
+          throw new Error(
+            `Endpoint ${endpoint.path} should not have schemaId, isDataList, or numberOfData when isGenerateSchemas is false`
+          );
+        }
       }
     }
-
-    // Validate CRUD completeness for each schema
-    for (let i = 1; i <= response.schemas.length; i++) {
-      const methods = schemaEndpointCoverage.get(i) || new Set();
-      const missingMethods = requiredMethods.filter(method => !methods.has(method));
-      
-      if (missingMethods.length > 0) {
-        const schemaName = response.schemas[i - 1]?.name || `Schema ${i}`;
-        console.warn(`Warning: Schema '${schemaName}' is missing CRUD operations: ${missingMethods.join(', ')}`);
-        // Don't throw error, just warn - allow partial CRUD for flexibility
-      }
-    }
-
-    // Validate minimum endpoint count (should be roughly 5 per schema)
-    const minExpectedEndpoints = response.schemas.length * 4; // At least 4 CRUD ops per schema
-    if (response.endpoints.length < minExpectedEndpoints) {
-      console.warn(`Warning: Expected at least ${minExpectedEndpoints} endpoints for ${response.schemas.length} schemas, got ${response.endpoints.length}`);
-    }
-
     return apiResponse(req, { data: response });
   } catch (error) {
     return errorResponse(req, { error });

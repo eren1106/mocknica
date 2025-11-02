@@ -1,6 +1,5 @@
 import { apiRequest } from "@/helpers/api-request";
 import { ResponseWrapperService } from "./response-wrapper.service";
-import { SchemaService } from "./schema.service";
 import { QueryParams, QueryParamsHelper } from "@/helpers/query-params";
 import { IEndpoint } from "@/types";
 
@@ -13,6 +12,15 @@ export class EndpointService {
 
   static async createEndpoint(data: Partial<IEndpoint>): Promise<IEndpoint> {
     const res = await apiRequest.post("endpoints", data);
+    return res.data;
+  }
+
+  static async createBulkEndpoints(data: {
+    projectId: string;
+    schemas?: Array<{ name: string; fields: any[] }>; // TODO: use ISchema[], and create zod schema for this api
+    endpoints?: Partial<IEndpoint>[];
+  }): Promise<{ schemas: any[]; endpoints: IEndpoint[] }> {
+    const res = await apiRequest.post("endpoints/bulk", data);
     return res.data;
   }
 
@@ -42,16 +50,17 @@ export class EndpointService {
     let response: any;
 
     // Handle schema-based responses
-    if (endpoint.schema) {
-      response = SchemaService.generateResponseFromSchema(
-        endpoint.schema,
-        endpoint.isDataList ?? false, // Convert null to false
-        endpoint.numberOfData || undefined
-      );
-    } else {
-      // Handle static responses
-      response = endpoint.staticResponse;
-    }
+    // if (endpoint.schema) {
+    //   response = SchemaService.generateResponseFromSchema(
+    //     endpoint.schema,
+    //     endpoint.isDataList ?? false, // Convert null to false
+    //     endpoint.numberOfData || undefined
+    //   );
+    // } else {
+    //   // Handle static responses
+    //   response = endpoint.staticResponse;
+    // }
+    response = endpoint.staticResponse;
 
     // Apply response wrapper if present
     if (endpoint.responseWrapper) {

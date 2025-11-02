@@ -29,6 +29,8 @@ export const EndPointSchema = z.object({
 // TODO: to be enhanced, should not hard-code like this
 export const EndpointSchemaBackend = EndPointSchema.extend({
   staticResponse: z.any().nullable().optional(),
+  schemaId: z.coerce.number().int().positive().optional(), // Allow schemaId to be optional
+  responseWrapperId: z.coerce.number().int().positive().optional(), // Allow responseWrapperId to be optional
 });
 
 

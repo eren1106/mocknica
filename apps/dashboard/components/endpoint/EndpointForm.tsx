@@ -343,7 +343,15 @@ export default function EndpointForm({
                     </Button>
                   </div>
                   <JsonViewer
-                    data={JSON.parse(form.watch("staticResponse") || "")}
+                    data={(() => {
+                      try {
+                        const staticResponse = form.watch("staticResponse") || "{}";
+                        return staticResponse.trim() ? JSON.parse(staticResponse) : {};
+                      } catch (error) {
+                        console.error("Error parsing staticResponse:", error);
+                        return {};
+                      }
+                    })()}
                   />
                 </div>
               )}

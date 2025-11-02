@@ -50,7 +50,7 @@ export const ProjectSchema = z.object({
   description: z.string().optional(),
   isNeedToken: z.boolean(),
   corsOrigins: z.array(z.string().url("Please enter a valid URL")),
-  aiGeneratedData: AIGeneratedDataSchema.nullish(),
+  // aiGeneratedData: AIGeneratedDataSchema.nullish(),
 });
 
 export type ProjectSchemaType = z.infer<typeof ProjectSchema>;

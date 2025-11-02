@@ -2,12 +2,17 @@
 
 import React, { useState } from "react";
 import { Accordion } from "../ui/accordion";
-import { useEndpoints } from "@/hooks/useEndpoint";
+import { useEndpoints, useMutationEndpoint } from "@/hooks/useEndpoint";
+import { useSchemas } from "@/hooks/useSchema";
 import { Skeleton } from "../ui/skeleton";
 import EndpointItem from "./EndpointItem";
 import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 import { Globe } from "lucide-react";
 import ControlsBar, { SortOption, FilterOption } from "../controls-bar";
+import AIGeneratedPreview from "./AIGeneratedPreview";
+import { toast } from "sonner";
+import { useAtom } from "jotai";
+import { aiGeneratedDataAtom } from "@/atoms/aiGenerationAtom";
 
 type SortOrder = "description-asc" | "description-desc" | "created-asc" | "created-desc" | "method-asc" | "path-asc";
 type FilterType = "all" | "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
@@ -15,10 +20,15 @@ type FilterType = "all" | "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 export default function EndpointsList() {
   const projectId = useCurrentProjectId();
   const { data: endpoints, isLoading: isLoadingEndpoints } = useEndpoints(projectId);
+  // TODO: use isLoadingSchemas and isPendingBulk
+  const { data: schemas, isLoading: isLoadingSchemas } = useSchemas(projectId);
+  const { createBulkEndpoints, isPending: isPendingBulk } = useMutationEndpoint();
   
   const [sortOrder, setSortOrder] = useState<SortOrder>("created-desc");
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [aiGeneratedData, setAiGeneratedData] = useAtom(aiGeneratedDataAtom);
+  const [isCreatingAll, setIsCreatingAll] = useState(false);
 
   const getMethodColor = (method: string) => {
     switch (method) {
@@ -28,6 +38,106 @@ export default function EndpointsList() {
       case "DELETE": return "bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-300";
       case "PATCH": return "bg-purple-50 text-purple-700 dark:bg-purple-950/20 dark:text-purple-300";
       default: return "bg-gray-50 text-gray-700 dark:bg-gray-950/20 dark:text-gray-300";
+    }
+  };
+
+  const handleRemoveAI = () => {
+    setAiGeneratedData(null);
+  };
+
+  const handleCreateAll = async () => {
+    if (!aiGeneratedData || !projectId) return;
+
+    setIsCreatingAll(true);
+    try {
+      const createdSchemas: Array<{ id: number; name: string }> = [];
+      const skippedSchemas: string[] = [];
+      const skippedEndpoints: string[] = [];
+
+      // Get existing schemas and endpoints for duplicate checking
+      const existingSchemas = schemas || [];
+      const existingEndpoints = endpoints || [];
+
+      // Prepare schemas to create (filter out duplicates)
+      const schemasToCreate = aiGeneratedData.schemas.filter((schemaData) => {
+        const isDuplicate = existingSchemas.some(
+          (existing) => existing.name.toLowerCase() === schemaData.name.toLowerCase()
+        );
+        if (isDuplicate) {
+          skippedSchemas.push(schemaData.name);
+          // Add existing schema to createdSchemas for endpoint reference
+          const existingSchema = existingSchemas.find(
+            (s) => s.name.toLowerCase() === schemaData.name.toLowerCase()
+          );
+          if (existingSchema) {
+            createdSchemas.push({ id: existingSchema.id, name: existingSchema.name });
+          }
+          return false;
+        }
+        return true;
+      });
+
+      // Prepare endpoints to create (filter out duplicates)
+      const endpointsToCreate = aiGeneratedData.endpoints.filter((endpointData) => {
+        const isDuplicate = existingEndpoints.some(
+          (existing) =>
+            existing.path === endpointData.path &&
+            existing.method === endpointData.method
+        );
+        if (isDuplicate) {
+          skippedEndpoints.push(`${endpointData.method} ${endpointData.path}`);
+          return false;
+        }
+        return true;
+      });
+
+      // Create schemas and endpoints in one API call
+      const result = await createBulkEndpoints({
+        projectId,
+        schemas: schemasToCreate.map((s) => ({
+          name: s.name,
+          fields: s.fields,
+        })),
+        endpoints: endpointsToCreate.map((endpointData) => {
+          // CRITICAL FIX: Pass the AI's schemaId (1-based index) directly to backend
+          // The backend will handle mapping it to actual database schema IDs
+          return {
+            path: endpointData.path,
+            method: endpointData.method,
+            description: endpointData.description,
+            schemaId: endpointData.schemaId, // Keep the 1-based index from AI
+            isDataList: endpointData.isDataList || false,
+            numberOfData: endpointData.numberOfData,
+            staticResponse: endpointData.staticResponse,
+            projectId,
+          };
+        }),
+      });
+
+      // Build success message with details
+      const createdSchemasCount = result.schemas.length;
+      const createdEndpointsCount = result.endpoints.length;
+      
+      let message = `Successfully created ${createdSchemasCount} schema(s) and ${createdEndpointsCount} endpoint(s)`;
+      
+      if (skippedSchemas.length > 0 || skippedEndpoints.length > 0) {
+        const skippedParts = [];
+        if (skippedSchemas.length > 0) {
+          skippedParts.push(`${skippedSchemas.length} schema(s)`);
+        }
+        if (skippedEndpoints.length > 0) {
+          skippedParts.push(`${skippedEndpoints.length} endpoint(s)`);
+        }
+        message += `. Skipped ${skippedParts.join(" and ")} (already exist)`;
+      }
+
+      toast.success(message);
+      setAiGeneratedData(null);
+    } catch (error) {
+      console.error("Error creating schemas and endpoints:", error);
+      toast.error("Failed to create some items. Please check and try again.");
+    } finally {
+      setIsCreatingAll(false);
     }
   };
 
@@ -121,6 +231,19 @@ export default function EndpointsList() {
         onFilterChange={(value) => setFilterType(value as FilterType)}
         filterOptions={filterOptions}
       />
+
+      {/* AI Generated Preview */}
+      {aiGeneratedData && (
+        <AIGeneratedPreview
+          data={aiGeneratedData}
+          existingSchemas={schemas || []}
+          existingEndpoints={endpoints || []}
+          onUpdateData={setAiGeneratedData}
+          onCreateAll={handleCreateAll}
+          onCancel={handleRemoveAI}
+          isCreatingAll={isCreatingAll}
+        />
+      )}
       
       {isLoadingEndpoints ? (
         // TODO: make this into reusable component

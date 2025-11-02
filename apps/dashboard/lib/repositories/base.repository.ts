@@ -99,7 +99,7 @@ export abstract class BaseRepository<
    * @param id - The ID of the record to update
    * @param data - The data to update
    */
-  async update(id: string, data: UpdateInput, options?: BaseFindOptions): Promise<MappedType> {
+  async update(id: number | string, data: UpdateInput, options?: BaseFindOptions): Promise<MappedType> {
     const entity = await this.delegate.update({
       where: { id } as WhereUniqueInput,
       data,

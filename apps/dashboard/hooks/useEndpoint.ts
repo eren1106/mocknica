@@ -27,6 +27,22 @@ export const useMutationEndpoint = () => {
       toast.error("Failed to create endpoint");
     },
   });
+
+  const createBulkEndpoints = useMutation({
+    mutationFn: (data: {
+      projectId: string;
+      schemas?: Array<{ name: string; fields: any[] }>;
+      endpoints?: Partial<IEndpoint>[];
+    }) => EndpointService.createBulkEndpoints(data),
+    onSuccess: () => {
+      invalidateQueries();
+      // Toast notification handled by the caller (EndpointList.tsx)
+    },
+    onError: () => {
+      toast.error("Failed to create schemas and endpoints");
+    },
+  });
+
   const updateEndpoint = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<IEndpoint> }) =>
       EndpointService.updateEndpoint(id, data),
@@ -65,9 +81,10 @@ export const useMutationEndpoint = () => {
 
   return {
     createEndpoint: createEndpoint.mutateAsync,
+    createBulkEndpoints: createBulkEndpoints.mutateAsync,
     updateEndpoint: updateEndpoint.mutateAsync,
     deleteEndpoint: deleteEndpoint.mutateAsync,
     createEndpointsBySchema: createEndpointsBySchema.mutateAsync,
-    isPending: createEndpoint.isPending || updateEndpoint.isPending || deleteEndpoint.isPending || createEndpointsBySchema.isPending,
+    isPending: createEndpoint.isPending || createBulkEndpoints.isPending || updateEndpoint.isPending || deleteEndpoint.isPending || createEndpointsBySchema.isPending,
   }
 }

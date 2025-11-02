@@ -11,7 +11,6 @@ const createGeminiClient = () => {
 };
 
 declare global {
-  // eslint-disable-next-line no-var
   var __gemini: GoogleGenAI | undefined;
 }
 

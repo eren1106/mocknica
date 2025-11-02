@@ -18,7 +18,7 @@ export interface IBaseRepository<T, MappedType> {
   findFirst(options?: FindManyOptions): Promise<T | MappedType | null>;
   create(data: any): Promise<T | MappedType>;
   createMany(data: any[]): Promise<{ count: number }>;
-  update(id: string, data: any): Promise<T | MappedType>;
+  update(id: number | string, data: any): Promise<T | MappedType>;
   updateMany(where: any, data: any): Promise<{ count: number }>;
   delete(id: string): Promise<T | MappedType>;
   deleteMany(where: any): Promise<{ count: number }>;
