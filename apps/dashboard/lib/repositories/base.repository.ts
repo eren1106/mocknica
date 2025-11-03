@@ -125,7 +125,7 @@ export abstract class BaseRepository<
    * Delete a record by ID
    * @param id - The ID of the record to delete
    */
-  async delete(id: string, options?: BaseFindOptions): Promise<MappedType> {
+  async delete(id: number | string, options?: BaseFindOptions): Promise<MappedType> {
     const entity = await this.delegate.delete({
       where: { id } as WhereUniqueInput,
       ...options,

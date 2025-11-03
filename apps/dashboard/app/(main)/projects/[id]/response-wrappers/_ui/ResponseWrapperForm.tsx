@@ -30,12 +30,13 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
     responseWrapper
       ? {
           name: responseWrapper.name,
-          // Replace "WRAPPER_DATA_STR" with WRAPPER_DATA_STR, so that the system will detect it and display it in primary color
-          json: responseWrapper.json ? JSON.stringify(responseWrapper.json, undefined, 2).replaceAll(`"${WRAPPER_DATA_STR}"`, WRAPPER_DATA_STR) : undefined,
+          json: responseWrapper.json,
         }
       : {
           name: "",
-          json: undefined,
+          json: JSON.stringify({
+            data: WRAPPER_DATA_STR
+          }, undefined, 2),
         }
   );
   const onSubmit = async (data: ResponseWrapperSchemaType) => {
@@ -76,7 +77,7 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
         name="json"
         control={form.control}
         placeholder="Enter JSON"
-        description={`Insert ${WRAPPER_DATA_STR} as the response data`}
+        description={`Insert "${WRAPPER_DATA_STR}" as the response data`}
         customChildren={
           <JsonEditor
             value={form.watch("json") || ""}

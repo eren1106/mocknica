@@ -10,7 +10,22 @@ const ResponseWrapperView = ({wrapper}: {wrapper: IResponseWrapper}) => {
   // Function to render JSON with Badge for DATA_STR
   const renderFormattedJson = useCallback(
     (json: any) => {
-      const formattedJson = formatJSON(json);
+      // Check if json is already a string and needs parsing
+      let jsonObj = json;
+      if (typeof json === 'string') {
+        try {
+          jsonObj = JSON.parse(json);
+        } catch (e) {
+          // If it fails to parse, use as-is
+          jsonObj = json;
+        }
+      }
+      
+      // Format the JSON properly
+      const formattedJson = typeof jsonObj === 'string' 
+        ? jsonObj 
+        : JSON.stringify(jsonObj, null, 2);
+      
       const parts = formattedJson.split(`"${WRAPPER_DATA_STR}"`);
 
       const elements: any[] = [];
@@ -39,7 +54,6 @@ const ResponseWrapperView = ({wrapper}: {wrapper: IResponseWrapper}) => {
   );
 
   // Function to highlight JSON syntax with colors matching JsonViewer
-  // TODO: make i reusable with JsonViewer
   const highlightJSON = (jsonString: string): React.ReactNode => {
     // Split the JSON into tokens for safer parsing
     const tokens: { type: string; value: string }[] = [];
@@ -77,7 +91,7 @@ const ResponseWrapperView = ({wrapper}: {wrapper: IResponseWrapper}) => {
       } else if (/\d/.test(char) || (char === '-' && /\d/.test(jsonString[i + 1] || ''))) {
         // Handle numbers
         let numberValue = '';
-        while (i < jsonString.length && /[\d\-\.]/.test(jsonString[i])) {
+        while (i < jsonString.length && /[\d\-\.eE+]/.test(jsonString[i])) {
           numberValue += jsonString[i];
           i++;
         }
@@ -144,6 +158,7 @@ const ResponseWrapperView = ({wrapper}: {wrapper: IResponseWrapper}) => {
       }
     });
   };
+  
   return (
     <pre className="p-4 rounded-lg overflow-auto max-h-96 bg-muted/30 border font-mono text-sm leading-relaxed">
       <code className="whitespace-pre-wrap">

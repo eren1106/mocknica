@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { WRAPPER_DATA_STR } from "@/constants";
 
 export const ResponseWrapperSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -7,14 +6,14 @@ export const ResponseWrapperSchema = z.object({
       if (!val || val.trim() === "") return true; // Allow empty or null values
           try {
           // Replace WRAPPER_DATA_STR with a valid JSON placeholder for validation
-          const processedJson = val.replace(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`);
-          JSON.parse(processedJson);
+          // const processedJson = val.replace(WRAPPER_DATA_STR, `"${WRAPPER_DATA_STR}"`);
+          JSON.parse(val);
           return true;
       } catch {
           return false;
       }
   }, {
-      message: `JSON must be valid JSON format (${WRAPPER_DATA_STR} placeholder is allowed)`
+      message: `JSON must be valid JSON format`
   }),
 });
 export type ResponseWrapperSchemaType = z.infer<typeof ResponseWrapperSchema>;

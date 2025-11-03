@@ -17,9 +17,10 @@ interface Token {
 }
 
 // Memoized JSON formatting function
+// TODO: change the jsonData type to string, it will be the stringified json
 const formatJSON = (jsonData: any): string => {
   try {
-    return JSON.stringify(jsonData, null, 2);
+    return typeof jsonData === 'string' ? jsonData : JSON.stringify(jsonData, null, 2);
   } catch (error) {
     return String(jsonData);
   }

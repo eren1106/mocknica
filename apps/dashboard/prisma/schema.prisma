@@ -96,7 +96,7 @@ model ArrayType {
 model ResponseWrapper {
   id        Int        @id @default(autoincrement())
   name      String     @db.VarChar(255)
-  // TODO: change json to response
+  // TODO: change the type to string, it will be the stringified json
   json      Json
   projectId String?
   project   Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)

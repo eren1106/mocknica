@@ -4,7 +4,6 @@ import { requireAuth } from '../../_helpers/auth-guards';
 import { validateRequestBody } from '../../_helpers/validation';
 import { responseWrapperService } from '@/lib/services';
 import { ResponseWrapperSchema } from '@/zod-schemas/response-wrapper.schema';
-import { WRAPPER_DATA_STR } from '@/constants';
 
 // GET /api/response-wrappers/[id]
 export async function GET(
