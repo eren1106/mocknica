@@ -15,11 +15,11 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
       id: 1,
       name: 'Success Wrapper',
       projectId: 'project1',
-      json: {
+      json: JSON.stringify({
         success: true,
         data: WRAPPER_DATA_STR,
         message: 'Request successful'
-      },
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -48,11 +48,11 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
       id: 1,
       name: 'List Wrapper',
       projectId: 'project1',
-      json: {
+      json: JSON.stringify({
         success: true,
         data: WRAPPER_DATA_STR,
         count: 2
-      },
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -78,7 +78,7 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
       id: 1,
       name: 'Complex Wrapper',
       projectId: 'project1',
-      json: {
+      json: JSON.stringify({
         status: 'ok',
         result: {
           payload: WRAPPER_DATA_STR,
@@ -87,7 +87,7 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
             version: '1.0'
           }
         }
-      },
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -118,13 +118,13 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
       id: 1,
       name: 'Multi Data Wrapper',
       projectId: 'project1',
-      json: {
+      json: JSON.stringify({
         primary: WRAPPER_DATA_STR,
         backup: WRAPPER_DATA_STR,
         meta: {
           original: WRAPPER_DATA_STR
         }
-      },
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -152,10 +152,10 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
       id: 1,
       name: 'Null Wrapper',
       projectId: 'project1',
-      json: {
+      json: JSON.stringify({
         data: WRAPPER_DATA_STR,
         isEmpty: true
-      },
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -180,10 +180,10 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
       id: 1,
       name: 'String Wrapper',
       projectId: 'project1',
-      json: {
+      json: JSON.stringify({
         message: WRAPPER_DATA_STR,
         type: 'string'
-      },
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -208,10 +208,10 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
       id: 1,
       name: 'Number Wrapper',
       projectId: 'project1',
-      json: {
+      json: JSON.stringify({
         value: WRAPPER_DATA_STR,
         type: 'number'
-      },
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -236,10 +236,10 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
       id: 1,
       name: 'Boolean Wrapper',
       projectId: 'project1',
-      json: {
+      json: JSON.stringify({
         result: WRAPPER_DATA_STR,
         success: true
-      },
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -264,11 +264,11 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
       id: 1,
       name: 'No Data Wrapper',
       projectId: 'project1',
-      json: {
+      json: JSON.stringify({
         status: 'success',
         message: 'Operation completed',
         timestamp: '2023-01-01T00:00:00Z'
-      },
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -294,7 +294,7 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
       id: 1,
       name: 'Deep Nested Wrapper',
       projectId: 'project1',
-      json: {
+      json: JSON.stringify({
         api: {
           version: '1.0',
           response: {
@@ -306,7 +306,7 @@ describe('ResponseWrapperService.generateResponseWrapperJson', () => {
             }
           }
         }
-      },
+      }),
       createdAt: new Date(),
       updatedAt: new Date(),
     };
