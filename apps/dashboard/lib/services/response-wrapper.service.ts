@@ -143,7 +143,7 @@ export class ResponseWrapperService {
         updateData.json = data.json ?? Prisma.JsonNull;
       }
 
-      await this.responseWrapperRepository.update(responseWrapperId.toString(), updateData);
+      await this.responseWrapperRepository.update(responseWrapperId, updateData);
       
       // Fetch updated wrapper
       const updatedWrapper = await this.responseWrapperRepository.findById(responseWrapperId);
@@ -169,7 +169,7 @@ export class ResponseWrapperService {
       // Verify ownership first
       await this.getResponseWrapper(responseWrapperId, userId);
       
-      const deletedWrapper = await this.responseWrapperRepository.delete(responseWrapperId.toString());
+      const deletedWrapper = await this.responseWrapperRepository.delete(responseWrapperId);
       return deletedWrapper;
     } catch (error) {
       throw handlePrismaError(error);

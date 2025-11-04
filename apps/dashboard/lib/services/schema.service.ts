@@ -4,12 +4,11 @@ import { SchemaRepository, ProjectRepository } from "@/lib/repositories";
 import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
 import { IdFieldType, SchemaFieldType, Prisma } from "@prisma/client";
-import { FakerService } from "@/services/faker.service";
+import { FakerService } from "./faker.service";
 import { generateUUID } from "@/lib/utils";
 import { schemaRepository as schemaRepo, projectRepository as projectRepo } from "@/lib/repositories";
 import { PrismaIncludes } from "@/lib/repositories/prisma-includes";
 import { endpointRepository } from "@/lib/repositories";
-import { SchemaService as ClientSchemaService } from "@/services/schema.service";
 
 export class SchemaService {
   constructor(
@@ -216,7 +215,7 @@ export class SchemaService {
       // Regenerate staticResponse for each endpoint
       for (const endpoint of endpoints) {
         // Generate new response from updated schema
-        const newStaticResponse = ClientSchemaService.generateResponseFromSchema(
+        const newStaticResponse = this.generateResponseFromSchema(
           schema,
           endpoint.isDataList ?? false,
           endpoint.numberOfData ?? undefined
@@ -242,7 +241,7 @@ export class SchemaService {
       // Verify ownership first
       await this.getSchema(schemaId, userId);
       
-      const deletedSchema = await this.schemaRepository.delete(schemaId.toString());
+      const deletedSchema = await this.schemaRepository.delete(schemaId);
       
       return {
         id: deletedSchema.id,

@@ -1,17 +1,24 @@
 import { IEndpoint } from "@/types";
-import { EndpointRepository, ProjectRepository, SchemaRepository } from "@/lib/repositories";
+import {
+  EndpointRepository,
+  ProjectRepository,
+  SchemaRepository,
+  endpointRepository as endpointRepo,
+  projectRepository as projectRepo,
+  schemaRepository as schemaRepo,
+} from "@/lib/repositories";
 import { PrismaIncludes } from "@/lib/repositories/prisma-includes";
 import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
-import { endpointRepository as endpointRepo, projectRepository as projectRepo, schemaRepository as schemaRepo } from "@/lib/repositories";
 import { Prisma, HttpMethod } from "@prisma/client";
-import { SchemaService } from "@/services/schema.service";
+import { SchemaService, schemaService as schemaSvc } from "./schema.service";
 
 export class EndpointService {
   constructor(
     private readonly endpointRepository: EndpointRepository = endpointRepo,
     private readonly projectRepository: ProjectRepository = projectRepo,
-    private readonly schemaRepository: SchemaRepository = schemaRepo
+    private readonly schemaRepository: SchemaRepository = schemaRepo,
+    private readonly schemaService: SchemaService = schemaSvc
   ) {}
 
   /**
@@ -23,7 +30,10 @@ export class EndpointService {
   ): Promise<IEndpoint[]> {
     try {
       // Verify project ownership
-      const hasAccess = await this.projectRepository.existsByIdAndUserId(projectId, userId);
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(
+        projectId,
+        userId
+      );
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
@@ -32,7 +42,10 @@ export class EndpointService {
         );
       }
 
-      const entities = await this.endpointRepository.findByProjectId(projectId, PrismaIncludes.endpointInclude);
+      const entities = await this.endpointRepository.findByProjectId(
+        projectId,
+        PrismaIncludes.endpointInclude
+      );
       return entities;
     } catch (error) {
       throw handlePrismaError(error);
@@ -44,14 +57,19 @@ export class EndpointService {
    */
   async getUserEndpoints(userId: string): Promise<IEndpoint[]> {
     try {
-      const userProjects = await this.projectRepository.findByUserId(userId, { select: { id: true } });
+      const userProjects = await this.projectRepository.findByUserId(userId, {
+        select: { id: true },
+      });
       const projectIds = userProjects.map((p) => p.id);
 
       if (projectIds.length === 0) {
         return [];
       }
 
-      const entities = await this.endpointRepository.findByProjectIds(projectIds, PrismaIncludes.endpointInclude);
+      const entities = await this.endpointRepository.findByProjectIds(
+        projectIds,
+        PrismaIncludes.endpointInclude
+      );
       return entities;
     } catch (error) {
       throw handlePrismaError(error);
@@ -61,12 +79,12 @@ export class EndpointService {
   /**
    * Get a specific endpoint with ownership validation
    */
-  async getEndpoint(
-    endpointId: string,
-    userId: string
-  ): Promise<IEndpoint> {
+  async getEndpoint(endpointId: string, userId: string): Promise<IEndpoint> {
     try {
-      const endpoint = await this.endpointRepository.findById(endpointId, PrismaIncludes.endpointInclude);
+      const endpoint = await this.endpointRepository.findById(
+        endpointId,
+        PrismaIncludes.endpointInclude
+      );
 
       if (!endpoint) {
         throw new AppError(
@@ -77,7 +95,10 @@ export class EndpointService {
       }
 
       // Verify project ownership
-      const hasAccess = await this.projectRepository.existsByIdAndUserId(endpoint.projectId, userId);
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(
+        endpoint.projectId,
+        userId
+      );
       if (!hasAccess) {
         throw new AppError(
           "Access denied",
@@ -101,7 +122,10 @@ export class EndpointService {
   ): Promise<IEndpoint> {
     try {
       // Verify project ownership
-      const hasAccess = await this.projectRepository.existsByIdAndUserId(data.projectId, userId);
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(
+        data.projectId,
+        userId
+      );
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
@@ -110,19 +134,13 @@ export class EndpointService {
         );
       }
 
-      // Business logic: convert domain type to Prisma input
-      // CRITICAL FIX: Handle undefined staticResponse
-      // Prisma requires staticResponse to always be present (not undefined)
-      // If undefined, we need to explicitly set it to JsonNull or a valid value
-      let staticResponseValue: Prisma.InputJsonValue | Prisma.NullTypes.JsonNull;
+      let staticResponseValue:
+        | Prisma.InputJsonValue
+        | Prisma.NullTypes.JsonNull;
       if (data.staticResponse === null || data.staticResponse === undefined) {
         staticResponseValue = Prisma.JsonNull;
-        // TODO: REMOVE LOG
-        console.log("⚠️ [Endpoint Service] staticResponse is null/undefined, using Prisma.JsonNull");
       } else {
         staticResponseValue = data.staticResponse as Prisma.InputJsonValue;
-        // TODO: REMOVE LOG
-        console.log("✅ [Endpoint Service] staticResponse has value:", staticResponseValue);
       }
 
       const endpointData: Prisma.EndpointCreateInput = {
@@ -134,13 +152,19 @@ export class EndpointService {
         staticResponse: staticResponseValue,
         project: { connect: { id: data.projectId } },
         ...(data.schemaId && { schema: { connect: { id: data.schemaId } } }),
-        ...(data.responseWrapperId && { responseWrapper: { connect: { id: data.responseWrapperId } } }),
+        ...(data.responseWrapperId && {
+          responseWrapper: { connect: { id: data.responseWrapperId } },
+        }),
       };
 
       const entity = await this.endpointRepository.create(endpointData);
-      
+
       if (!entity) {
-        throw new AppError("Failed to create endpoint", STATUS_CODES.INTERNAL_SERVER_ERROR, ERROR_CODES.INTERNAL_ERROR);
+        throw new AppError(
+          "Failed to create endpoint",
+          STATUS_CODES.INTERNAL_SERVER_ERROR,
+          ERROR_CODES.INTERNAL_ERROR
+        );
       }
 
       return entity;
@@ -163,7 +187,10 @@ export class EndpointService {
   ): Promise<IEndpoint[]> {
     try {
       // Verify project ownership
-      const hasAccess = await this.projectRepository.existsByIdAndUserId(data.projectId, userId);
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(
+        data.projectId,
+        userId
+      );
       if (!hasAccess) {
         throw new AppError(
           "Project not found or access denied",
@@ -173,7 +200,10 @@ export class EndpointService {
       }
 
       // Verify schema exists and belongs to the project
-      const schema = await this.schemaRepository.findById(data.schemaId, PrismaIncludes.schemaInclude);
+      const schema = await this.schemaRepository.findById(
+        data.schemaId,
+        PrismaIncludes.schemaInclude
+      );
       if (!schema || schema.projectId !== data.projectId) {
         throw new AppError(
           "Schema not found or does not belong to this project",
@@ -183,9 +213,19 @@ export class EndpointService {
       }
 
       // Create CRUD endpoints
-      const basePath = data.basePath.startsWith('/') ? data.basePath : `/${data.basePath}`;
-      const singleResponse = SchemaService.generateResponseFromSchema(schema, false, 1);
-      const listResponse = SchemaService.generateResponseFromSchema(schema, true, 3);
+      const basePath = data.basePath.startsWith("/")
+        ? data.basePath
+        : `/${data.basePath}`;
+      const singleResponse = this.schemaService.generateResponseFromSchema(
+        schema,
+        false,
+        1
+      );
+      const listResponse = this.schemaService.generateResponseFromSchema(
+        schema,
+        true,
+        3
+      );
       const endpoints: Prisma.EndpointCreateInput[] = [
         {
           path: basePath,
@@ -196,7 +236,9 @@ export class EndpointService {
           staticResponse: listResponse,
           project: { connect: { id: data.projectId } },
           schema: { connect: { id: data.schemaId } },
-          ...(data.responseWrapperId && { responseWrapper: { connect: { id: data.responseWrapperId } } }),
+          ...(data.responseWrapperId && {
+            responseWrapper: { connect: { id: data.responseWrapperId } },
+          }),
         },
         {
           path: `${basePath}/:id`,
@@ -206,7 +248,9 @@ export class EndpointService {
           staticResponse: singleResponse,
           project: { connect: { id: data.projectId } },
           schema: { connect: { id: data.schemaId } },
-          ...(data.responseWrapperId && { responseWrapper: { connect: { id: data.responseWrapperId } } }),
+          ...(data.responseWrapperId && {
+            responseWrapper: { connect: { id: data.responseWrapperId } },
+          }),
         },
         {
           path: basePath,
@@ -216,7 +260,9 @@ export class EndpointService {
           staticResponse: singleResponse,
           project: { connect: { id: data.projectId } },
           schema: { connect: { id: data.schemaId } },
-          ...(data.responseWrapperId && { responseWrapper: { connect: { id: data.responseWrapperId } } }),
+          ...(data.responseWrapperId && {
+            responseWrapper: { connect: { id: data.responseWrapperId } },
+          }),
         },
         {
           path: `${basePath}/:id`,
@@ -226,7 +272,9 @@ export class EndpointService {
           staticResponse: singleResponse,
           project: { connect: { id: data.projectId } },
           schema: { connect: { id: data.schemaId } },
-          ...(data.responseWrapperId && { responseWrapper: { connect: { id: data.responseWrapperId } } }),
+          ...(data.responseWrapperId && {
+            responseWrapper: { connect: { id: data.responseWrapperId } },
+          }),
         },
         {
           path: `${basePath}/:id`,
@@ -236,7 +284,9 @@ export class EndpointService {
           staticResponse: singleResponse,
           project: { connect: { id: data.projectId } },
           schema: { connect: { id: data.schemaId } },
-          ...(data.responseWrapperId && { responseWrapper: { connect: { id: data.responseWrapperId } } }),
+          ...(data.responseWrapperId && {
+            responseWrapper: { connect: { id: data.responseWrapperId } },
+          }),
         },
       ];
 
@@ -244,7 +294,7 @@ export class EndpointService {
       const createdEndpoints: IEndpoint[] = [];
       for (const endpointData of endpoints) {
         const entity = await this.endpointRepository.create(endpointData);
-        
+
         if (entity) {
           createdEndpoints.push(entity);
         }
@@ -272,20 +322,42 @@ export class EndpointService {
       const updateData: Prisma.EndpointUpdateInput = {
         ...(data.path !== undefined && { path: data.path }),
         ...(data.method !== undefined && { method: data.method as any }),
-        ...(data.description !== undefined && { description: data.description }),
-        ...(data.isDataList !== undefined && { isDataList: data.isDataList ?? null }),
-        ...(data.numberOfData !== undefined && { numberOfData: data.numberOfData ?? null }),
-        ...(data.staticResponse !== undefined && { 
-          staticResponse: data.staticResponse === null ? Prisma.JsonNull : (data.staticResponse as Prisma.InputJsonValue) 
+        ...(data.description !== undefined && {
+          description: data.description,
         }),
-        ...(data.schemaId !== undefined && (data.schemaId ? { schema: { connect: { id: data.schemaId } } } : { schema: { disconnect: true } })),
-        ...(data.responseWrapperId !== undefined && (data.responseWrapperId ? { responseWrapper: { connect: { id: data.responseWrapperId } } } : { responseWrapper: { disconnect: true } })),
+        ...(data.isDataList !== undefined && {
+          isDataList: data.isDataList ?? null,
+        }),
+        ...(data.numberOfData !== undefined && {
+          numberOfData: data.numberOfData ?? null,
+        }),
+        ...(data.staticResponse !== undefined && {
+          staticResponse:
+            data.staticResponse === null
+              ? Prisma.JsonNull
+              : (data.staticResponse as Prisma.InputJsonValue),
+        }),
+        ...(data.schemaId !== undefined &&
+          (data.schemaId
+            ? { schema: { connect: { id: data.schemaId } } }
+            : { schema: { disconnect: true } })),
+        ...(data.responseWrapperId !== undefined &&
+          (data.responseWrapperId
+            ? { responseWrapper: { connect: { id: data.responseWrapperId } } }
+            : { responseWrapper: { disconnect: true } })),
       };
 
-      const entity = await this.endpointRepository.update(endpointId, updateData);
-      
+      const entity = await this.endpointRepository.update(
+        endpointId,
+        updateData
+      );
+
       if (!entity) {
-        throw new AppError("Failed to update endpoint", STATUS_CODES.INTERNAL_SERVER_ERROR, ERROR_CODES.INTERNAL_ERROR);
+        throw new AppError(
+          "Failed to update endpoint",
+          STATUS_CODES.INTERNAL_SERVER_ERROR,
+          ERROR_CODES.INTERNAL_ERROR
+        );
       }
 
       return entity;
@@ -297,10 +369,7 @@ export class EndpointService {
   /**
    * Delete an endpoint with ownership validation
    */
-  async deleteEndpoint(
-    endpointId: string,
-    userId: string
-  ): Promise<void> {
+  async deleteEndpoint(endpointId: string, userId: string): Promise<void> {
     try {
       // Verify ownership first
       await this.getEndpoint(endpointId, userId);
@@ -330,10 +399,13 @@ export class EndpointService {
   ): Promise<IEndpoint[]> {
     try {
       // Verify all endpoints belong to projects owned by the user
-      const projectIds = [...new Set(endpointsData.map(e => e.projectId))];
-      
+      const projectIds = [...new Set(endpointsData.map((e) => e.projectId))];
+
       for (const projectId of projectIds) {
-        const hasAccess = await this.projectRepository.existsByIdAndUserId(projectId, userId);
+        const hasAccess = await this.projectRepository.existsByIdAndUserId(
+          projectId,
+          userId
+        );
         if (!hasAccess) {
           throw new AppError(
             "Project not found or access denied",
@@ -356,7 +428,6 @@ export class EndpointService {
       throw handlePrismaError(error);
     }
   }
-
 }
 
 // Export singleton instance
