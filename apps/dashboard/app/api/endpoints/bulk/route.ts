@@ -9,21 +9,25 @@ import { z } from "zod";
 import { SchemaService } from "@/services/schema.service";
 import { ISchema } from "@/types";
 
-const BulkCreateSchema = z.object({
-  projectId: z.string().min(1, "Project ID is required"),
-  schemas: z.array(SchemaSchema).optional().default([]),
-  endpoints: z.array(EndpointSchemaBackend).optional().default([]),
-}).refine(
-  (data) => data.schemas.length > 0 || data.endpoints.length > 0,
-  { message: "At least one schema or endpoint is required" }
-);
+const BulkCreateEndpoints = z
+  .object({
+    projectId: z.string().min(1, "Project ID is required"),
+    schemas: z.array(SchemaSchema).optional().default([]),
+    endpoints: z.array(EndpointSchemaBackend).optional().default([]),
+  })
+  .refine((data) => data.schemas.length > 0 || data.endpoints.length > 0, {
+    message: "At least one schema or endpoint is required",
+  });
 
 export async function POST(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
 
-    const validationResult = await validateRequestBody(req, BulkCreateSchema);
+    const validationResult = await validateRequestBody(
+      req,
+      BulkCreateEndpoints
+    );
     if (validationResult instanceof Response) return validationResult;
 
     const { projectId, schemas = [], endpoints = [] } = validationResult;
@@ -56,59 +60,66 @@ export async function POST(req: NextRequest) {
     }
 
     // Get all schemas for this project (for generating endpoint responses)
-    const allSchemas = await schemaService.getProjectSchemas(projectId, sessionResult.user.id);
+    const allSchemas = await schemaService.getProjectSchemas(
+      projectId,
+      sessionResult.user.id
+    );
+
+    // Map endpoints to include actual schema IDs
+    const mappedEndpoints = endpoints.map((endpointData) => {
+      let staticResponse = endpointData.staticResponse;
+      let actualSchemaId: number | undefined = undefined;
+
+      if (endpointData.schemaId) {
+        // Convert AI's 1-based schemaId to actual DB schema ID
+        const dbSchemaId = schemaIdMapping.get(endpointData.schemaId);
+
+        if (dbSchemaId) {
+          actualSchemaId = dbSchemaId;
+
+          // Find the schema from available schemas using actual DB ID
+          const schema = allSchemas.find((s) => s.id === dbSchemaId);
+
+          if (schema) {
+            // Generate response from schema
+            staticResponse = SchemaService.generateResponseFromSchema(
+              schema as ISchema,
+              endpointData.isDataList ?? false,
+              endpointData.numberOfData ?? undefined
+            );
+          } else {
+            // Fallback to empty object if schema not found
+            staticResponse = endpointData.staticResponse ?? {};
+          }
+        } else {
+          // Fallback to empty object if mapping not found
+          staticResponse = endpointData.staticResponse ?? {};
+        }
+      } else if (staticResponse === undefined) {
+        // No schema and no staticResponse provided - use empty object as fallback
+        staticResponse = {};
+      }
+
+      const mappedData = {
+        path: endpointData.path,
+        method: endpointData.method,
+        description: endpointData.description!,
+        projectId: projectId,
+        schemaId: actualSchemaId, // Use the actual DB schema ID, not AI's index
+        responseWrapperId: endpointData.responseWrapperId,
+        staticResponse: staticResponse,
+        numberOfData: endpointData.numberOfData,
+        isDataList: endpointData.isDataList,
+      };
+
+      return mappedData;
+    });
 
     // Create endpoints (if any)
     if (endpoints.length > 0) {
       const createdEndpoints = await endpointService.bulkCreateEndpoints(
-        endpoints.map((endpointData) => {
-          let staticResponse = endpointData.staticResponse;
-          let actualSchemaId: number | undefined = undefined;
-
-          if (endpointData.schemaId) {
-            // CRITICAL FIX: Convert AI's 1-based schemaId to actual DB schema ID
-            const dbSchemaId = schemaIdMapping.get(endpointData.schemaId);
-
-            if (dbSchemaId) {
-              actualSchemaId = dbSchemaId;
-              
-              // Find the schema from available schemas using actual DB ID
-              const schema = allSchemas.find(s => s.id === dbSchemaId);
-              
-              if (schema) {
-                // Generate response from schema
-                staticResponse = SchemaService.generateResponseFromSchema(
-                  schema as ISchema,
-                  endpointData.isDataList ?? false,
-                  endpointData.numberOfData ?? undefined
-                );
-              } else {
-                // Fallback to empty object if schema not found
-                staticResponse = endpointData.staticResponse ?? {};
-              }
-            } else {
-              // Fallback to empty object if mapping not found
-              staticResponse = endpointData.staticResponse ?? {};
-            }
-          } else if (staticResponse === undefined) {
-            // No schema and no staticResponse provided - use empty object as fallback
-            staticResponse = {};
-          }
-
-          const mappedData = {
-            path: endpointData.path,
-            method: endpointData.method,
-            description: endpointData.description!,
-            projectId: projectId,
-            schemaId: actualSchemaId, // Use the actual DB schema ID, not AI's index
-            responseWrapperId: endpointData.responseWrapperId,
-            staticResponse: staticResponse,
-            numberOfData: endpointData.numberOfData,
-            isDataList: endpointData.isDataList,
-          };
-
-          return mappedData;
-        }),
+        mappedEndpoints,
+        projectId,
         sessionResult.user.id
       );
       result.endpoints = createdEndpoints;

@@ -395,25 +395,29 @@ export class EndpointService {
       numberOfData?: number | null;
       isDataList?: boolean | null;
     }>,
+    projectId: string,
     userId: string
   ): Promise<IEndpoint[]> {
     try {
-      // Verify all endpoints belong to projects owned by the user
-      const projectIds = [...new Set(endpointsData.map((e) => e.projectId))];
-
-      for (const projectId of projectIds) {
-        const hasAccess = await this.projectRepository.existsByIdAndUserId(
-          projectId,
-          userId
+      if(endpointsData.length === 0) {
+        throw new AppError(
+          "No endpoints provided",
+          STATUS_CODES.BAD_REQUEST,
+          ERROR_CODES.NOT_FOUND
         );
-        if (!hasAccess) {
+      }
+
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(
+        projectId,
+        userId
+      );
+      if (!hasAccess) {
           throw new AppError(
             "Project not found or access denied",
             STATUS_CODES.NOT_FOUND,
             ERROR_CODES.NOT_FOUND
           );
         }
-      }
 
       // Create all endpoints
       const createdEndpoints: IEndpoint[] = [];

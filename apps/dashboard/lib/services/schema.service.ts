@@ -390,7 +390,6 @@ export class SchemaService {
         );
       }
 
-      // Use transaction for bulk operations
       const createdSchemas: ISchema[] = [];
 
       for (const schemaData of schemasData) {
