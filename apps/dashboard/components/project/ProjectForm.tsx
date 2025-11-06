@@ -11,6 +11,7 @@ import { IProject } from "@/types";
 import { Card } from "@/components/ui/card";
 import { CorsOriginsInput } from "../cors-origins-input";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface ProjectFormProps {
   project?: IProject;
@@ -19,6 +20,7 @@ interface ProjectFormProps {
 
 const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
   const { createProject, updateProject, isPending } = useMutationProject();
+  const navigate = useRouter();
 
   const form = useZodForm(
     ProjectSchema,
@@ -53,7 +55,8 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
           ...data,
         };
 
-        await createProject(projectData);
+        const project = await createProject(projectData);
+        navigate.push(`/projects/${project.id}`);
       }
       onSuccess?.();
     } catch (e) {

@@ -85,7 +85,7 @@ const RecentActivity = () => {
           Recent Activity
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-3 mt-3">
         {recentProjects.map((project) => (
           <Link
             key={project.id}

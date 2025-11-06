@@ -25,15 +25,15 @@ const QuickActions = () => {
       bgColor: "bg-green-50 dark:bg-green-950/20",
       href: "/projects",
     },
-    {
-      title: "API Documentation",
-      description: "Learn about API usage",
-      icon: FileJson2,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50 dark:bg-purple-950/20",
-      href: "/docs",
-      external: true,
-    },
+    // {
+    //   title: "API Documentation",
+    //   description: "Learn about API usage",
+    //   icon: FileJson2,
+    //   color: "text-purple-600",
+    //   bgColor: "bg-purple-50 dark:bg-purple-950/20",
+    //   href: "/docs",
+    //   external: true,
+    // },
   ];
 
   return (
@@ -71,28 +71,28 @@ const QuickActions = () => {
             );
           }
 
-          if (action.external) {
-            return (
-              <a
-                key={index}
-                href={action.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 w-full p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors"
-              >
-                <div className={`${action.bgColor} p-2 rounded-lg`}>
-                  <Icon className={`h-4 w-4 ${action.color}`} />
-                </div>
-                <div className="text-left flex-1">
-                  <div className="font-medium">{action.title}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {action.description}
-                  </div>
-                </div>
-                <ExternalLink className="h-4 w-4 text-muted-foreground" />
-              </a>
-            );
-          }
+          // if (action.external) {
+          //   return (
+          //     <a
+          //       key={index}
+          //       href={action.href}
+          //       target="_blank"
+          //       rel="noopener noreferrer"
+          //       className="flex items-center gap-3 w-full p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors"
+          //     >
+          //       <div className={`${action.bgColor} p-2 rounded-lg`}>
+          //         <Icon className={`h-4 w-4 ${action.color}`} />
+          //       </div>
+          //       <div className="text-left flex-1">
+          //         <div className="font-medium">{action.title}</div>
+          //         <div className="text-sm text-muted-foreground">
+          //           {action.description}
+          //         </div>
+          //       </div>
+          //       <ExternalLink className="h-4 w-4 text-muted-foreground" />
+          //     </a>
+          //   );
+          // }
 
           return (
             <Link
