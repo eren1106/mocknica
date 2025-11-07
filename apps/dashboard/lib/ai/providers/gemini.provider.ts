@@ -22,7 +22,8 @@ export class GeminiProvider extends AIProvider {
   constructor(config: AIProviderConfig = {}) {
     super(AIProviderType.GEMINI, {
       apiKey: process.env.GEMINI_API_KEY,
-      defaultModel: (process.env.GEMINI_MODEL as AIModelId) || "gemini-2.0-flash",
+      defaultModel:
+        (process.env.GEMINI_MODEL as AIModelId) || "gemini-2.0-flash",
       timeout: 30000,
       maxRetries: 3,
       ...config,
@@ -100,37 +101,37 @@ export class GeminiProvider extends AIProvider {
 
       return [
         {
-          id: 'gemini-2.0-flash',
-          name: 'Gemini 2.0 Flash',
+          id: "gemini-2.0-flash",
+          name: "Gemini 2.0 Flash",
           provider: AIProviderType.GEMINI,
-          description: 'Fast and efficient for most tasks',
+          description: "Fast and efficient for most tasks",
           maxTokens: 8192,
-          isLocal: false
+          isLocal: false,
         },
         // {
         //   id: 'gemini-2.0-flash-exp',
         //   name: 'Gemini 2.0 Flash (Experimental)',
         //   provider: AIProviderType.GEMINI,
         //   description: 'Experimental version with latest features',
-        //   maxTokens: 8192,
+        //   maxTokens: 8192, // same output limit as base Flash
         //   isLocal: false
         // },
         {
-          id: 'gemini-1.5-pro',
-          name: 'Gemini 1.5 Pro',
+          id: "gemini-1.5-pro",
+          name: "Gemini 1.5 Pro",
           provider: AIProviderType.GEMINI,
-          description: 'High-performance model for complex tasks',
-          maxTokens: 2048000,
-          isLocal: false
+          description: "High-performance model for complex tasks",
+          maxTokens: 8192,
+          isLocal: false,
         },
         {
-          id: 'gemini-pro',
-          name: 'Gemini Pro',
+          id: "gemini-pro",
+          name: "Gemini Pro",
           provider: AIProviderType.GEMINI,
-          description: 'Balanced performance for general tasks',
-          maxTokens: 1048576,
-          isLocal: false
-        }
+          description: "Balanced performance for general tasks",
+          maxTokens: 8192,
+          isLocal: false,
+        },
       ];
     } catch (error) {
       console.warn("Could not fetch Gemini models, using defaults:", error);
@@ -145,7 +146,7 @@ export class GeminiProvider extends AIProvider {
       }
 
       const client = this.getClient();
-      
+
       // Try a simple API call to verify the key works
       await client.models.list();
 

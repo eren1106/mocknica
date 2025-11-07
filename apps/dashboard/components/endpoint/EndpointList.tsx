@@ -113,12 +113,6 @@ export default function EndpointsList() {
           };
         }),
       });
-
-      // Build success message with details
-      const createdSchemasCount = result.schemas.length;
-      const createdEndpointsCount = result.endpoints.length;
-      
-      let message = `Successfully created ${createdSchemasCount} schema(s) and ${createdEndpointsCount} endpoint(s)`;
       
       if (skippedSchemas.length > 0 || skippedEndpoints.length > 0) {
         const skippedParts = [];
@@ -128,8 +122,13 @@ export default function EndpointsList() {
         if (skippedEndpoints.length > 0) {
           skippedParts.push(`${skippedEndpoints.length} endpoint(s)`);
         }
-        message += `. Skipped ${skippedParts.join(" and ")} (already exist)`;
+        // message += `. Skipped ${skippedParts.join(" and ")} (already exist)`;
       }
+
+      // Build success message with details
+      const createdSchemasCount = result.schemas.length;
+      const createdEndpointsCount = result.endpoints.length;
+      const message = `Successfully created ${createdSchemasCount} schema(s) and ${createdEndpointsCount} endpoint(s)`;
 
       toast.success(message);
       setAiGeneratedData(null);

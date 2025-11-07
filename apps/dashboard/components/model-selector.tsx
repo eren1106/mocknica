@@ -323,7 +323,7 @@ export function ModelSelector({
                           )}
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
+                      {/* <div className="flex items-center gap-2 flex-shrink-0">
                         {model.maxTokens && (
                           <Tooltip>
                             <TooltipTrigger>
@@ -339,13 +339,13 @@ export function ModelSelector({
                             </TooltipContent>
                           </Tooltip>
                         )}
-                        {/* <Badge 
+                        <Badge 
                           variant="secondary" 
                           className={cn("text-xs", providerColors[model.provider])}
                         >
                           {model.provider}
-                        </Badge> */}
-                      </div>
+                        </Badge>
+                      </div> */}
                     </CommandItem>
                   ))}
                 </CommandGroup>

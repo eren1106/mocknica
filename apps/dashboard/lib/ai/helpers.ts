@@ -15,10 +15,6 @@ export function extractApiKeysFromHeaders(req: NextRequest): Partial<Record<AIPr
   const geminiKey = req.headers.get('X-Gemini-API-Key');
   const openaiKey = req.headers.get('X-OpenAI-API-Key');
 
-  console.log('🔍 Extracting API keys from headers...');
-  console.log('- X-Gemini-API-Key header:', geminiKey ? `Found (${geminiKey.substring(0, 10)}...)` : 'Not found');
-  console.log('- X-OpenAI-API-Key header:', openaiKey ? `Found (${openaiKey.substring(0, 10)}...)` : 'Not found');
-
   if (geminiKey) {
     keys[AIProviderType.GEMINI] = geminiKey;
   }

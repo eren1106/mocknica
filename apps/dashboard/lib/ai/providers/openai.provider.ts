@@ -131,7 +131,7 @@ export class OpenAIProvider extends AIProvider {
           name: "GPT-4o",
           provider: AIProviderType.OPENAI,
           description: "Most advanced multimodal flagship model",
-          maxTokens: 128000,
+          maxTokens: 4096,
           isLocal: false,
         },
         {
@@ -139,7 +139,7 @@ export class OpenAIProvider extends AIProvider {
           name: "GPT-4o Mini",
           provider: AIProviderType.OPENAI,
           description: "Affordable and intelligent small model",
-          maxTokens: 128000,
+          maxTokens: 16384,
           isLocal: false,
         },
         {
@@ -147,7 +147,7 @@ export class OpenAIProvider extends AIProvider {
           name: "GPT-4 Turbo",
           provider: AIProviderType.OPENAI,
           description: "Previous generation flagship model",
-          maxTokens: 128000,
+          maxTokens: 4096,
           isLocal: false,
         },
         {
@@ -155,7 +155,7 @@ export class OpenAIProvider extends AIProvider {
           name: "GPT-3.5 Turbo",
           provider: AIProviderType.OPENAI,
           description: "Fast, cost-effective model",
-          maxTokens: 16385,
+          maxTokens: 4096,
           isLocal: false,
         },
       ];

@@ -93,8 +93,8 @@ export class OllamaProvider extends AIProvider {
 
       // Clean up the content by removing <think></think> tags and other potential issues
       content = content
-        .replace(/<think>[\s\S]*?<\/think>/gi, '') // Remove <think></think> tags (case insensitive)
-        .replace(/<thinking>[\s\S]*?<\/thinking>/gi, '') // Also handle <thinking> tags
+        .replace(/<think>[\s\S]*?<\/think>/gi, "") // Remove <think></think> tags (case insensitive)
+        .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "") // Also handle <thinking> tags
         .trim(); // Remove leading/trailing whitespace
 
       return {
