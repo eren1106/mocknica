@@ -86,6 +86,12 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^2.11.5
         version: 2.26.3
+      '@upstash/ratelimit':
+        specifier: ^2.0.7
+        version: 2.0.7(@upstash/redis@1.35.6)
+      '@upstash/redis':
+        specifier: ^1.35.6
+        version: 1.35.6
       better-auth:
         specifier: ^1.3.4
         version: 1.3.27(next@15.2.0-canary.69)(react-dom@19.2.0)(react@19.2.0)
@@ -5759,6 +5765,28 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /@upstash/core-analytics@0.0.10:
+    resolution: {integrity: sha512-7qJHGxpQgQr9/vmeS1PktEwvNAF7TI4iJDi8Pu2CFZ9YUGHZH4fOP5TfYlZ4aVxfopnELiE4BS4FBjyK7V1/xQ==}
+    engines: {node: '>=16.0.0'}
+    dependencies:
+      '@upstash/redis': 1.35.6
+    dev: false
+
+  /@upstash/ratelimit@2.0.7(@upstash/redis@1.35.6):
+    resolution: {integrity: sha512-qNQW4uBPKVk8c4wFGj2S/vfKKQxXx1taSJoSGBN36FeiVBBKHQgsjPbKUijZ9Xu5FyVK+pfiXWKIsQGyoje8Fw==}
+    peerDependencies:
+      '@upstash/redis': ^1.34.3
+    dependencies:
+      '@upstash/core-analytics': 0.0.10
+      '@upstash/redis': 1.35.6
+    dev: false
+
+  /@upstash/redis@1.35.6:
+    resolution: {integrity: sha512-aSEIGJgJ7XUfTYvhQcQbq835re7e/BXjs8Janq6Pvr6LlmTZnyqwT97RziZLO/8AVUL037RLXqqiQC6kCt+5pA==}
+    dependencies:
+      uncrypto: 0.1.3
+    dev: false
 
   /@vitejs/plugin-react@5.0.4(vite@7.1.9):
     resolution: {integrity: sha512-La0KD0vGkVkSk6K+piWDKRUyg8Rl5iAIKRMH0vMJI0Eg47bq1eOxmoObAaQG37WMW9MSyk7Cs8EIWwJC1PtzKA==}

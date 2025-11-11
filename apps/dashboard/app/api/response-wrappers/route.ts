@@ -5,6 +5,7 @@ import { validateRequestBody, validateQueryParams } from '../_helpers/validation
 import { responseWrapperService } from '@/lib/services';
 import { CreateResponseWrapperSchema } from '@/zod-schemas/response-wrapper.schema';
 import { z } from 'zod';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 const GetResponseWrappersQuerySchema = z.object({
   projectId: z.string().optional(),
@@ -43,6 +44,10 @@ export async function POST(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
+
+    // Rate limit check for response wrapper creation
+    const rateLimitResult = await checkRateLimit(req, "CREATE", sessionResult.user.id);
+    if (!rateLimitResult.success && rateLimitResult.response) return rateLimitResult.response;
 
     const validationResult = await validateRequestBody(req, CreateResponseWrapperSchema, (data) => {
       return {

@@ -23,8 +23,8 @@ export const useMutationEndpoint = () => {
       invalidateQueries();
       toast.success("Endpoint created successfully");
     },
-    onError: () => {
-      toast.error("Failed to create endpoint");
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create endpoint");
     },
   });
 
@@ -38,8 +38,8 @@ export const useMutationEndpoint = () => {
       invalidateQueries();
       // Toast notification handled by the caller (EndpointList.tsx)
     },
-    onError: () => {
-      toast.error("Failed to create schemas and endpoints");
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create schemas and endpoints");
     },
   });
 
@@ -50,8 +50,8 @@ export const useMutationEndpoint = () => {
       invalidateQueries();
       toast.success("Endpoint updated successfully");
     },
-    onError: () => {
-      toast.error("Failed to update endpoint");
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update endpoint");
     },
   });
   const deleteEndpoint = useMutation({
@@ -60,8 +60,8 @@ export const useMutationEndpoint = () => {
       invalidateQueries();
       toast.success("Endpoint deleted successfully");
     },
-    onError: () => {
-      toast.error("Failed to delete endpoint");
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to delete endpoint");
     },
   });
   const createEndpointsBySchema = useMutation({
@@ -74,8 +74,8 @@ export const useMutationEndpoint = () => {
       invalidateQueries();
       toast.success("Endpoints created successfully");
     },
-    onError: () => {
-      toast.error("Failed to create endpoints");
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create endpoints");
     },
   });
 

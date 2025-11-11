@@ -5,11 +5,16 @@ import { AIServiceManager } from "@/lib/ai/ai-service-manager";
 import { extractApiKeysFromHeaders } from "@/lib/ai/helpers";
 import { schemaService } from "@/lib/services";
 import { requireAuth } from "../../_helpers/auth-guards";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
+
+    // Rate limit check for AI operations (most expensive)
+    const rateLimitResult = await checkRateLimit(req, "AI", sessionResult.user.id);
+    if (!rateLimitResult.success && rateLimitResult.response) return rateLimitResult.response;
 
     const {
       prompt: userInput,

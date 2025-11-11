@@ -37,6 +37,9 @@ export const useMutationResponseWrapper = () => {
       invalidateQueries();
       toast.success("Response wrapper created successfully");
     },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create response wrapper");
+    },
   });
 
   const updateResponseWrapper = useMutation({
@@ -46,6 +49,9 @@ export const useMutationResponseWrapper = () => {
       invalidateQueries();
       toast.success("Response wrapper updated successfully");
     },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update response wrapper");
+    },
   });
 
   const deleteResponseWrapper = useMutation({
@@ -53,6 +59,9 @@ export const useMutationResponseWrapper = () => {
     onSuccess: () => {
       invalidateQueries();
       toast.success("Response wrapper deleted successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to delete response wrapper");
     },
   });
 

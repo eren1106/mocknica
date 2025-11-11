@@ -4,6 +4,7 @@ import { requireAuth } from "../_helpers/auth-guards";
 import { validateRequestBody } from "../_helpers/validation";
 import { ProjectSchema } from "@/zod-schemas/project.schema";
 import { projectService } from "@/lib/services";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,6 +22,10 @@ export async function POST(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
+
+    // Rate limit check for project creation
+    const { success, response } = await checkRateLimit(req, "CREATE", sessionResult.user.id);
+    if (!success && response) return response;
 
     const validationResult = await validateRequestBody(req, ProjectSchema);
     if (validationResult instanceof Response) return validationResult;

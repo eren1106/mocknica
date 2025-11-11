@@ -34,6 +34,9 @@ export const useMutationProject = () => {
       invalidateQueries();
       toast.success("Project created successfully");
     },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create project");
+    },
   });
 
   const updateProject = useMutation({
@@ -43,6 +46,9 @@ export const useMutationProject = () => {
       invalidateQueries();
       toast.success("Project updated successfully");
     },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update project");
+    },
   });
 
   const deleteProject = useMutation({
@@ -50,6 +56,9 @@ export const useMutationProject = () => {
     onSuccess: () => {
       invalidateQueries();
       toast.success("Project deleted successfully");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to delete project");
     },
   });
 

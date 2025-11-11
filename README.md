@@ -34,6 +34,7 @@ Mocknica is built with modern and reliable technologies:
 - **Database**: PostgreSQL
 - **Authentication**: Better Auth, Google OAuth
 - **AI Integration**: OpenAI, Gemini, Ollama
+- **Rate Limiting**: Upstash Redis (optional)
 
 ## 🚀 Getting Started
 
@@ -65,12 +66,21 @@ Mocknica is built with modern and reliable technologies:
    OPENAI_API_KEY="sk-..."
    GEMINI_API_KEY="your-gemini-key"
    # For Ollama: just install Ollama locally
+   
+   # Optional: Rate Limiting (recommended for production)
+   REDIS_URL="http://localhost:8079"  # Local via proxy, or Upstash URL
+   REDIS_TOKEN="dev_token"
    ```
 
-3. **Setup database**
+3. **Setup database & Redis (optional)**
    ```bash
    pnpm docker:db
    pnpm db:sync
+   ```
+   
+   For rate limiting, also start Redis and proxy:
+   ```bash
+   docker-compose up redis serverless-redis-http -d
    ```
 
 4. **Start developing**

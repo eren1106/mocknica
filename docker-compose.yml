@@ -15,10 +15,16 @@ services:
       - NEXT_TELEMETRY_DISABLED=1
       # Also set at runtime (though build-time is what matters for NEXT_PUBLIC_*)
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      # Redis connection for rate limiting (via serverless-redis-http proxy)
+      - REDIS_URL=http://serverless-redis-http:80
+      - REDIS_TOKEN=redis-token-wohoo
     depends_on:
       db:
         condition: service_healthy
+      serverless-redis-http:
+        condition: service_healthy
     restart: unless-stopped
+  
   db:
     image: postgres:latest
     environment:
@@ -34,5 +40,39 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+  
+  serverless-redis-http:
+    image: hiett/serverless-redis-http:latest
+    ports:
+      - "8079:80"
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: example_token
+      SRH_CONNECTION_STRING: "redis://redis:6379"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://127.0.0.1:80 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+  redis_data:
