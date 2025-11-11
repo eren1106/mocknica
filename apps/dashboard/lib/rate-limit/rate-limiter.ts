@@ -36,13 +36,14 @@ function getRateLimiter(type: RateLimitType): Ratelimit | null {
     return rateLimiters.get(type)!;
   }
 
-  // Create new limiter
+  // Create new limiter with timeout configuration
   const config = RATE_LIMITS[type];
   const limiter = new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(config.requests, config.window as any),
     prefix: `ratelimit:${type.toLowerCase()}`,
     analytics: true,
+    timeout: 100, // Upstash built-in timeout: fail fast if Redis doesn't respond in 1s
   });
 
   rateLimiters.set(type, limiter);
@@ -87,7 +88,6 @@ export async function checkRateLimit(
   }
 
   try {
-    // Check the rate limit
     const identifier = getIdentifier(req, userId);
     const result = await limiter.limit(identifier);
 
@@ -102,7 +102,7 @@ export async function checkRateLimit(
       statusCode: 429,
     });
 
-    // Add helpful headers
+    // Add rate limit headers
     response.headers.set("X-RateLimit-Limit", result.limit.toString());
     response.headers.set("X-RateLimit-Remaining", result.remaining.toString());
     response.headers.set(
@@ -112,8 +112,8 @@ export async function checkRateLimit(
 
     return { success: false, response };
   } catch (error) {
-    console.error(`Rate limit check failed:`, error);
-    // If rate limiting fails, allow the request
+    // Fail open: if rate limiting fails, allow the request
+    console.warn(`⚠️  Rate limit check failed, allowing request`);
     return { success: true };
   }
 }
