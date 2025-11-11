@@ -2,9 +2,14 @@ import { AIServiceManager } from "@/lib/ai/ai-service-manager";
 import { extractApiKeysFromHeaders } from "@/lib/ai/helpers";
 import { apiResponse, errorResponse } from "../../_helpers/api-response";
 import { NextRequest } from "next/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit check for AI operations (no auth required for this endpoint)
+    const rateLimitResult = await checkRateLimit(req, "AI");
+    if (!rateLimitResult.success && rateLimitResult.response) return rateLimitResult.response;
+
     const { prompt: userInput, model } = await req.json();
 
     // Create AI service manager with custom keys from headers

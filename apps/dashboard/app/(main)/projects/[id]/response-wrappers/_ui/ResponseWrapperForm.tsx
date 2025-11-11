@@ -61,7 +61,7 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
       }
       onSuccess?.();
     } catch (e) {
-      console.error(e);
+      console.log(e);
     }
   };
   

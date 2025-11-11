@@ -5,11 +5,16 @@ import { requireAuth } from '../_helpers/auth-guards';
 import { validateRequestBody, validateQueryParams } from '../_helpers/validation';
 import { endpointService } from '@/lib/services';
 import { EndpointSchemaBackend, GetEndpointsQuerySchema } from '@/zod-schemas/endpoint.schema';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
+
+    // Rate limit check for endpoint creation
+    const { success, response } = await checkRateLimit(req, "CREATE", sessionResult.user.id);
+    if (!success && response) return response;
 
     const validationResult = await validateRequestBody(req, EndpointSchemaBackend);
     if (validationResult instanceof Response) return validationResult;

@@ -26,8 +26,8 @@ export const useMutationSchema = () => {
       invalidateQueries();
       toast.success("Schema created successfully");
     },
-    onError: () => {
-      toast.error("Failed to create schema");
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to create schema");
     },
   });
 
@@ -38,8 +38,8 @@ export const useMutationSchema = () => {
       invalidateQueries();
       toast.success("Schema updated successfully");
     },
-    onError: () => {
-      toast.error("Failed to update schema");
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to update schema");
     },
   });
 
@@ -49,8 +49,8 @@ export const useMutationSchema = () => {
       invalidateQueries();
       toast.success("Schema deleted successfully");
     },
-    onError: () => {
-      toast.error("Failed to delete schema");
+    onError: (error: Error) => {
+      toast.error(error.message || "Failed to delete schema");
     },
   });
 

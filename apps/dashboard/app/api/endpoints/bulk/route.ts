@@ -8,6 +8,7 @@ import { SchemaSchema } from "@/zod-schemas/schema.schema";
 import { z } from "zod";
 import { SchemaService } from "@/services/schema.service";
 import { ISchema } from "@/types";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const BulkCreateEndpoints = z
   .object({
@@ -23,6 +24,10 @@ export async function POST(req: NextRequest) {
   try {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
+
+    // Rate limit check for bulk operations (more restrictive since it creates multiple resources)
+    const rateLimitResult = await checkRateLimit(req, "BULK", sessionResult.user.id);
+    if (!rateLimitResult.success && rateLimitResult.response) return rateLimitResult.response;
 
     const validationResult = await validateRequestBody(
       req,
