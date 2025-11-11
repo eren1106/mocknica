@@ -1,189 +1,210 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { getRedisClient, isRedisConfigured } from "./redis-client";
+import { NextRequest, NextResponse } from "next/server";
+import { errorResponse } from "@/app/api/_helpers/api-response";
 
-/**
- * Rate limit response type
- */
-export type RateLimitResponse = Awaited<ReturnType<Ratelimit["limit"]>>;
-
-/**
- * Rate limit configuration presets
- * Following industry standards for different types of operations
- */
-export const RATE_LIMIT_PRESETS = {
-  // Auth operations: more restrictive
-  AUTH: {
-    requests: 5,
-    window: "15 m",
-    description: "5 requests per 15 minutes for auth operations",
-  }, 
-  // Write operations: moderate restrictions
-  CREATE: {
-    requests: 20,
-    window: "1 m",
-    description: "20 requests per minute for create operations",
-  },
-  // Bulk operations: moderate restrictions
-  BULK: {
-    requests: 5,
-    window: "1 m",
-    description: "5 requests per minute for bulk operations",
-  },
-  // AI operations: very restrictive due to cost
-  AI: {
-    requests: 20,
-    window: "1 h",
-    description: "20 requests per hour for AI operations",
-  },
-  // Read operations: lenient
-  READ: {
-    requests: 100,
-    window: "1 m",
-    description: "100 requests per minute for read operations",
-  },
-  // General API: balanced
-  GENERAL: {
-    requests: 50,
-    window: "1 m",
-    description: "50 requests per minute for general operations",
-  },
-} as const;
-
-/**
- * Type for rate limit preset keys
- */
-export type RateLimitPreset = keyof typeof RATE_LIMIT_PRESETS;
-
-/**
- * Rate limiter configuration options
- */
-export interface RateLimiterConfig {
-  requests: number;
-  window: string;
-  prefix?: string;
-}
-
-/**
- * Rate limiter factory
- * Creates rate limiters with sliding window algorithm
- * 
- * @implements Single Responsibility Principle - Only creates rate limiters
- * @implements Open/Closed Principle - Extensible through configuration
- */
-class RateLimiterFactory {
-  private static instances = new Map<string, Ratelimit>();
-
-  /**
-   * Get or create a rate limiter instance
-   * 
-   * @param config - Rate limiter configuration
-   * @returns Ratelimit instance or null if Redis not configured
-   */
-  static getInstance(config: RateLimiterConfig): Ratelimit | null {
-    const redis = getRedisClient();
-    
-    if (!redis) {
-      return null;
-    }
-
-    const key = `${config.prefix || "default"}:${config.requests}:${config.window}`;
-    
-    if (this.instances.has(key)) {
-      return this.instances.get(key)!;
-    }
-
-    const limiter = new Ratelimit({
-      redis,
-      limiter: Ratelimit.slidingWindow(config.requests, config.window as any),
-      prefix: config.prefix,
-      analytics: true,
-    });
-
-    this.instances.set(key, limiter);
-    return limiter;
-  }
-
-  /**
-   * Create a rate limiter from preset
-   * 
-   * @param preset - Preset name
-   * @param customPrefix - Optional custom prefix
-   * @returns Ratelimit instance or null
-   */
-  static fromPreset(
-    preset: RateLimitPreset,
-    customPrefix?: string
-  ): Ratelimit | null {
-    const config = RATE_LIMIT_PRESETS[preset];
-    return this.getInstance({
-      ...config,
-      prefix: customPrefix || `ratelimit:${preset.toLowerCase()}`,
-    });
-  }
-
-  /**
-   * Reset all instances (useful for testing)
-   */
-  static resetInstances(): void {
-    this.instances.clear();
-  }
-}
-
-/**
- * Rate limit checker with graceful degradation
- * 
- * @implements Dependency Inversion Principle - Depends on abstractions
- */
-export class RateLimitChecker {
-  private limiter: Ratelimit | null;
-  private preset: RateLimitPreset;
-
-  constructor(preset: RateLimitPreset, customPrefix?: string) {
-    this.preset = preset;
-    this.limiter = RateLimiterFactory.fromPreset(preset, customPrefix);
-  }
-
-  /**
-   * Check if identifier is rate limited
-   * Returns null if rate limiting is disabled (Redis not configured)
-   * 
-   * @param identifier - Unique identifier (e.g., IP address, user ID)
-   * @returns Rate limit response or null if disabled
-   */
-  async check(identifier: string): Promise<RateLimitResponse | null> {
-    if (!this.limiter) {
-      // Graceful degradation: allow request if Redis is not configured
-      return null;
-    }
-
-    try {
-      const result = await this.limiter.limit(identifier);
-      return result;
-    } catch (error) {
-      console.error(`Rate limit check failed for ${this.preset}:`, error);
-      // Fail open: allow request if rate limiting fails
-      return null;
-    }
-  }
-
-  /**
-   * Check if Redis is configured
-   */
-  isEnabled(): boolean {
-    return isRedisConfigured();
-  }
-}
-
-/**
- * Create a rate limit checker
- * 
- * @param preset - Rate limit preset
- * @param customPrefix - Optional custom prefix
- * @returns RateLimitChecker instance
- */
-export const createRateLimiter = (
-  preset: RateLimitPreset,
-  customPrefix?: string
-): RateLimitChecker => {
-  return new RateLimitChecker(preset, customPrefix);
+// Different rate limit rules for different operations
+export const RATE_LIMITS = {
+  // Auth: Very restrictive to prevent brute force attacks
+  AUTH: { requests: 10, window: "5 m" }, // 10 attempts per 5 min
+  // Write operations: Moderate limits aligned with GitHub's 80 content-creating requests/min
+  CREATE: { requests: 60, window: "1 m" }, // 60 per min (1 per second avg, allows small bursts)
+  // Bulk operations: More restrictive due to resource intensity
+  BULK: { requests: 10, window: "1 m" }, // 10 per min (reasonable for batch processing)
+  // AI operations: Cost-based limiting (very restrictive)
+  AI: { requests: 15, window: "5 m" }, // 15 per 5 min
+  // Read operations: Generous limits like GitHub's 5000/hour for general reads
+  // READ: { requests: 100, window: "1 m" }, // 100 per min (allows active usage)
+  // General API: Balanced approach
+  // GENERAL: { requests: 60, window: "1 m" }, // 60 per min (3600/hour, balanced)
 };
+
+export type RateLimitType = keyof typeof RATE_LIMITS;
+
+// Cache rate limiters so we don't create duplicates
+const rateLimiters = new Map<string, Ratelimit>();
+
+/**
+ * Get a rate limiter (creates one if it doesn't exist)
+ */
+function getRateLimiter(type: RateLimitType): Ratelimit | null {
+  const redis = getRedisClient();
+  if (!redis) return null;
+
+  // Check if we already have this limiter
+  if (rateLimiters.has(type)) {
+    return rateLimiters.get(type)!;
+  }
+
+  // Create new limiter
+  const config = RATE_LIMITS[type];
+  const limiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(config.requests, config.window as any),
+    prefix: `ratelimit:${type.toLowerCase()}`,
+    analytics: true,
+  });
+
+  rateLimiters.set(type, limiter);
+  return limiter;
+}
+
+/**
+ * Get a unique identifier from the request
+ * Uses user ID if available, otherwise IP address
+ */
+export function getIdentifier(req: NextRequest, userId?: string): string {
+  if (userId) {
+    return `user:${userId}`;
+  }
+
+  // Get IP from headers
+  const forwardedFor = req.headers.get("x-forwarded-for");
+  const realIp = req.headers.get("x-real-ip");
+  const ip = forwardedFor?.split(",")[0] || realIp || "anonymous";
+
+  return `ip:${ip}`;
+}
+
+/**
+ * Check if a request should be rate limited
+ * Returns success: true if request is allowed
+ * Returns success: false with response if rate limited
+ */
+export async function checkRateLimit(
+  req: NextRequest,
+  type: RateLimitType,
+  userId?: string
+): Promise<{ success: boolean; response?: NextResponse }> {
+  // Skip if Redis isn't configured
+  if (!isRedisConfigured()) {
+    return { success: true };
+  }
+
+  const limiter = getRateLimiter(type);
+  if (!limiter) {
+    return { success: true };
+  }
+
+  try {
+    // Check the rate limit
+    const identifier = getIdentifier(req, userId);
+    const result = await limiter.limit(identifier);
+
+    // If not limited, allow the request
+    if (result.success) {
+      return { success: true };
+    }
+
+    // Create rate limit error response
+    const response = errorResponse(req, {
+      message: "Too many requests. Please try again later.",
+      statusCode: 429,
+    });
+
+    // Add helpful headers
+    response.headers.set("X-RateLimit-Limit", result.limit.toString());
+    response.headers.set("X-RateLimit-Remaining", result.remaining.toString());
+    response.headers.set(
+      "X-RateLimit-Reset",
+      new Date(result.reset).toISOString()
+    );
+
+    return { success: false, response };
+  } catch (error) {
+    console.error(`Rate limit check failed:`, error);
+    // If rate limiting fails, allow the request
+    return { success: true };
+  }
+}
+
+/**
+ * Rate limit middleware wrapper for API routes
+ * Follows the Decorator pattern
+ *
+ * @param handler - Next.js API route handler
+ * @param options - Rate limit configuration
+ * @returns Wrapped handler with rate limiting
+ *
+ * @example
+ * ```typescript
+ * export const POST = withRateLimit(
+ *   async (req: NextRequest) => {
+ *     // Your handler logic
+ *   },
+ *   { preset: "AUTH" }
+ * );
+ * ```
+ */
+// export function withRateLimit<T extends any[]>(
+//   handler: (req: NextRequest, ...args: T) => Promise<NextResponse>,
+//   options: RateLimitMiddlewareOptions
+// ) {
+//   return async (req: NextRequest, ...args: T): Promise<NextResponse> => {
+//     const limiter = createRateLimiter(options.preset, options.customPrefix);
+
+//     // If rate limiting is disabled, proceed with request
+//     if (!limiter.isEnabled()) {
+//       return handler(req, ...args);
+//     }
+
+//     try {
+//       // Get user ID if authentication is required
+//       const userId = options.getUserId ? await options.getUserId(req) : undefined;
+
+//       // Get unique identifier
+//       const identifier = getIdentifier(req, userId);
+
+//       // Check rate limit
+//       const result = await limiter.check(identifier);
+
+//       // If rate limiting is disabled or check failed, proceed
+//       if (!result) {
+//         return handler(req, ...args);
+//       }
+
+//       // Add rate limit headers to response
+//       const headers = new Headers();
+//       headers.set("X-RateLimit-Limit", result.limit.toString());
+//       headers.set("X-RateLimit-Remaining", result.remaining.toString());
+//       headers.set("X-RateLimit-Reset", new Date(result.reset).toISOString());
+
+//       // Check if rate limited
+//       if (!result.success) {
+//         const response = errorResponse(req, {
+//           message: "Too many requests. Please try again later.",
+//           statusCode: 429,
+//         });
+
+//         // Add rate limit headers
+//         headers.forEach((value, key) => {
+//           response.headers.set(key, value);
+//         });
+
+//         return response;
+//       }
+
+//       // Execute handler and attach rate limit headers
+//       const response = await handler(req, ...args);
+
+//       // Attach rate limit headers to successful response
+//       headers.forEach((value, key) => {
+//         response.headers.set(key, value);
+//       });
+
+//       return response;
+//     } catch (error) {
+//       console.error("Rate limit middleware error:", error);
+
+//       // Fail open if skipOnError is true
+//       if (options.skipOnError !== false) {
+//         return handler(req, ...args);
+//       }
+
+//       return errorResponse(req, {
+//         message: "Rate limiting service unavailable",
+//         statusCode: 503,
+//       });
+//     }
+//   };
+// }
