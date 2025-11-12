@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
 
-interface DeleteConfirmationDialogProps {
+interface DeleteConfirmationProps {
   title?: string;
   description?: string;
   onConfirm: () => void;
@@ -9,14 +9,14 @@ interface DeleteConfirmationDialogProps {
   children?: React.ReactNode;
 }
 
-export default function DeleteConfirmationDialog({
+export default function DeleteConfirmation({
   title,
   description,
   onConfirm,
   onCancel,
   isLoading,
   children,
-  }: DeleteConfirmationDialogProps) {
+  }: DeleteConfirmationProps) {
   return (
     <div className="flex flex-col gap-4">
       <div>

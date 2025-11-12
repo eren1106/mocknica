@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import DialogButton from "@/components/dialog-button";
 import ResponseWrapperForm from "./ResponseWrapperForm";
 import ResponseWrapperView from "./ResponseWrapperView";
-import DeleteConfirmationDialog from "@/components/delete-confirmation";
+import DeleteConfirmation from "@/components/delete-confirmation";
 import { IResponseWrapper } from "@/types";
 import {
   AlertCircleIcon,
@@ -72,7 +72,7 @@ export default function ResponseWrapperCard({
             </DialogButton>
             <DialogButton
               content={(close) => (
-                <DeleteConfirmationDialog
+                <DeleteConfirmation
                   title="Delete Response Wrapper"
                   description="Are you sure you want to delete this response wrapper?"
                   onConfirm={() => deleteResponseWrapper(wrapper.id)}
@@ -106,7 +106,7 @@ export default function ResponseWrapperCard({
                       </Alert>
                     )
                   )}
-                </DeleteConfirmationDialog>
+                </DeleteConfirmation>
               )}
               size="sm"
               className="size-8 p-0"
