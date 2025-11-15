@@ -1,9 +1,9 @@
-import { ISchema, ISchemaField, IJsonSchemaField } from "@/types";
+import { EIdFieldType, ESchemaFieldType, ISchema, ISchemaField } from "@/types";
 import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
 import { SchemaRepository, ProjectRepository } from "@/lib/repositories";
 import { AppError, ERROR_CODES, handlePrismaError } from "@/lib/errors";
 import { STATUS_CODES } from "@/constants/status-codes";
-import { IdFieldType, SchemaFieldType, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { FakerService } from "./faker.service";
 import { generateUUID } from "@/lib/utils";
 import { schemaRepository as schemaRepo, projectRepository as projectRepo } from "@/lib/repositories";
@@ -38,7 +38,7 @@ export class SchemaService {
       // Convert SchemaSchemaType to Prisma.SchemaCreateInput
       const schemaData: Prisma.SchemaCreateInput = {
         name: data.name,
-        jsonSchema: data.jsonSchema as any,
+        fields: data.fields as any,
         project: {
           connect: { id: projectId },
         },
@@ -67,15 +67,15 @@ export class SchemaService {
   }
 
   /**
-   * Enrich a schema by populating nested schema references in jsonSchema
+   * Enrich a schema by populating nested schema references in fields
    */
   private async enrichSchemaWithNestedSchemas(schema: ISchema): Promise<ISchema> {
-    if (!schema.jsonSchema || schema.jsonSchema.length === 0) {
+    if (!schema.fields || schema.fields.length === 0) {
       return schema;
     }
 
-    const enrichedJsonSchema = await Promise.all(
-      schema.jsonSchema.map(async (field) => {
+    const enrichedSchemaFields = await Promise.all(
+      schema.fields.map(async (field) => {
         const enrichedField: any = { ...field };
 
         // Enrich OBJECT type fields
@@ -111,7 +111,7 @@ export class SchemaService {
 
     return {
       ...schema,
-      jsonSchema: enrichedJsonSchema as any,
+      fields: enrichedSchemaFields as any,
     };
   }
 
@@ -198,7 +198,7 @@ export class SchemaService {
       // Convert SchemaSchemaType to Prisma.SchemaUpdateInput
       const schemaData: Prisma.SchemaUpdateInput = {
         name: data.name,
-        jsonSchema: data.jsonSchema as any,
+        fields: data.fields as any,
       };
 
       await this.schemaRepository.update(schemaId, schemaData);
@@ -309,13 +309,13 @@ export class SchemaService {
     field: ISchemaField,
     dataId?: number | string
   ) {
-    if (field.type === SchemaFieldType.FAKER && field.fakerType) {
+    if (field.type === ESchemaFieldType.FAKER && field.fakerType) {
       return FakerService.generateFakerValue(field.fakerType);
     }
 
-    if (field.type === SchemaFieldType.OBJECT && field.objectSchemaId) {
+    if (field.type === ESchemaFieldType.OBJECT && field.objectSchemaId) {
       const result: any = {};
-      const objectFields = field.objectSchema ? (field.objectSchema.jsonSchema || field.objectSchema.fields || []) : [];
+      const objectFields = field.objectSchema ? (field.objectSchema.fields || field.objectSchema.fields || []) : [];
       for (const subField of objectFields) {
         result[subField.name] = this.generateSchemaFieldValue(
           subField as ISchemaField
@@ -324,13 +324,13 @@ export class SchemaService {
       return result;
     }
 
-    if (field.type === SchemaFieldType.ARRAY && field.arrayType) {
+    if (field.type === ESchemaFieldType.ARRAY && field.arrayType) {
       const count = Math.floor(Math.random() * 5) + 1; // Generate 1-5 items
       const result = [];
       for (let i = 0; i < count; i++) {
-        if (field.arrayType.elementType === SchemaFieldType.OBJECT) {
+        if (field.arrayType.elementType === ESchemaFieldType.OBJECT) {
           const objResult: any = {};
-          const arrayObjectFields = field.arrayType.objectSchema ? (field.arrayType.objectSchema.jsonSchema || field.arrayType.objectSchema.fields || []) : [];
+          const arrayObjectFields = field.arrayType.objectSchema ? (field.arrayType.objectSchema.fields || field.arrayType.objectSchema.fields || []) : [];
           for (const subField of arrayObjectFields) {
             objResult[subField.name] = this.generateSchemaFieldValue(
               subField as ISchemaField
@@ -338,7 +338,7 @@ export class SchemaService {
           }
           result.push(objResult);
         } else if (
-          field.arrayType.elementType === SchemaFieldType.FAKER &&
+          field.arrayType.elementType === ESchemaFieldType.FAKER &&
           field.arrayType.fakerType
         ) {
           result.push(
@@ -351,18 +351,18 @@ export class SchemaService {
 
     // Default values for other types
     switch (field.type) {
-      case SchemaFieldType.STRING:
+      case ESchemaFieldType.STRING:
         return "string";
-      case SchemaFieldType.INTEGER:
+      case ESchemaFieldType.INTEGER:
         return 1;
-      case SchemaFieldType.FLOAT:
+      case ESchemaFieldType.FLOAT:
         return 1.0;
-      case SchemaFieldType.BOOLEAN:
+      case ESchemaFieldType.BOOLEAN:
         return true;
-      case SchemaFieldType.DATE:
+      case ESchemaFieldType.DATE:
         return new Date();
-      case SchemaFieldType.ID:
-        const defaultValue = field.idFieldType === IdFieldType.UUID ? generateUUID() : 1;
+      case ESchemaFieldType.ID:
+        const defaultValue = field.idFieldType === EIdFieldType.UUID ? generateUUID() : 1;
         return dataId ?? defaultValue;
       default:
         return null;
@@ -380,7 +380,7 @@ export class SchemaService {
       const resolvedField = { ...field };
       
       // Resolve OBJECT type with objectSchemaId
-      if (field.type === SchemaFieldType.OBJECT && field.objectSchemaId && !field.objectSchema) {
+      if (field.type === ESchemaFieldType.OBJECT && field.objectSchemaId && !field.objectSchema) {
         try {
           const objectSchema = await this.schemaRepository.findById(field.objectSchemaId);
           if (objectSchema) {
@@ -394,12 +394,11 @@ export class SchemaService {
       }
       
       // Resolve ARRAY type with OBJECT elements
-      if (field.type === SchemaFieldType.ARRAY && field.arrayType?.objectSchemaId && !field.arrayType.objectSchema) {
+      if (field.type === ESchemaFieldType.ARRAY && field.arrayType?.objectSchemaId && !field.arrayType.objectSchema) {
         try {
           const arrayObjectSchema = await this.schemaRepository.findById(field.arrayType.objectSchemaId);
           if (arrayObjectSchema) {
             resolvedField.arrayType = {
-              id: field.arrayType.id || 0,
               elementType: field.arrayType.elementType,
               objectSchemaId: field.arrayType.objectSchemaId,
               fakerType: field.arrayType.fakerType,
@@ -428,7 +427,7 @@ export class SchemaService {
     isList: boolean = false,
     numberOfData?: number,
   ) {
-    const fields = schema.jsonSchema || schema.fields || [];
+    const fields = schema.fields || schema.fields || [];
     
     // Resolve any nested schema references
     const resolvedFields = await this.resolveNestedSchemas(fields as ISchemaField[]);
@@ -442,7 +441,7 @@ export class SchemaService {
         for (const field of resolvedFields) {
           item[field.name] = this.generateSchemaFieldValue(
             field as ISchemaField,
-            field.idFieldType === IdFieldType.UUID ? generateUUID() : i + 1
+            field.idFieldType === EIdFieldType.UUID ? generateUUID() : i + 1
           );
         }
         response.push(item);

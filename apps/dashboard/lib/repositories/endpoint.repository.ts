@@ -1,4 +1,4 @@
-import { Prisma, Endpoint, Schema, SchemaField, ResponseWrapper } from "@prisma/client";
+import { Prisma, Endpoint, Schema, ResponseWrapper } from "@prisma/client";
 import { BaseRepository } from "./base.repository";
 import prisma from "../db";
 import { IEndpoint } from "@/types";
@@ -6,7 +6,7 @@ import { mapEndpoint } from "./type-mappers";
 
 // Define the Prisma entity type with relations
 type EndpointWithRelations = Endpoint & {
-  schema?: (Schema & { fields: SchemaField[] }) | null;
+  schema?: Schema | null;
   responseWrapper?: ResponseWrapper | null;
 };
 

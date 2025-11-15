@@ -14,8 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import JsonViewer from "@/components/json-viewer";
 
 const SchemaCard = ({ schema }: { schema: ISchema }) => {
-  // Get fields from either jsonSchema or fields
-  const fields = schema.jsonSchema || [];
+  // Get fields from either fields or fields
+  const fields = schema.fields || [];
   
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString();

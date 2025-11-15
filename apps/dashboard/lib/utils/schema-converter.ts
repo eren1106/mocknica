@@ -2,12 +2,12 @@
  * Helper functions to convert between fields array and JSON schema format
  */
 
-import { ISchemaField, IJsonSchemaField } from "@/types";
+import { ISchemaField } from "@/types";
 
 /**
  * Convert fields array to JSON schema format
  */
-export function fieldsToJsonSchema(fields: ISchemaField[]): IJsonSchemaField[] {
+export function fieldsToSchemaFields(fields: ISchemaField[]): ISchemaField[] {
   return fields.map((field) => ({
     name: field.name,
     type: field.type,

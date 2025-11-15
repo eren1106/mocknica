@@ -3,7 +3,7 @@
  * Reduces duplication and maintains consistent data fetching across the application
  */
 export class PrismaIncludes {
-  // Full schema includes (jsonSchema is a JSON column, no relations to include)
+  // Full schema includes (fields is a JSON column, no relations to include)
   static readonly schemaInclude = {} as const;
 
   // Endpoint includes with schema and response wrapper

@@ -40,12 +40,12 @@ export async function POST(req: NextRequest) {
     const validationResult = await validateRequestBody(req, PayloadSchemaSchema);
     if (validationResult instanceof Response) return validationResult;
 
-    const { name, jsonSchema, projectId } = validationResult;
+    const { name, fields, projectId } = validationResult;
     
     const schema = await schemaService.createSchema(
       {
         name,
-        jsonSchema,
+        fields,
       },
       projectId,
       sessionResult.user.id

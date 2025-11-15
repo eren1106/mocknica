@@ -96,7 +96,7 @@ export default function EndpointsList() {
         projectId,
         schemas: schemasToCreate?.map((s) => ({
           name: s.name,
-          jsonSchema: s.jsonSchema,
+          fields: s.fields,
         })),
         endpoints: endpointsToCreate.map((endpointData) => {
           // CRITICAL FIX: Pass the AI's schemaId (1-based index) directly to backend

@@ -13,21 +13,8 @@ export interface IArrayType {
   fakerType?: EFakerType;
 }
 
-export interface ISchemaField {
-  id?: number; // Optional for JSON schema fields
-  name: string;
-  type: ESchemaFieldType;
-  idFieldType?: EIdFieldType;
-  fakerType?: EFakerType;
-  schemaId?: number;
-  objectSchemaId?: number;
-  objectSchema?: ISchema;
-  arrayTypeId?: number;
-  arrayType?: IArrayType;
-}
-
 // JSON Schema field format
-export interface IJsonSchemaField {
+export interface ISchemaField {
   name: string;
   type: ESchemaFieldType;
   idFieldType?: EIdFieldType | null;
@@ -45,8 +32,7 @@ export interface IJsonSchemaField {
 export interface ISchema {
   id: number;
   name: string;
-  jsonSchema?: IJsonSchemaField[]; // Optional for backward compatibility
-  fields?: ISchemaField[]; // Deprecated: Use jsonSchema instead. Kept for backward compatibility
+  fields?: ISchemaField[]; // Optional for backward compatibility
   projectId?: string;
   createdAt: Date;
   updatedAt: Date;

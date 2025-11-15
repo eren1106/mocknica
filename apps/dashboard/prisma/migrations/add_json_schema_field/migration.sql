@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE "Schema" ADD COLUMN "jsonSchema" JSONB;
+ALTER TABLE "Schema" ADD COLUMN "fields" JSONB;

@@ -20,7 +20,7 @@ import { EFakerType, EIdFieldType, ESchemaFieldType } from "@/types";
 // );
 
 // JSON Schema field format (without IDs)
-const JsonSchemaFieldSchema: z.ZodType = z.lazy(() =>
+const SchemaFieldsFieldSchema: z.ZodType = z.lazy(() =>
   z.object({
     name: z.string().min(1),
     type: z.nativeEnum(ESchemaFieldType),
@@ -37,7 +37,7 @@ const JsonSchemaFieldSchema: z.ZodType = z.lazy(() =>
 
 export const SchemaSchema = z.object({
   name: z.string().min(1),
-  jsonSchema: z.array(JsonSchemaFieldSchema).min(1),
+  fields: z.array(SchemaFieldsFieldSchema).min(1),
 });
 export type SchemaSchemaType = z.infer<typeof SchemaSchema>;
 

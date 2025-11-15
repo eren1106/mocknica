@@ -134,7 +134,7 @@ export async function POST(req: NextRequest) {
     const exampleSchemas = [
       {
         name: "User",
-        jsonSchema: [
+        fields: [
           {
             name: "id",
             type: "ID",
@@ -195,7 +195,7 @@ export async function POST(req: NextRequest) {
       },
       {
         name: "Product",
-        jsonSchema: [
+        fields: [
           {
             name: "id",
             type: "ID",
@@ -256,7 +256,7 @@ export async function POST(req: NextRequest) {
       },
       {
         name: "Order",
-        jsonSchema: [
+        fields: [
           {
             name: "id",
             type: "ID",
@@ -309,7 +309,7 @@ export async function POST(req: NextRequest) {
       },
       {
         name: "Customer",
-        jsonSchema: [
+        fields: [
           {
             name: "id",
             type: "ID",
@@ -422,7 +422,7 @@ Expected response format:
     {
       "name": "SchemaName", 
       "description": "Schema description",
-      "jsonSchema": [
+      "fields": [
         {
           "name": "fieldName",
           "type": "FIELD_TYPE",
@@ -500,8 +500,8 @@ ${
 Schema requirements:
 1. Schema names should be PascalCase (e.g., "User", "Product", "Car")
 2. Field names MUST be camelCase (e.g., "firstName", "userEmail", "createdAt")
-3. Each schema must have "jsonSchema" array
-4. Each field in jsonSchema MUST have: name, type, idFieldType (null if not ID), fakerType (null if not FAKER), objectSchemaId (null), arrayType (null)
+3. Each schema must have "fields" array
+4. Each field in fields MUST have: name, type, idFieldType (null if not ID), fakerType (null if not FAKER), objectSchemaId (null), arrayType (null)
 5. If type is "ID", set "idFieldType" to "UUID" or "AUTOINCREMENT", others to null
 6. If type is "FAKER", set "fakerType" from available options, others to null
 7. DO NOT use "OBJECT" type or reference other schemas with "objectSchemaId" in AI generation
@@ -641,18 +641,18 @@ RESPOND WITH ONLY JSON:`;
       for (const schema of response.schemas) {
         if (
           !schema.name ||
-          !schema.jsonSchema ||
-          !Array.isArray(schema.jsonSchema)
+          !schema.fields ||
+          !Array.isArray(schema.fields)
         ) {
           throw new Error(
-            "Each schema must have 'name' and 'jsonSchema' array"
+            "Each schema must have 'name' and 'fields' array"
           );
         }
 
         // Validate minimum field count for meaningful schemas
-        if (schema.jsonSchema.length < 1) {
+        if (schema.fields.length < 1) {
           throw new Error(
-            `Schema '${schema.name}' has no jsonSchema fields. Each schema should have at least 1 field.`
+            `Schema '${schema.name}' has no fields fields. Each schema should have at least 1 field.`
           );
         }
       }

@@ -74,7 +74,7 @@ export default function AIGeneratedPreview({
   const generateEndpointResponse = useMemo(() => {
     return (endpoint: IEndpoint, linkedSchema: ISchema | null | undefined) => {
       if (linkedSchema) {
-        // Generate response from schema (AIGeneratedSchema has same jsonSchema structure as ISchema)
+        // Generate response from schema (AIGeneratedSchema has same fields structure as ISchema)
         const generated = SchemaService.generateResponseFromSchema(
           linkedSchema,
           endpoint.isDataList ?? false,
@@ -227,7 +227,7 @@ export default function AIGeneratedPreview({
                               variant="secondary"
                               className="text-xs bg-blue-100 dark:bg-blue-900"
                             >
-                              {schema.jsonSchema?.length} fields
+                              {schema.fields?.length} fields
                             </Badge>
                             {isDuplicate && (
                               <Badge
@@ -258,7 +258,7 @@ export default function AIGeneratedPreview({
                             </p>
                           )}
                         {(() => {
-                          const fields = schema.jsonSchema || [];
+                          const fields = schema.fields || [];
                           return fields.length > 0 && (
                             <div className="flex flex-wrap gap-1 pt-1">
                               {fields.map((field, fieldIndex) => (

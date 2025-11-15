@@ -16,7 +16,7 @@ interface SchemaTooltipProps {
 }
 
 const SchemaTooltip = ({ objectSchema, className }: SchemaTooltipProps) => {
-  const fields = objectSchema.jsonSchema || [];
+  const fields = objectSchema.fields || [];
   
   return (
     <Tooltip>

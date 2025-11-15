@@ -43,18 +43,18 @@ model Endpoint {
 }
 
 model Schema {
-  id         Int           @id @default(autoincrement())
-  name       String
-  jsonSchema Json? // New JSON schema format (list of SchemaField object)
+  id        Int      @id @default(autoincrement())
+  name      String
+  fields    Json? // New JSON schema format (list of SchemaField object)
   // fields     SchemaField[] @relation("FieldToParentSchema") // Deprecated: kept for backward compatibility
-  projectId  String?
-  project    Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // ArrayType    ArrayType[]
   // ObjectFields SchemaField[] @relation("FieldToObjectSchema")
-  Endpoints    Endpoint[]
+  Endpoints Endpoint[]
 }
 
 // model SchemaField {

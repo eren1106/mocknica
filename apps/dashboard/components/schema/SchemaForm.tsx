@@ -44,11 +44,11 @@ const SchemaForm = (props: SchemaFormProps) => {
     props.schema
       ? {
           name: props.schema.name,
-          jsonSchema: props.schema.jsonSchema || [],
+          fields: props.schema.fields || [],
         }
       : {
           name: "",
-          jsonSchema: [
+          fields: [
             {
               name: "id",
               type: ESchemaFieldType.ID,
@@ -69,8 +69,8 @@ const SchemaForm = (props: SchemaFormProps) => {
         }
   );
 
-  // Convert jsonSchema to fields for UI rendering
-  const fields = form.watch("jsonSchema");
+  // Convert fields to fields for UI rendering
+  const fields = form.watch("fields");
 
   const onSubmit = async (data: SchemaSchemaType) => {
     try {
@@ -93,9 +93,9 @@ const SchemaForm = (props: SchemaFormProps) => {
 
   // Function to add a new field
   const addField = () => {
-    const currentJsonSchema = form.getValues("jsonSchema");
-    form.setValue("jsonSchema", [
-      ...currentJsonSchema,
+    const currentSchemaFields = form.getValues("fields");
+    form.setValue("fields", [
+      ...currentSchemaFields,
       {
         name: "",
         type: ESchemaFieldType.STRING,
@@ -109,27 +109,27 @@ const SchemaForm = (props: SchemaFormProps) => {
 
   // Function to delete a field by index
   const deleteField = (indexToDelete: number) => {
-    const currentJsonSchema = form.getValues("jsonSchema");
+    const currentSchemaFields = form.getValues("fields");
     form.setValue(
-      "jsonSchema",
-      currentJsonSchema.filter((_, i) => i !== indexToDelete)
+      "fields",
+      currentSchemaFields.filter((_, i) => i !== indexToDelete)
     );
   };
 
   // Function to update a field's name
   const updateFieldName = (index: number, newName: string) => {
-    const currentJsonSchema = form.getValues("jsonSchema");
-    const updatedJsonSchema = [...currentJsonSchema];
-    updatedJsonSchema[index] = { ...updatedJsonSchema[index], name: newName };
-    form.setValue("jsonSchema", updatedJsonSchema);
+    const currentSchemaFields = form.getValues("fields");
+    const updatedSchemaFields = [...currentSchemaFields];
+    updatedSchemaFields[index] = { ...updatedSchemaFields[index], name: newName };
+    form.setValue("fields", updatedSchemaFields);
   };
 
   // Function to update a field's type
   const updateFieldType = (index: number, newType: ESchemaFieldType) => {
-    const currentJsonSchema = form.getValues("jsonSchema");
-    const updatedJsonSchema = [...currentJsonSchema];
-    updatedJsonSchema[index] = { ...updatedJsonSchema[index], type: newType };
-    form.setValue("jsonSchema", updatedJsonSchema);
+    const currentSchemaFields = form.getValues("fields");
+    const updatedSchemaFields = [...currentSchemaFields];
+    updatedSchemaFields[index] = { ...updatedSchemaFields[index], type: newType };
+    form.setValue("fields", updatedSchemaFields);
   };
 
   const [aiPrompt, setAiPrompt] = useState("");
@@ -147,7 +147,7 @@ const SchemaForm = (props: SchemaFormProps) => {
         aiPrompt,
         selectedModel || undefined
       );
-      form.setValue("jsonSchema", response);
+      form.setValue("fields", response);
       close();
     } catch (error) {
       console.error("Error generating response:", error);
@@ -166,7 +166,7 @@ const SchemaForm = (props: SchemaFormProps) => {
 
       <GenericFormField
         type="custom"
-        name={formFields.jsonSchema}
+        name={formFields.fields}
         control={form.control}
         // useFormNameAsLabel={false}
         customChildren={
@@ -204,13 +204,13 @@ const SchemaForm = (props: SchemaFormProps) => {
                       defaultValue={EIdFieldType.AUTOINCREMENT}
                       value={`${field.idFieldType}`}
                       onChange={(value) => {
-                        const currentJsonSchema = form.getValues("jsonSchema");
-                        const updatedJsonSchema = [...currentJsonSchema];
-                        updatedJsonSchema[index] = {
-                          ...updatedJsonSchema[index],
+                        const currentSchemaFields = form.getValues("fields");
+                        const updatedSchemaFields = [...currentSchemaFields];
+                        updatedSchemaFields[index] = {
+                          ...updatedSchemaFields[index],
                           idFieldType: value as EIdFieldType,
                         };
-                        form.setValue("jsonSchema", updatedJsonSchema);
+                        form.setValue("fields", updatedSchemaFields);
                       }}
                       className="w-full max-w-40"
                     />
@@ -227,13 +227,13 @@ const SchemaForm = (props: SchemaFormProps) => {
                       }
                       value={`${field.fakerType}`}
                       onChange={(value) => {
-                        const currentJsonSchema = form.getValues("jsonSchema");
-                        const updatedJsonSchema = [...currentJsonSchema];
-                        updatedJsonSchema[index] = {
-                          ...updatedJsonSchema[index],
+                        const currentSchemaFields = form.getValues("fields");
+                        const updatedSchemaFields = [...currentSchemaFields];
+                        updatedSchemaFields[index] = {
+                          ...updatedSchemaFields[index],
                           fakerType: value as EFakerType,
                         };
-                        form.setValue("jsonSchema", updatedJsonSchema);
+                        form.setValue("fields", updatedSchemaFields);
                       }}
                       className="w-full max-w-40"
                     />
@@ -252,13 +252,13 @@ const SchemaForm = (props: SchemaFormProps) => {
                       ]}
                       value={field.objectSchemaId?.toString()}
                       onChange={(value) => {
-                        const currentJsonSchema = form.getValues("jsonSchema");
-                        const updatedJsonSchema = [...currentJsonSchema];
-                        updatedJsonSchema[index] = {
-                          ...updatedJsonSchema[index],
+                        const currentSchemaFields = form.getValues("fields");
+                        const updatedSchemaFields = [...currentSchemaFields];
+                        updatedSchemaFields[index] = {
+                          ...updatedSchemaFields[index],
                           objectSchemaId: value ? Number(value) : null,
                         };
-                        form.setValue("jsonSchema", updatedJsonSchema);
+                        form.setValue("fields", updatedSchemaFields);
                       }}
                       className="w-full max-w-40"
                     />
@@ -276,22 +276,22 @@ const SchemaForm = (props: SchemaFormProps) => {
                         }
                         value={field.arrayType?.elementType}
                         onChange={(value) => {
-                          const currentJsonSchema =
-                            form.getValues("jsonSchema");
-                          const updatedJsonSchema = [...currentJsonSchema];
-                          updatedJsonSchema[index] = {
-                            ...updatedJsonSchema[index],
+                          const currentSchemaFields =
+                            form.getValues("fields");
+                          const updatedSchemaFields = [...currentSchemaFields];
+                          updatedSchemaFields[index] = {
+                            ...updatedSchemaFields[index],
                             arrayType: {
                               elementType: value as ESchemaFieldType,
                               objectSchemaId:
-                                updatedJsonSchema[index].arrayType
+                                updatedSchemaFields[index].arrayType
                                   ?.objectSchemaId || null,
                               fakerType:
-                                updatedJsonSchema[index].arrayType?.fakerType ||
+                                updatedSchemaFields[index].arrayType?.fakerType ||
                                 null,
                             },
                           };
-                          form.setValue("jsonSchema", updatedJsonSchema);
+                          form.setValue("fields", updatedSchemaFields);
                         }}
                         className="w-full max-w-40"
                       />
@@ -310,13 +310,13 @@ const SchemaForm = (props: SchemaFormProps) => {
                           ]}
                           value={field.arrayType?.objectSchemaId?.toString()}
                           onChange={(value) => {
-                            const currentJsonSchema =
-                              form.getValues("jsonSchema");
-                            const updatedJsonSchema = [...currentJsonSchema];
+                            const currentSchemaFields =
+                              form.getValues("fields");
+                            const updatedSchemaFields = [...currentSchemaFields];
                             const currentArrayType =
-                              updatedJsonSchema[index].arrayType;
-                            updatedJsonSchema[index] = {
-                              ...updatedJsonSchema[index],
+                              updatedSchemaFields[index].arrayType;
+                            updatedSchemaFields[index] = {
+                              ...updatedSchemaFields[index],
                               arrayType: {
                                 elementType:
                                   currentArrayType?.elementType ||
@@ -325,7 +325,7 @@ const SchemaForm = (props: SchemaFormProps) => {
                                 fakerType: currentArrayType?.fakerType || null,
                               },
                             };
-                            form.setValue("jsonSchema", updatedJsonSchema);
+                            form.setValue("fields", updatedSchemaFields);
                           }}
                           className="w-full max-w-40"
                         />

@@ -1,9 +1,8 @@
 import { apiRequest } from "@/helpers/api-request";
 import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
-import { IdFieldType, SchemaFieldType } from "@prisma/client";
 import { FakerService } from "./faker.service";
 import { generateUUID } from "@/lib/utils";
-import { ISchema, ISchemaField } from "@/types";
+import { EIdFieldType, ESchemaFieldType, ISchema, ISchemaField } from "@/types";
 
 export class SchemaService {
   static async getAllSchemas(projectId: string): Promise<ISchema[]> {
@@ -34,14 +33,14 @@ export class SchemaService {
     field: ISchemaField,
     dataId?: number | string
   ) {
-    if (field.type === SchemaFieldType.FAKER && field.fakerType) {
+    if (field.type === ESchemaFieldType.FAKER && field.fakerType) {
       return FakerService.generateFakerValue(field.fakerType);
     }
 
-    if (field.type === SchemaFieldType.OBJECT && field.objectSchemaId) {
+    if (field.type === ESchemaFieldType.OBJECT && field.objectSchemaId) {
       const result: any = {};
       if (field.objectSchema) {
-        const objectFields = field.objectSchema.jsonSchema || field.objectSchema.fields || [];
+        const objectFields = field.objectSchema.fields || field.objectSchema.fields || [];
         for (const subField of objectFields) {
           result[subField.name] = this.generateSchemaFieldValue(
             subField as ISchemaField
@@ -53,14 +52,14 @@ export class SchemaService {
       return result;
     }
 
-    if (field.type === SchemaFieldType.ARRAY && field.arrayType) {
+    if (field.type === ESchemaFieldType.ARRAY && field.arrayType) {
       const count = Math.floor(Math.random() * 5) + 1; // Generate 1-5 items
       const result = [];
       for (let i = 0; i < count; i++) {
-        if (field.arrayType.elementType === SchemaFieldType.OBJECT) {
+        if (field.arrayType.elementType === ESchemaFieldType.OBJECT) {
           const objResult: any = {};
           if (field.arrayType.objectSchema) {
-            const arrayObjectFields = field.arrayType.objectSchema.jsonSchema || field.arrayType.objectSchema.fields || [];
+            const arrayObjectFields = field.arrayType.objectSchema.fields || field.arrayType.objectSchema.fields || [];
             for (const subField of arrayObjectFields) {
               objResult[subField.name] = this.generateSchemaFieldValue(
                 subField as ISchemaField
@@ -71,7 +70,7 @@ export class SchemaService {
           }
           result.push(objResult);
         } else if (
-          field.arrayType.elementType === SchemaFieldType.FAKER &&
+          field.arrayType.elementType === ESchemaFieldType.FAKER &&
           field.arrayType.fakerType
         ) {
           result.push(
@@ -84,18 +83,18 @@ export class SchemaService {
 
     // Default values for other types
     switch (field.type) {
-      case SchemaFieldType.STRING:
+      case ESchemaFieldType.STRING:
         return "string";
-      case SchemaFieldType.INTEGER:
+      case ESchemaFieldType.INTEGER:
         return 1;
-      case SchemaFieldType.FLOAT:
+      case ESchemaFieldType.FLOAT:
         return 1.0;
-      case SchemaFieldType.BOOLEAN:
+      case ESchemaFieldType.BOOLEAN:
         return true;
-      case SchemaFieldType.DATE:
+      case ESchemaFieldType.DATE:
         return new Date();
-      case SchemaFieldType.ID:
-        const defaultValue = field.idFieldType === IdFieldType.UUID ? generateUUID() : 1;
+      case ESchemaFieldType.ID:
+        const defaultValue = field.idFieldType === EIdFieldType.UUID ? generateUUID() : 1;
         return dataId ?? defaultValue;
       default:
         return null;
@@ -108,7 +107,7 @@ export class SchemaService {
     isList: boolean = false,
     numberOfData?: number,
   ) {
-    const fields = schema.jsonSchema || schema.fields || [];
+    const fields = schema.fields || schema.fields || [];
     
     if (isList) {
       // Generate array of 5-10 items for list endpoints
@@ -119,7 +118,7 @@ export class SchemaService {
         for (const field of fields) {
           item[field.name] = this.generateSchemaFieldValue(
             field as ISchemaField,
-            field.idFieldType === IdFieldType.UUID ? generateUUID() : i + 1
+            field.idFieldType === EIdFieldType.UUID ? generateUUID() : i + 1
           );
         }
         response.push(item);

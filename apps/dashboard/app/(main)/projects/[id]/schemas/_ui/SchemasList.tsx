@@ -36,9 +36,9 @@ const SchemasList = () => {
         case "created-desc":
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case "fields-asc":
-          return ((a.jsonSchema || a.fields)?.length || 0) - ((b.jsonSchema || b.fields)?.length || 0);
+          return ((a.fields || a.fields)?.length || 0) - ((b.fields || b.fields)?.length || 0);
         case "fields-desc":
-          return ((b.jsonSchema || b.fields)?.length || 0) - ((a.jsonSchema || a.fields)?.length || 0);
+          return ((b.fields || b.fields)?.length || 0) - ((a.fields || a.fields)?.length || 0);
         default:
           return 0;
       }

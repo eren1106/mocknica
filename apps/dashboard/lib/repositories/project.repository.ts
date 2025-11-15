@@ -1,4 +1,4 @@
-import { Prisma, Project, User, Endpoint, Schema, SchemaField, ResponseWrapper } from "@prisma/client";
+import { Prisma, Project, User, Endpoint, Schema, ResponseWrapper } from "@prisma/client";
 import { BaseRepository } from "./base.repository";
 import prisma from "../db";
 import { IProject } from "@/types";
@@ -8,10 +8,10 @@ import { mapProject } from "./type-mappers";
 type ProjectWithRelations = Project & {
   user?: User;
   endpoints?: (Endpoint & {
-    schema?: (Schema & { fields: SchemaField[] }) | null;
+    schema?: Schema | null;
     responseWrapper?: ResponseWrapper | null;
   })[];
-  schemas?: (Schema & { fields: SchemaField[] })[];
+  schemas?: Schema[];
   responseWrappers?: ResponseWrapper[];
 };
 
