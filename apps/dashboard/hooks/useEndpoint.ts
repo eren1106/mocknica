@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { EndpointService } from '@/services/endpoint.service';
-import { IEndpoint } from '@/types';
+import { IEndpoint, ISchema } from '@/types';
 import { toast } from 'sonner';
 
 export const ENDPOINTS_QUERY_KEY = 'endpoints';
@@ -31,7 +31,7 @@ export const useMutationEndpoint = () => {
   const createBulkEndpoints = useMutation({
     mutationFn: (data: {
       projectId: string;
-      schemas?: Array<{ name: string; fields: any[] }>;
+      schemas?: Omit<ISchema, 'id' | 'projectId' | 'createdAt' | 'updatedAt'>[];
       endpoints?: Partial<IEndpoint>[];
     }) => EndpointService.createBulkEndpoints(data),
     onSuccess: () => {

@@ -71,7 +71,8 @@ export async function POST(req: NextRequest) {
     );
 
     // Map endpoints to include actual schema IDs
-    const mappedEndpoints = endpoints.map((endpointData) => {
+    // TODO: check why Promise?
+    const mappedEndpoints = await Promise.all(endpoints.map(async (endpointData) => {
       let staticResponse = endpointData.staticResponse;
       let actualSchemaId: number | undefined = undefined;
 
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest) {
 
           if (schema) {
             // Generate response from schema
-            staticResponse = SchemaService.generateResponseFromSchema(
+            staticResponse = await SchemaService.generateResponseFromSchema(
               schema as ISchema,
               endpointData.isDataList ?? false,
               endpointData.numberOfData ?? undefined
@@ -118,7 +119,7 @@ export async function POST(req: NextRequest) {
       };
 
       return mappedData;
-    });
+    }));
 
     // Create endpoints (if any)
     if (endpoints.length > 0) {

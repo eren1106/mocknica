@@ -9,7 +9,13 @@ import {
   convertFirstLetterToUpperCase,
   getZodFieldNames,
 } from "@/lib/utils";
-import { EFakerType, EIdFieldType, ESchemaFieldType, ISchemaField, ISchema } from "@/types";
+import {
+  EFakerType,
+  EIdFieldType,
+  ESchemaFieldType,
+  ISchemaField,
+  ISchema,
+} from "@/types";
 import { Input } from "../ui/input";
 import DynamicSelect from "../dynamic-select";
 import { Button } from "../ui/button";
@@ -38,14 +44,7 @@ const SchemaForm = (props: SchemaFormProps) => {
     props.schema
       ? {
           name: props.schema.name,
-          fields: props.schema.fields.map((field) => ({
-            name: field.name,
-            type: field.type,
-            idFieldType: field.idFieldType,
-            fakerType: field.fakerType,
-            objectSchemaId: field.objectSchemaId,
-            arrayType: field.arrayType,
-          })),
+          fields: props.schema.fields || [],
         }
       : {
           name: "",
@@ -54,16 +53,26 @@ const SchemaForm = (props: SchemaFormProps) => {
               name: "id",
               type: ESchemaFieldType.ID,
               idFieldType: EIdFieldType.AUTOINCREMENT,
+              objectSchemaId: null,
+              fakerType: null,
+              arrayType: null,
             },
             {
               name: "name",
               type: ESchemaFieldType.STRING,
+              idFieldType: null,
+              objectSchemaId: null,
+              fakerType: null,
+              arrayType: null,
             },
           ],
         }
   );
+
+  // Convert fields to fields for UI rendering
+  const fields = form.watch("fields");
+
   const onSubmit = async (data: SchemaSchemaType) => {
-    console.log("DATA:", data);
     try {
       if (props.schema) {
         await updateSchema({
@@ -82,43 +91,45 @@ const SchemaForm = (props: SchemaFormProps) => {
     }
   };
 
-  const fields = form.watch("fields") as ISchemaField[];
-
   // Function to add a new field
   const addField = () => {
-    const currentFields = form.getValues("fields");
+    const currentSchemaFields = form.getValues("fields");
     form.setValue("fields", [
-      ...currentFields,
+      ...currentSchemaFields,
       {
         name: "",
         type: ESchemaFieldType.STRING,
+        idFieldType: null,
+        objectSchemaId: null,
+        fakerType: null,
+        arrayType: null,
       },
     ]);
   };
 
   // Function to delete a field by index
   const deleteField = (indexToDelete: number) => {
-    const currentFields = form.getValues("fields");
+    const currentSchemaFields = form.getValues("fields");
     form.setValue(
       "fields",
-      currentFields.filter((_, i) => i !== indexToDelete)
+      currentSchemaFields.filter((_, i) => i !== indexToDelete)
     );
   };
 
   // Function to update a field's name
   const updateFieldName = (index: number, newName: string) => {
-    const currentFields = form.getValues("fields");
-    const updatedFields = [...currentFields];
-    updatedFields[index] = { ...updatedFields[index], name: newName };
-    form.setValue("fields", updatedFields);
+    const currentSchemaFields = form.getValues("fields");
+    const updatedSchemaFields = [...currentSchemaFields];
+    updatedSchemaFields[index] = { ...updatedSchemaFields[index], name: newName };
+    form.setValue("fields", updatedSchemaFields);
   };
 
   // Function to update a field's type
   const updateFieldType = (index: number, newType: ESchemaFieldType) => {
-    const currentFields = form.getValues("fields");
-    const updatedFields = [...currentFields];
-    updatedFields[index] = { ...updatedFields[index], type: newType };
-    form.setValue("fields", updatedFields);
+    const currentSchemaFields = form.getValues("fields");
+    const updatedSchemaFields = [...currentSchemaFields];
+    updatedSchemaFields[index] = { ...updatedSchemaFields[index], type: newType };
+    form.setValue("fields", updatedSchemaFields);
   };
 
   const [aiPrompt, setAiPrompt] = useState("");
@@ -133,7 +144,7 @@ const SchemaForm = (props: SchemaFormProps) => {
     setIsGenerating(true);
     try {
       const response = await AIService.generateSchemaByAI(
-        aiPrompt, 
+        aiPrompt,
         selectedModel || undefined
       );
       form.setValue("fields", response);
@@ -152,6 +163,7 @@ const SchemaForm = (props: SchemaFormProps) => {
         name={formFields.name}
         control={form.control}
       />
+
       <GenericFormField
         type="custom"
         name={formFields.fields}
@@ -192,13 +204,13 @@ const SchemaForm = (props: SchemaFormProps) => {
                       defaultValue={EIdFieldType.AUTOINCREMENT}
                       value={`${field.idFieldType}`}
                       onChange={(value) => {
-                        const currentFields = form.getValues("fields");
-                        const updatedFields = [...currentFields];
-                        updatedFields[index] = {
-                          ...updatedFields[index],
+                        const currentSchemaFields = form.getValues("fields");
+                        const updatedSchemaFields = [...currentSchemaFields];
+                        updatedSchemaFields[index] = {
+                          ...updatedSchemaFields[index],
                           idFieldType: value as EIdFieldType,
                         };
-                        form.setValue("fields", updatedFields);
+                        form.setValue("fields", updatedSchemaFields);
                       }}
                       className="w-full max-w-40"
                     />
@@ -215,13 +227,13 @@ const SchemaForm = (props: SchemaFormProps) => {
                       }
                       value={`${field.fakerType}`}
                       onChange={(value) => {
-                        const currentFields = form.getValues("fields");
-                        const updatedFields = [...currentFields];
-                        updatedFields[index] = {
-                          ...updatedFields[index],
+                        const currentSchemaFields = form.getValues("fields");
+                        const updatedSchemaFields = [...currentSchemaFields];
+                        updatedSchemaFields[index] = {
+                          ...updatedSchemaFields[index],
                           fakerType: value as EFakerType,
                         };
-                        form.setValue("fields", updatedFields);
+                        form.setValue("fields", updatedSchemaFields);
                       }}
                       className="w-full max-w-40"
                     />
@@ -240,13 +252,13 @@ const SchemaForm = (props: SchemaFormProps) => {
                       ]}
                       value={field.objectSchemaId?.toString()}
                       onChange={(value) => {
-                        const currentFields = form.getValues("fields");
-                        const updatedFields = [...currentFields];
-                        updatedFields[index] = {
-                          ...updatedFields[index],
+                        const currentSchemaFields = form.getValues("fields");
+                        const updatedSchemaFields = [...currentSchemaFields];
+                        updatedSchemaFields[index] = {
+                          ...updatedSchemaFields[index],
                           objectSchemaId: value ? Number(value) : null,
                         };
-                        form.setValue("fields", updatedFields);
+                        form.setValue("fields", updatedSchemaFields);
                       }}
                       className="w-full max-w-40"
                     />
@@ -264,16 +276,22 @@ const SchemaForm = (props: SchemaFormProps) => {
                         }
                         value={field.arrayType?.elementType}
                         onChange={(value) => {
-                          const currentFields = form.getValues("fields");
-                          const updatedFields = [...currentFields];
-                          updatedFields[index] = {
-                            ...updatedFields[index],
+                          const currentSchemaFields =
+                            form.getValues("fields");
+                          const updatedSchemaFields = [...currentSchemaFields];
+                          updatedSchemaFields[index] = {
+                            ...updatedSchemaFields[index],
                             arrayType: {
-                              ...updatedFields[index].arrayType,
                               elementType: value as ESchemaFieldType,
+                              objectSchemaId:
+                                updatedSchemaFields[index].arrayType
+                                  ?.objectSchemaId || null,
+                              fakerType:
+                                updatedSchemaFields[index].arrayType?.fakerType ||
+                                null,
                             },
                           };
-                          form.setValue("fields", updatedFields);
+                          form.setValue("fields", updatedSchemaFields);
                         }}
                         className="w-full max-w-40"
                       />
@@ -292,20 +310,22 @@ const SchemaForm = (props: SchemaFormProps) => {
                           ]}
                           value={field.arrayType?.objectSchemaId?.toString()}
                           onChange={(value) => {
-                            const currentFields = form.getValues("fields");
-                            const updatedFields = [...currentFields];
-                            updatedFields[index] = {
-                              ...updatedFields[index],
+                            const currentSchemaFields =
+                              form.getValues("fields");
+                            const updatedSchemaFields = [...currentSchemaFields];
+                            const currentArrayType =
+                              updatedSchemaFields[index].arrayType;
+                            updatedSchemaFields[index] = {
+                              ...updatedSchemaFields[index],
                               arrayType: {
-                                ...updatedFields[index].arrayType,
-                                // objectType: {
-                                //   ...updatedFields[index].arrayType.objectType,
-                                //   schemaId: Number(value),
-                                // },
+                                elementType:
+                                  currentArrayType?.elementType ||
+                                  ESchemaFieldType.STRING,
                                 objectSchemaId: Number(value),
+                                fakerType: currentArrayType?.fakerType || null,
                               },
                             };
-                            form.setValue("fields", updatedFields);
+                            form.setValue("fields", updatedSchemaFields);
                           }}
                           className="w-full max-w-40"
                         />
@@ -345,10 +365,11 @@ const SchemaForm = (props: SchemaFormProps) => {
                 placeholder="Select AI model (optional)"
               />
               <p className="text-xs text-muted-foreground">
-                Choose an AI model for generation. If not selected, the default model will be used.
+                Choose an AI model for generation. If not selected, the default
+                model will be used.
               </p>
             </div>
-            
+
             <div className="space-y-2">
               <label className="text-sm font-medium">Description</label>
               <AutoResizeTextarea
@@ -358,7 +379,7 @@ const SchemaForm = (props: SchemaFormProps) => {
                 onChange={handlePromptChange}
               />
             </div>
-            
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -380,6 +401,7 @@ const SchemaForm = (props: SchemaFormProps) => {
         <Sparkles size={16} />
         Generate with AI
       </DialogButton>
+
       <FormButton isLoading={isPending} disabled={isPending}>
         Submit
       </FormButton>

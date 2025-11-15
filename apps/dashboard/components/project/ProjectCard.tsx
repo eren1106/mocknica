@@ -70,10 +70,10 @@ const ProjectCard = ({ project }: { project: IProject }) => {
               variant="ghost"
               size="icon"
               className="size-8 hover:bg-destructive/10 hover:text-destructive"
-              title="Delete Project"
-              description="Are you sure you want to delete this project? This action cannot be undone and will delete all associated endpoints, schemas, and response wrappers."
               content={(close) => (
                 <DeleteConfirmation
+                  title="Delete Project"
+                  description="Are you sure you want to delete this project? This action cannot be undone and will delete all associated endpoints, schemas, and response wrappers."
                   onConfirm={async () => {
                     await handleDelete();
                     close();

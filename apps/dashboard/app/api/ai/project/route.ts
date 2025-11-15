@@ -13,8 +13,13 @@ export async function POST(req: NextRequest) {
     if (sessionResult instanceof Response) return sessionResult;
 
     // Rate limit check for AI operations (most expensive)
-    const rateLimitResult = await checkRateLimit(req, "AI", sessionResult.user.id);
-    if (!rateLimitResult.success && rateLimitResult.response) return rateLimitResult.response;
+    const rateLimitResult = await checkRateLimit(
+      req,
+      "AI",
+      sessionResult.user.id
+    );
+    if (!rateLimitResult.success && rateLimitResult.response)
+      return rateLimitResult.response;
 
     const {
       prompt: userInput,
@@ -39,42 +44,6 @@ export async function POST(req: NextRequest) {
     const existingSchemas = projectId
       ? await schemaService.getProjectSchemas(projectId, sessionResult.user.id)
       : [];
-
-    // Create example structures
-    const exampleSchemaFields = [
-      {
-        name: "id",
-        type: "ID",
-        idFieldType: "UUID",
-      },
-      {
-        name: "email",
-        type: "FAKER",
-        fakerType: "EMAIL",
-      },
-      {
-        name: "firstName",
-        type: "FAKER",
-        fakerType: "FIRST_NAME",
-      },
-      {
-        name: "lastName",
-        type: "FAKER",
-        fakerType: "LAST_NAME",
-      },
-      {
-        name: "profile",
-        type: "STRING",
-      },
-      {
-        name: "isActive",
-        type: "BOOLEAN",
-      },
-      {
-        name: "createdAt",
-        type: "DATE",
-      },
-    ];
 
     // Complete CRUD example for a single schema
     const exampleCrudEndpoints = [
@@ -165,120 +134,237 @@ export async function POST(req: NextRequest) {
     const exampleSchemas = [
       {
         name: "User",
-        description: "User profile and authentication schema",
-        fields: exampleSchemaFields,
-      },
-      {
-        name: "Product",
-        description: "Product catalog and inventory schema",
-        fields: [
-          {
-            name: "id",
-            type: "ID",
-            idFieldType: "AUTOINCREMENT",
-          },
-          {
-            name: "name",
-            type: "FAKER",
-            fakerType: "PRODUCT_NAME",
-          },
-          {
-            name: "description",
-            type: "FAKER",
-            fakerType: "PARAGRAPH",
-          },
-          {
-            name: "price",
-            type: "FAKER",
-            fakerType: "PRICE",
-          },
-          {
-            name: "category",
-            type: "FAKER",
-            fakerType: "WORD",
-          },
-          {
-            name: "inStock",
-            type: "BOOLEAN",
-          },
-          {
-            name: "createdAt",
-            type: "DATE",
-          },
-        ],
-      },
-      {
-        name: "Order",
-        description: "Customer orders and transactions schema",
         fields: [
           {
             name: "id",
             type: "ID",
             idFieldType: "UUID",
-          },
-          {
-            name: "orderNumber",
-            type: "FAKER",
-            fakerType: "DATABASE_ID",
-          },
-          {
-            name: "customerEmail",
-            type: "FAKER",
-            fakerType: "EMAIL",
-          },
-          {
-            name: "totalAmount",
-            type: "FAKER",
-            fakerType: "AMOUNT",
-          },
-          {
-            name: "status",
-            type: "STRING",
-          },
-          {
-            name: "orderDate",
-            type: "DATE",
-          },
-        ],
-      },
-      {
-        name: "Customer",
-        description: "Customer information and contact details",
-        fields: [
-          {
-            name: "id",
-            type: "ID",
-            idFieldType: "AUTOINCREMENT",
-          },
-          {
-            name: "firstName",
-            type: "FAKER",
-            fakerType: "FIRST_NAME",
-          },
-          {
-            name: "lastName",
-            type: "FAKER",
-            fakerType: "LAST_NAME",
+            objectSchemaId: null,
+            fakerType: null,
+            arrayType: null,
           },
           {
             name: "email",
             type: "FAKER",
             fakerType: "EMAIL",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "firstName",
+            type: "FAKER",
+            fakerType: "FIRST_NAME",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "lastName",
+            type: "FAKER",
+            fakerType: "LAST_NAME",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "profile",
+            type: "STRING",
+            idFieldType: null,
+            fakerType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "isActive",
+            type: "BOOLEAN",
+            idFieldType: null,
+            fakerType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "createdAt",
+            type: "DATE",
+            idFieldType: null,
+            fakerType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+        ],
+      },
+      {
+        name: "Product",
+        fields: [
+          {
+            name: "id",
+            type: "ID",
+            idFieldType: "AUTOINCREMENT",
+            objectSchemaId: null,
+            fakerType: null,
+            arrayType: null,
+          },
+          {
+            name: "name",
+            type: "FAKER",
+            fakerType: "PRODUCT_NAME",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "description",
+            type: "FAKER",
+            fakerType: "PARAGRAPH",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "price",
+            type: "FAKER",
+            fakerType: "PRICE",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "category",
+            type: "FAKER",
+            fakerType: "WORD",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "inStock",
+            type: "BOOLEAN",
+            idFieldType: null,
+            fakerType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "createdAt",
+            type: "DATE",
+            idFieldType: null,
+            fakerType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+        ],
+      },
+      {
+        name: "Order",
+        fields: [
+          {
+            name: "id",
+            type: "ID",
+            idFieldType: "UUID",
+            objectSchemaId: null,
+            fakerType: null,
+            arrayType: null,
+          },
+          {
+            name: "orderNumber",
+            type: "FAKER",
+            fakerType: "DATABASE_ID",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "customerEmail",
+            type: "FAKER",
+            fakerType: "EMAIL",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "totalAmount",
+            type: "FAKER",
+            fakerType: "AMOUNT",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "status",
+            type: "STRING",
+            idFieldType: null,
+            fakerType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "orderDate",
+            type: "DATE",
+            idFieldType: null,
+            fakerType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+        ],
+      },
+      {
+        name: "Customer",
+        fields: [
+          {
+            name: "id",
+            type: "ID",
+            idFieldType: "AUTOINCREMENT",
+            objectSchemaId: null,
+            fakerType: null,
+            arrayType: null,
+          },
+          {
+            name: "firstName",
+            type: "FAKER",
+            fakerType: "FIRST_NAME",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "lastName",
+            type: "FAKER",
+            fakerType: "LAST_NAME",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
+          },
+          {
+            name: "email",
+            type: "FAKER",
+            fakerType: "EMAIL",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
           },
           {
             name: "phone",
             type: "FAKER",
             fakerType: "PHONE_NUMBER",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
           },
           {
             name: "address",
             type: "FAKER",
             fakerType: "STREET_ADDRESS",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
           },
           {
             name: "city",
             type: "FAKER",
             fakerType: "CITY",
+            idFieldType: null,
+            objectSchemaId: null,
+            arrayType: null,
           },
         ],
       },
@@ -336,7 +422,16 @@ Expected response format:
     {
       "name": "SchemaName", 
       "description": "Schema description",
-      "fields": [schema field objects]
+      "fields": [
+        {
+          "name": "fieldName",
+          "type": "FIELD_TYPE",
+          "idFieldType": null,
+          "fakerType": null,
+          "objectSchemaId": null,
+          "arrayType": null
+        }
+      ]
     }`
       : " // EMPTY ARRAY - Do not generate schemas"
   }
@@ -405,13 +500,14 @@ ${
 Schema requirements:
 1. Schema names should be PascalCase (e.g., "User", "Product", "Car")
 2. Field names MUST be camelCase (e.g., "firstName", "userEmail", "createdAt")
-3. Each schema must have at least an "id" field
-4. If type is "ID", optionally include "idFieldType" (UUID or AUTOINCREMENT)
-5. If type is "FAKER", include "fakerType" from available options
-6. DO NOT use "OBJECT" type or reference other schemas with "objectSchemaId" in AI generation
-7. DO NOT use "ARRAY" type with object references in AI generation - use simple arrays only
-8. Keep schemas independent and self-contained for AI generation
-9. Each schema should have 3-8 fields for meaningful data structure
+3. Each schema must have "fields" array
+4. Each field in fields MUST have: name, type, idFieldType (null if not ID), fakerType (null if not FAKER), objectSchemaId (null), arrayType (null)
+5. If type is "ID", set "idFieldType" to "UUID" or "AUTOINCREMENT", others to null
+6. If type is "FAKER", set "fakerType" from available options, others to null
+7. DO NOT use "OBJECT" type or reference other schemas with "objectSchemaId" in AI generation
+8. DO NOT use "ARRAY" type with object references in AI generation - use simple arrays only
+9. Keep schemas independent and self-contained for AI generation
+10. Each schema should have 3-8 fields for meaningful data structure
 
 Endpoint requirements:
 1. Create REST endpoints following patterns: /resource, /resource/:id
@@ -454,7 +550,6 @@ RESPOND WITH ONLY JSON:`;
         prompt,
         model,
       });
-
     } catch (aiError) {
       // If AI generation fails, throw a more descriptive error
       const errorMessage =
@@ -544,14 +639,20 @@ RESPOND WITH ONLY JSON:`;
     // Validate schemas (only if isGenerateSchemas is true)
     if (isGenerateSchemas) {
       for (const schema of response.schemas) {
-        if (!schema.name || !schema.fields || !Array.isArray(schema.fields)) {
-          throw new Error("Each schema must have 'name' and 'fields' array");
+        if (
+          !schema.name ||
+          !schema.fields ||
+          !Array.isArray(schema.fields)
+        ) {
+          throw new Error(
+            "Each schema must have 'name' and 'fields' array"
+          );
         }
 
         // Validate minimum field count for meaningful schemas
         if (schema.fields.length < 1) {
           throw new Error(
-            `Schema '${schema.name}' has no fields. Each schema should have at least 1 field.`
+            `Schema '${schema.name}' has no fields fields. Each schema should have at least 1 field.`
           );
         }
       }
@@ -566,7 +667,6 @@ RESPOND WITH ONLY JSON:`;
 
     // Validate endpoints
     for (const endpoint of response.endpoints) {
-
       if (!endpoint.path || !endpoint.method || !endpoint.description) {
         throw new Error(
           "Each endpoint must have 'path', 'method', and 'description'"

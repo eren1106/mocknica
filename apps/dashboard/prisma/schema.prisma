@@ -43,55 +43,56 @@ model Endpoint {
 }
 
 model Schema {
-  id        Int           @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
-  fields    SchemaField[] @relation("FieldToParentSchema")
+  fields    Json? // New JSON schema format (list of SchemaField object)
+  // fields     SchemaField[] @relation("FieldToParentSchema") // Deprecated: kept for backward compatibility
   projectId String?
-  project   Project?      @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  ArrayType    ArrayType[]
-  ObjectFields SchemaField[] @relation("FieldToObjectSchema")
-  Endpoints    Endpoint[]
+  // ArrayType    ArrayType[]
+  // ObjectFields SchemaField[] @relation("FieldToObjectSchema")
+  Endpoints Endpoint[]
 }
 
-model SchemaField {
-  id   Int             @id @default(autoincrement())
-  name String
-  type SchemaFieldType
+// model SchemaField {
+//   id   Int             @id @default(autoincrement())
+//   name String
+//   type SchemaFieldType
 
-  // if type is id
-  idFieldType IdFieldType?
+//   // if type is id
+//   idFieldType IdFieldType?
 
-  // if type is faker
-  fakerType FakerType?
+//   // if type is faker
+//   fakerType FakerType?
 
-  schemaId Int?
-  Schema   Schema? @relation("FieldToParentSchema", fields: [schemaId], references: [id])
+//   schemaId Int?
+//   Schema   Schema? @relation("FieldToParentSchema", fields: [schemaId], references: [id])
 
-  // if type is object and selected object type is not empty object
-  objectSchemaId Int?
-  objectSchema   Schema? @relation("FieldToObjectSchema", fields: [objectSchemaId], references: [id])
+//   // if type is object and selected object type is not empty object
+//   objectSchemaId Int?
+//   objectSchema   Schema? @relation("FieldToObjectSchema", fields: [objectSchemaId], references: [id])
 
-  // if type is array
-  arrayTypeId Int? // Foreign key to ArrayType.id
-  arrayType   ArrayType? @relation("SchemaFieldToArrayType", fields: [arrayTypeId], references: [id])
-}
+//   // if type is array
+//   arrayTypeId Int? // Foreign key to ArrayType.id
+//   arrayType   ArrayType? @relation("SchemaFieldToArrayType", fields: [arrayTypeId], references: [id])
+// }
 
-model ArrayType {
-  id          Int             @id @default(autoincrement())
-  elementType SchemaFieldType
+// model ArrayType {
+//   id          Int             @id @default(autoincrement())
+//   elementType SchemaFieldType
 
-  // if type is object
-  objectSchemaId Int?
-  objectSchema   Schema? @relation(fields: [objectSchemaId], references: [id])
+//   // if type is object
+//   objectSchemaId Int?
+//   objectSchema   Schema? @relation(fields: [objectSchemaId], references: [id])
 
-  // if type is faker
-  fakerType FakerType?
+//   // if type is faker
+//   fakerType FakerType?
 
-  SchemaFields SchemaField[] @relation("SchemaFieldToArrayType")
-}
+//   SchemaFields SchemaField[] @relation("SchemaFieldToArrayType")
+// }
 
 model ResponseWrapper {
   id        Int        @id @default(autoincrement())
@@ -118,79 +119,79 @@ enum ProjectPermission {
   PRIVATE
 }
 
-enum IdFieldType {
-  UUID
-  AUTOINCREMENT
-}
+// enum IdFieldType {
+//   UUID
+//   AUTOINCREMENT
+// }
 
-enum SchemaFieldType {
-  ID
-  FAKER
-  STRING
-  INTEGER
-  FLOAT
-  BOOLEAN
-  OBJECT
-  ARRAY
-  DATE
-}
+// enum SchemaFieldType {
+//   ID
+//   FAKER
+//   STRING
+//   INTEGER
+//   FLOAT
+//   BOOLEAN
+//   OBJECT
+//   ARRAY
+//   DATE
+// }
 
 // fakerjs types
-enum FakerType {
-  // Person
-  FIRST_NAME
-  LAST_NAME
-  FULL_NAME
-  JOB_TITLE
-  PHONE_NUMBER
+// enum FakerType {
+//   // Person
+//   FIRST_NAME
+//   LAST_NAME
+//   FULL_NAME
+//   JOB_TITLE
+//   PHONE_NUMBER
 
-  // Internet
-  EMAIL
-  USER_NAME
-  PASSWORD
-  URL
-  IP_ADDRESS
+//   // Internet
+//   EMAIL
+//   USER_NAME
+//   PASSWORD
+//   URL
+//   IP_ADDRESS
 
-  // Location
-  CITY
-  COUNTRY
-  STATE
-  STREET_ADDRESS
-  ZIP_CODE
-  LATITUDE
-  LONGITUDE
+//   // Location
+//   CITY
+//   COUNTRY
+//   STATE
+//   STREET_ADDRESS
+//   ZIP_CODE
+//   LATITUDE
+//   LONGITUDE
 
-  // Business
-  COMPANY_NAME
-  DEPARTMENT
-  PRODUCT_NAME
-  PRICE
+//   // Business
+//   COMPANY_NAME
+//   DEPARTMENT
+//   PRODUCT_NAME
+//   PRICE
 
-  // Date & Time
-  PAST_DATE
-  FUTURE_DATE
-  RECENT_DATE
+//   // Date & Time
+//   PAST_DATE
+//   FUTURE_DATE
+//   RECENT_DATE
 
-  // Finance
-  CREDIT_CARD_NUMBER
-  ACCOUNT_NUMBER
-  AMOUNT
-  CURRENCY
+//   // Finance
+//   CREDIT_CARD_NUMBER
+//   ACCOUNT_NUMBER
+//   AMOUNT
+//   CURRENCY
 
-  // Text
-  WORD
-  SENTENCE
-  PARAGRAPH
+//   // Text
+//   WORD
+//   SENTENCE
+//   PARAGRAPH
 
-  // System
-  FILE_NAME
-  DIRECTORY_PATH
-  MIME_TYPE
+//   // System
+//   FILE_NAME
+//   DIRECTORY_PATH
+//   MIME_TYPE
 
-  // Identifiers
-  UUID
-  DATABASE_ID
-}
+//   // Identifiers
+//   UUID
+//   DATABASE_ID
+// }
 
 // Better Auth Models
 model User {

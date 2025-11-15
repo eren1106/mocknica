@@ -7,7 +7,7 @@ import { AIProviderType } from "@/lib/ai/types";
 
 interface GenerateEndpointsAndSchemasByAIResponse {
   endpoints: IEndpoint[];
-  schemas: ISchema[];
+  schemas?: ISchema[];
 }
 
 export class AIService {

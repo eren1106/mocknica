@@ -38,9 +38,9 @@ const SchemasPageContainer = () => {
         case "created-desc":
           return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         case "fields-asc":
-          return (a.fields?.length || 0) - (b.fields?.length || 0);
+          return ((a.fields || a.fields)?.length || 0) - ((b.fields || b.fields)?.length || 0);
         case "fields-desc":
-          return (b.fields?.length || 0) - (a.fields?.length || 0);
+          return ((b.fields || b.fields)?.length || 0) - ((a.fields || a.fields)?.length || 0);
         default:
           return 0;
       }

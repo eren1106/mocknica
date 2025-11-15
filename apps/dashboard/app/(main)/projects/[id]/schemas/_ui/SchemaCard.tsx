@@ -14,6 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import JsonViewer from "@/components/json-viewer";
 
 const SchemaCard = ({ schema }: { schema: ISchema }) => {
+  // Get fields from either fields or fields
+  const fields = schema.fields || [];
+  
   const formatDate = (date: Date | string) => {
     return new Date(date).toLocaleDateString();
   };
@@ -56,8 +59,8 @@ const SchemaCard = ({ schema }: { schema: ISchema }) => {
               <div className="flex items-center gap-1">
                 <Hash className="h-3 w-3" />
                 <span>
-                  {schema.fields.length} field
-                  {schema.fields.length !== 1 ? "s" : ""}
+                  {fields.length} field
+                  {fields.length !== 1 ? "s" : ""}
                 </span>
               </div>
               <div className="flex items-center gap-1">
@@ -102,9 +105,9 @@ const SchemaCard = ({ schema }: { schema: ISchema }) => {
             <h4 className="font-medium text-sm">Schema Fields</h4>
           </div>
 
-          {schema.fields.length > 0 ? (
+          {fields.length > 0 ? (
             <div className="space-y-1 max-h-40 overflow-y-auto">
-              {schema.fields.map((field, index) => (
+              {fields.map((field, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between p-2 rounded-md bg-muted/30 hover:bg-muted/50 transition-colors"

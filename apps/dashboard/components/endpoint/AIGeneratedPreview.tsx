@@ -72,9 +72,9 @@ export default function AIGeneratedPreview({
 
   // Generate endpoint response for tooltip preview
   const generateEndpointResponse = useMemo(() => {
-    return (endpoint: IEndpoint, linkedSchema: ISchema | null) => {
+    return (endpoint: IEndpoint, linkedSchema: ISchema | null | undefined) => {
       if (linkedSchema) {
-        // Generate response from schema
+        // Generate response from schema (AIGeneratedSchema has same fields structure as ISchema)
         const generated = SchemaService.generateResponseFromSchema(
           linkedSchema,
           endpoint.isDataList ?? false,
@@ -227,7 +227,7 @@ export default function AIGeneratedPreview({
                               variant="secondary"
                               className="text-xs bg-blue-100 dark:bg-blue-900"
                             >
-                              {schema.fields?.length || 0} fields
+                              {schema.fields?.length} fields
                             </Badge>
                             {isDuplicate && (
                               <Badge
@@ -257,9 +257,11 @@ export default function AIGeneratedPreview({
                               {(schema as any).description}
                             </p>
                           )}
-                        {schema.fields && schema.fields.length > 0 && (
-                          <div className="flex flex-wrap gap-1 pt-1">
-                            {schema.fields.map((field, fieldIndex) => (
+                        {(() => {
+                          const fields = schema.fields || [];
+                          return fields.length > 0 && (
+                            <div className="flex flex-wrap gap-1 pt-1">
+                              {fields.map((field, fieldIndex) => (
                               <Badge
                                 key={fieldIndex}
                                 variant="outline"
@@ -267,9 +269,10 @@ export default function AIGeneratedPreview({
                               >
                                 {field.name}
                               </Badge>
-                            ))}
-                          </div>
-                        )}
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </Card>
                   );

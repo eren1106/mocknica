@@ -1,8 +1,8 @@
 import { atom } from "jotai";
-import { ISchema, IEndpoint } from "@/types";
+import { IEndpoint, ISchema } from "@/types";
 
 export interface AIGeneratedData {
-  schemas: ISchema[];
+  schemas?: ISchema[];
   endpoints: IEndpoint[];
 }
 

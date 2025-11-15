@@ -24,14 +24,11 @@ describe('EndpointService.getEndpointResponse', () => {
         updatedAt: new Date(),
         fields: [
           {
-            id: 1,
             name: 'id',
             type: ESchemaFieldType.ID,
             idFieldType: EIdFieldType.AUTOINCREMENT,
-            schemaId: 1,
           },
           {
-            id: 2,
             name: 'name',
             type: ESchemaFieldType.STRING,
           }
@@ -72,11 +69,9 @@ describe('EndpointService.getEndpointResponse', () => {
         updatedAt: new Date(),
         fields: [
           {
-            id: 1,
             name: 'id',
             type: ESchemaFieldType.ID,
             idFieldType: EIdFieldType.AUTOINCREMENT,
-            schemaId: 1,
           }
         ]
       };
@@ -123,11 +118,9 @@ describe('EndpointService.getEndpointResponse', () => {
         updatedAt: new Date(),
         fields: [
           {
-            id: 1,
             name: 'id',
             type: ESchemaFieldType.ID,
             idFieldType: EIdFieldType.AUTOINCREMENT,
-            schemaId: 1,
           }
         ]
       };
@@ -259,11 +252,9 @@ describe('EndpointService.getEndpointResponse', () => {
         updatedAt: new Date(),
         fields: [
           {
-            id: 1,
             name: 'id',
             type: ESchemaFieldType.ID,
             idFieldType: EIdFieldType.AUTOINCREMENT,
-            schemaId: 1,
           }
         ]
       };

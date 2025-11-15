@@ -13,23 +13,26 @@ export interface IArrayType {
   fakerType?: EFakerType;
 }
 
+// JSON Schema field format
 export interface ISchemaField {
-  id: number;
   name: string;
   type: ESchemaFieldType;
-  idFieldType?: EIdFieldType;
-  fakerType?: EFakerType;
-  schemaId?: number;
-  objectSchemaId?: number;
-  objectSchema?: ISchema;
-  arrayTypeId?: number;
-  arrayType?: IArrayType;
+  idFieldType?: EIdFieldType | null;
+  fakerType?: EFakerType | null;
+  objectSchemaId?: number | null;
+  objectSchema?: ISchema; // Populated by backend enrichment
+  arrayType?: {
+    elementType: ESchemaFieldType;
+    objectSchemaId?: number | null;
+    objectSchema?: ISchema; // Populated by backend enrichment
+    fakerType?: EFakerType | null;
+  } | null;
 }
 
 export interface ISchema {
   id: number;
   name: string;
-  fields: ISchemaField[];
+  fields?: ISchemaField[]; // Optional for backward compatibility
   projectId?: string;
   createdAt: Date;
   updatedAt: Date;

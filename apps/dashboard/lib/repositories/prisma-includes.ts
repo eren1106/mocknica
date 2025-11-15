@@ -1,36 +1,10 @@
-import { Prisma } from "@prisma/client";
-
 /**
  * Centralized include configurations for Prisma queries
  * Reduces duplication and maintains consistent data fetching across the application
  */
 export class PrismaIncludes {
-  // Schema field includes with nested relationships
-  static readonly schemaFieldsInclude = {
-    include: {
-      objectSchema: {
-        include: {
-          fields: true,
-        },
-      },
-      arrayType: {
-        include: {
-          objectSchema: {
-            include: {
-              fields: true,
-            },
-          },
-        },
-      },
-    },
-  } as const;
-
-  // Full schema includes
-  static readonly schemaInclude = {
-    include: {
-      fields: this.schemaFieldsInclude,
-    },
-  } as const;
+  // Full schema includes (fields is a JSON column, no relations to include)
+  static readonly schemaInclude = {} as const;
 
   // Endpoint includes with schema and response wrapper
   static readonly endpointInclude = {

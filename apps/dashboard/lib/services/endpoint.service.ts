@@ -216,12 +216,12 @@ export class EndpointService {
       const basePath = data.basePath.startsWith("/")
         ? data.basePath
         : `/${data.basePath}`;
-      const singleResponse = this.schemaService.generateResponseFromSchema(
+      const singleResponse = await this.schemaService.generateResponseFromSchema(
         schema,
         false,
         1
       );
-      const listResponse = this.schemaService.generateResponseFromSchema(
+      const listResponse = await this.schemaService.generateResponseFromSchema(
         schema,
         true,
         3

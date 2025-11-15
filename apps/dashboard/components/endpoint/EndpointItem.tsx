@@ -6,7 +6,7 @@ import {
 } from "../ui/accordion";
 import { Button } from "../ui/button";
 import DialogButton from "../dialog-button";
-import DeleteConfirmationDialog from "../delete-confirmation";
+import DeleteConfirmation from "../delete-confirmation";
 import EndpointForm from "./EndpointForm";
 import JsonViewer from "../json-viewer";
 import { cn } from "@/lib/utils";
@@ -156,7 +156,7 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
             </DialogButton>
             <DialogButton
               content={(close) => (
-                <DeleteConfirmationDialog
+                <DeleteConfirmation
                   title="Delete Endpoint"
                   description="Are you sure you want to delete this endpoint? This action cannot be undone."
                   onConfirm={() => deleteEndpoint(endpoint.id)}
