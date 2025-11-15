@@ -59,7 +59,7 @@ export default function EndpointsList() {
       const existingEndpoints = endpoints || [];
 
       // Prepare schemas to create (filter out duplicates)
-      const schemasToCreate = aiGeneratedData.schemas.filter((schemaData) => {
+      const schemasToCreate = aiGeneratedData?.schemas?.filter((schemaData) => {
         const isDuplicate = existingSchemas.some(
           (existing) => existing.name.toLowerCase() === schemaData.name.toLowerCase()
         );
@@ -94,9 +94,9 @@ export default function EndpointsList() {
       // Create schemas and endpoints in one API call
       const result = await createBulkEndpoints({
         projectId,
-        schemas: schemasToCreate.map((s) => ({
+        schemas: schemasToCreate?.map((s) => ({
           name: s.name,
-          fields: s.fields,
+          jsonSchema: s.jsonSchema,
         })),
         endpoints: endpointsToCreate.map((endpointData) => {
           // CRITICAL FIX: Pass the AI's schemaId (1-based index) directly to backend

@@ -1,7 +1,7 @@
 import { apiRequest } from "@/helpers/api-request";
 import { ResponseWrapperService } from "./response-wrapper.service";
 import { QueryParams, QueryParamsHelper } from "@/helpers/query-params";
-import { IEndpoint } from "@/types";
+import { IEndpoint, ISchema } from "@/types";
 
 export class EndpointService {
   static async getAllEndpoints(projectId?: string): Promise<IEndpoint[]> {
@@ -17,7 +17,7 @@ export class EndpointService {
 
   static async createBulkEndpoints(data: {
     projectId: string;
-    schemas?: Array<{ name: string; fields: any[] }>; // TODO: use ISchema[], and create zod schema for this api
+    schemas?: Omit<ISchema, 'id' | 'projectId' | 'createdAt' | 'updatedAt'>[];
     endpoints?: Partial<IEndpoint>[];
   }): Promise<{ schemas: any[]; endpoints: IEndpoint[] }> {
     const res = await apiRequest.post("endpoints/bulk", data);

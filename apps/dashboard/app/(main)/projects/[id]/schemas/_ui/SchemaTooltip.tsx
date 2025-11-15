@@ -8,24 +8,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { convertEnumToTitleCase } from "@/lib/utils";
-import { ESchemaFieldType } from "@/types";
-
-interface SchemaField {
-  name: string;
-  type: ESchemaFieldType;
-}
-
-interface ObjectSchema {
-  name: string;
-  fields?: SchemaField[];
-}
+import { ISchema } from "@/types";
 
 interface SchemaTooltipProps {
-  objectSchema: ObjectSchema;
+  objectSchema: ISchema;
   className?: string;
 }
 
 const SchemaTooltip = ({ objectSchema, className }: SchemaTooltipProps) => {
+  const fields = objectSchema.jsonSchema || [];
+  
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -36,8 +28,8 @@ const SchemaTooltip = ({ objectSchema, className }: SchemaTooltipProps) => {
       <TooltipContent>
         <div className="">
           <div className="font-semibold mb-1">{objectSchema.name}</div>
-          {objectSchema.fields && objectSchema.fields.length > 0 ? (
-            objectSchema.fields.map((objField, objIndex) => (
+          {fields && fields.length > 0 ? (
+            fields.map((objField, objIndex) => (
               <div key={objIndex} className="text-xs">
                 {objField.name}: {convertEnumToTitleCase(objField.type)}
               </div>

@@ -16,7 +16,7 @@ export {
 export type { IUser, ISession, IAccount, IVerification } from "./entities";
 
 // Schema types
-export type { IArrayType, ISchemaField, ISchema } from "./schema.types";
+export type { IArrayType, ISchemaField, IJsonSchemaField, ISchema } from "./schema.types";
 
 // Project types
 export type {

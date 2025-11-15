@@ -14,7 +14,7 @@ export interface IArrayType {
 }
 
 export interface ISchemaField {
-  id: number;
+  id?: number; // Optional for JSON schema fields
   name: string;
   type: ESchemaFieldType;
   idFieldType?: EIdFieldType;
@@ -26,10 +26,27 @@ export interface ISchemaField {
   arrayType?: IArrayType;
 }
 
+// JSON Schema field format
+export interface IJsonSchemaField {
+  name: string;
+  type: ESchemaFieldType;
+  idFieldType?: EIdFieldType | null;
+  fakerType?: EFakerType | null;
+  objectSchemaId?: number | null;
+  objectSchema?: ISchema; // Populated by backend enrichment
+  arrayType?: {
+    elementType: ESchemaFieldType;
+    objectSchemaId?: number | null;
+    objectSchema?: ISchema; // Populated by backend enrichment
+    fakerType?: EFakerType | null;
+  } | null;
+}
+
 export interface ISchema {
   id: number;
   name: string;
-  fields: ISchemaField[];
+  jsonSchema?: IJsonSchemaField[]; // Optional for backward compatibility
+  fields?: ISchemaField[]; // Deprecated: Use jsonSchema instead. Kept for backward compatibility
   projectId?: string;
   createdAt: Date;
   updatedAt: Date;

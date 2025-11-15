@@ -40,10 +40,15 @@ export class SchemaService {
 
     if (field.type === SchemaFieldType.OBJECT && field.objectSchemaId) {
       const result: any = {};
-      for (const subField of field.objectSchema?.fields || []) {
-        result[subField.name] = this.generateSchemaFieldValue(
-          subField as ISchemaField
-        );
+      if (field.objectSchema) {
+        const objectFields = field.objectSchema.jsonSchema || field.objectSchema.fields || [];
+        for (const subField of objectFields) {
+          result[subField.name] = this.generateSchemaFieldValue(
+            subField as ISchemaField
+          );
+        }
+      } else {
+        console.warn('⚠️ [Frontend] No objectSchema found for field:', field.name);
       }
       return result;
     }
@@ -54,10 +59,15 @@ export class SchemaService {
       for (let i = 0; i < count; i++) {
         if (field.arrayType.elementType === SchemaFieldType.OBJECT) {
           const objResult: any = {};
-          for (const subField of field.arrayType.objectSchema?.fields || []) {
-            objResult[subField.name] = this.generateSchemaFieldValue(
-              subField as ISchemaField
-            );
+          if (field.arrayType.objectSchema) {
+            const arrayObjectFields = field.arrayType.objectSchema.jsonSchema || field.arrayType.objectSchema.fields || [];
+            for (const subField of arrayObjectFields) {
+              objResult[subField.name] = this.generateSchemaFieldValue(
+                subField as ISchemaField
+              );
+            }
+          } else {
+            console.warn('⚠️ [Frontend] No arrayType.objectSchema found for field:', field.name, 'objectSchemaId:', field.arrayType.objectSchemaId);
           }
           result.push(objResult);
         } else if (
@@ -98,13 +108,15 @@ export class SchemaService {
     isList: boolean = false,
     numberOfData?: number,
   ) {
+    const fields = schema.jsonSchema || schema.fields || [];
+    
     if (isList) {
       // Generate array of 5-10 items for list endpoints
       const count = numberOfData ?? 3;
       const response = [];
       for (let i = 0; i < count; i++) {
         const item: any = {};
-        for (const field of schema.fields) {
+        for (const field of fields) {
           item[field.name] = this.generateSchemaFieldValue(
             field as ISchemaField,
             field.idFieldType === IdFieldType.UUID ? generateUUID() : i + 1
@@ -116,7 +128,7 @@ export class SchemaService {
     } else {
       // Generate single item for ID endpoints
       const response: any = {};
-      for (const field of schema.fields) {
+      for (const field of fields) {
         response[field.name] = this.generateSchemaFieldValue(
           field as ISchemaField
         );

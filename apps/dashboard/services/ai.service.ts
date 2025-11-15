@@ -1,13 +1,13 @@
 // TODO: move the api-call logic to hook, move the getAIHeaders to ai utils file, and finally remove this file
 
 import { apiRequest } from "@/helpers/api-request";
-import { IEndpoint, ISchemaField, ISchema } from "@/types";
+import { IEndpoint, IJsonSchemaField, ISchema } from "@/types";
 import { getApiKey } from "@/lib/ai/session-storage";
 import { AIProviderType } from "@/lib/ai/types";
 
 interface GenerateEndpointsAndSchemasByAIResponse {
   endpoints: IEndpoint[];
-  schemas: ISchema[];
+  schemas?: ISchema[];
 }
 
 export class AIService {
@@ -18,7 +18,7 @@ export class AIService {
     return res.data;
   }
 
-  static async generateSchemaByAI(prompt: string, model?: string): Promise<ISchemaField[]> {
+  static async generateSchemaByAI(prompt: string, model?: string): Promise<IJsonSchemaField[]> {
     const headers = this.getAIHeaders();
     const res = await apiRequest.post("ai/schema", { prompt, model }, undefined, headers);
     return res.data;

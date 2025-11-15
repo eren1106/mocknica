@@ -109,7 +109,7 @@ export const mapSchema = (
     id: schema.id,
     name: schema.name,
     projectId: schema.projectId ?? undefined,
-    fields: schema.fields?.map(mapSchemaField) ?? [],
+    jsonSchema: schema.jsonSchema ? JSON.parse(JSON.stringify(schema.jsonSchema)) : [],
     createdAt: schema.createdAt,
     updatedAt: schema.updatedAt,
   };
