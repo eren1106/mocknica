@@ -107,7 +107,7 @@ export class SchemaService {
     isList: boolean = false,
     numberOfData?: number,
   ) {
-    const fields = schema.fields || schema.fields || [];
+    const fields = schema.fields || [];
     
     if (isList) {
       // Generate array of 5-10 items for list endpoints

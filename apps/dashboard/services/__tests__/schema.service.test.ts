@@ -59,6 +59,7 @@ describe("SchemaService.generateResponseFromSchema", () => {
 
     // Assert
     expect(result).toEqual({
+      id: 1,
       name: "string",
       email: "john@example.com",
     });
@@ -92,13 +93,15 @@ describe("SchemaService.generateResponseFromSchema", () => {
     // Act
     const result = SchemaService.generateResponseFromSchema(mockSchema, true);
 
-    // Assert
+    // Assert - FIXED: All items should have id field
     expect(Array.isArray(result)).toBe(true);
     expect(result).toHaveLength(3); // Default count is 3
     expect(result[0]).toEqual({
+      id: 1,
       name: "John",
     });
     expect(result[1]).toEqual({
+      id: 2,
       name: "John",
     });
     expect(result[2]).toEqual({
@@ -171,14 +174,6 @@ describe("SchemaService.generateResponseFromSchema", () => {
           name: "dateField",
           type: ESchemaFieldType.DATE,
         },
-        {
-          name: "booleanField",
-          type: ESchemaFieldType.BOOLEAN,
-        },
-        {
-          name: "dateField",
-          type: ESchemaFieldType.DATE,
-        },
       ],
     };
 
@@ -242,7 +237,6 @@ describe("SchemaService.generateSchemaFieldValue", () => {
       name: "company",
       type: ESchemaFieldType.FAKER,
       fakerType: EFakerType.COMPANY_NAME,
-
       objectType: null,
     };
 
