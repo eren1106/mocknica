@@ -25,7 +25,7 @@ import {
 } from "@/zod-schemas/endpoint.schema";
 import { useCurrentProjectId } from "@/hooks/useCurrentProject";
 import { SchemaService } from "@/services/schema.service";
-import { stringifyJSON } from "@/lib/utils";
+import { cn, stringifyJSON } from "@/lib/utils";
 import JsonViewer from "../json-viewer";
 import { ModelSelector } from "../model-selector";
 import { IEndpoint } from "@/types";
@@ -412,7 +412,10 @@ export default function EndpointForm({
             <DialogButton
               variant="secondary"
               size="sm"
-              className="flex items-center gap-2 rounded-full"
+              className={cn(
+                "flex items-center gap-2 rounded-full",
+                "bg-gradient-to-r from-purple-500 to-blue-500 dark:from-purple-600 dark:to-blue-600 text-white hover:from-purple-600 hover:to-blue-600 dark:hover:from-purple-700 dark:hover:to-blue-700"
+              )}
               title="Generate Response with AI"
               description="Describe the response you want to generate"
               content={(close) => (

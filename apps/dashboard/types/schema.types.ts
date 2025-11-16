@@ -32,7 +32,7 @@ export interface ISchemaField {
 export interface ISchema {
   id: number;
   name: string;
-  fields?: ISchemaField[]; // Optional for backward compatibility
+  fields?: ISchemaField[];
   projectId?: string;
   createdAt: Date;
   updatedAt: Date;
