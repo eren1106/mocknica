@@ -147,6 +147,32 @@ export class SchemaService {
   }
 
   /**
+   * Get basic schema info for a project (optimized for AI prompts)
+   * This skips expensive nested schema enrichment and only returns basic info
+   */
+  async getProjectSchemasBasicInfo(projectId: string, userId: string): Promise<Array<{ id: number; name: string }>> {
+    try {
+      // Verify project ownership
+      const hasAccess = await this.projectRepository.existsByIdAndUserId(projectId, userId);
+      if (!hasAccess) {
+        throw new AppError(
+          "Project not found or access denied",
+          STATUS_CODES.NOT_FOUND,
+          ERROR_CODES.NOT_FOUND
+        );
+      }
+
+      // Fetch only basic schema info without relations (much faster)
+      const schemas = await this.schemaRepository.findByProjectId(projectId);
+      
+      // Return only id and name (no enrichment needed)
+      return schemas.map(schema => ({ id: schema.id, name: schema.name }));
+    } catch (error) {
+      throw handlePrismaError(error);
+    }
+  }
+
+  /**
    * Get a specific schema with ownership validation
    */
   async getSchema(schemaId: number, userId: string): Promise<ISchema> {

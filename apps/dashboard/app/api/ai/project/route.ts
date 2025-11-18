@@ -7,7 +7,7 @@ import { schemaService } from "@/lib/services";
 import { requireAuth } from "../../_helpers/auth-guards";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest) {  
   try {
     const sessionResult = await requireAuth(req);
     if (sessionResult instanceof Response) return sessionResult;
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       projectId,
       isGenerateSchemas = true,
     } = await req.json();
-
+    
     // Create AI service manager with custom keys from headers
     const customKeys = extractApiKeysFromHeaders(req);
     const manager = new AIServiceManager(customKeys);
@@ -40,9 +40,9 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Get all existing schemas to provide as examples for object references
+    // Get basic existing schema info (optimized - no nested enrichment needed for AI prompt)
     const existingSchemas = projectId
-      ? await schemaService.getProjectSchemas(projectId, sessionResult.user.id)
+      ? await schemaService.getProjectSchemasBasicInfo(projectId, sessionResult.user.id)
       : [];
 
     // Complete CRUD example for a single schema
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
       {
         path: "/users",
         method: "GET",
-        description: "Get all users with pagination",
+        description: "Get all users",
         schemaId: 1,
         isDataList: true,
         numberOfData: 15,
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       },
     ];
 
-    // Example static response endpoints
+    // Example static response endpoints (only used when isGenerateSchemas=false)
     const exampleStaticEndpoints = [
       {
         path: "/users",
@@ -93,279 +93,42 @@ export async function POST(req: NextRequest) {
         description: "Get list of users",
         staticResponse: {
           users: [
-            {
-              id: 1,
-              email: "john.doe@example.com",
-              firstName: "John",
-              lastName: "Doe",
-              isActive: true,
-              createdAt: "2024-01-15T10:30:00Z",
-            },
-            {
-              id: 2,
-              email: "jane.smith@example.com",
-              firstName: "Jane",
-              lastName: "Smith",
-              isActive: true,
-              createdAt: "2024-01-20T14:45:00Z",
-            },
-          ],
-          total: 2,
-          page: 1,
-          pageSize: 10,
+            { id: 1, email: "john@example.com", name: "John Doe" },
+            { id: 2, email: "jane@example.com", name: "Jane Smith" }
+          ]
         },
       },
       {
         path: "/users/:id",
         method: "GET",
-        description: "Get single user by ID",
+        description: "Get user by ID",
         staticResponse: {
           id: 1,
-          email: "john.doe@example.com",
-          firstName: "John",
-          lastName: "Doe",
-          profile: "Software Engineer",
-          isActive: true,
-          createdAt: "2024-01-15T10:30:00Z",
+          email: "john@example.com",
+          name: "John Doe"
         },
       },
     ];
 
+    // Compact schema examples (only used when isGenerateSchemas=true)
     const exampleSchemas = [
       {
         name: "User",
         fields: [
-          {
-            name: "id",
-            type: "ID",
-            idFieldType: "UUID",
-            objectSchemaId: null,
-            fakerType: null,
-            arrayType: null,
-          },
-          {
-            name: "email",
-            type: "FAKER",
-            fakerType: "EMAIL",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "firstName",
-            type: "FAKER",
-            fakerType: "FIRST_NAME",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "lastName",
-            type: "FAKER",
-            fakerType: "LAST_NAME",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "profile",
-            type: "STRING",
-            idFieldType: null,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "isActive",
-            type: "BOOLEAN",
-            idFieldType: null,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "createdAt",
-            type: "DATE",
-            idFieldType: null,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
+          { name: "id", type: "ID", idFieldType: "UUID", objectSchemaId: null, fakerType: null, arrayType: null },
+          { name: "email", type: "FAKER", fakerType: "EMAIL", idFieldType: null, objectSchemaId: null, arrayType: null },
+          { name: "firstName", type: "FAKER", fakerType: "FIRST_NAME", idFieldType: null, objectSchemaId: null, arrayType: null },
+          { name: "isActive", type: "BOOLEAN", idFieldType: null, fakerType: null, objectSchemaId: null, arrayType: null },
+          { name: "createdAt", type: "DATE", idFieldType: null, fakerType: null, objectSchemaId: null, arrayType: null },
         ],
       },
       {
         name: "Product",
         fields: [
-          {
-            name: "id",
-            type: "ID",
-            idFieldType: "AUTOINCREMENT",
-            objectSchemaId: null,
-            fakerType: null,
-            arrayType: null,
-          },
-          {
-            name: "name",
-            type: "FAKER",
-            fakerType: "PRODUCT_NAME",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "description",
-            type: "FAKER",
-            fakerType: "PARAGRAPH",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "price",
-            type: "FAKER",
-            fakerType: "PRICE",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "category",
-            type: "FAKER",
-            fakerType: "WORD",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "inStock",
-            type: "BOOLEAN",
-            idFieldType: null,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "createdAt",
-            type: "DATE",
-            idFieldType: null,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-        ],
-      },
-      {
-        name: "Order",
-        fields: [
-          {
-            name: "id",
-            type: "ID",
-            idFieldType: "UUID",
-            objectSchemaId: null,
-            fakerType: null,
-            arrayType: null,
-          },
-          {
-            name: "orderNumber",
-            type: "FAKER",
-            fakerType: "DATABASE_ID",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "customerEmail",
-            type: "FAKER",
-            fakerType: "EMAIL",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "totalAmount",
-            type: "FAKER",
-            fakerType: "AMOUNT",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "status",
-            type: "STRING",
-            idFieldType: null,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "orderDate",
-            type: "DATE",
-            idFieldType: null,
-            fakerType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-        ],
-      },
-      {
-        name: "Customer",
-        fields: [
-          {
-            name: "id",
-            type: "ID",
-            idFieldType: "AUTOINCREMENT",
-            objectSchemaId: null,
-            fakerType: null,
-            arrayType: null,
-          },
-          {
-            name: "firstName",
-            type: "FAKER",
-            fakerType: "FIRST_NAME",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "lastName",
-            type: "FAKER",
-            fakerType: "LAST_NAME",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "email",
-            type: "FAKER",
-            fakerType: "EMAIL",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "phone",
-            type: "FAKER",
-            fakerType: "PHONE_NUMBER",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "address",
-            type: "FAKER",
-            fakerType: "STREET_ADDRESS",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
-          {
-            name: "city",
-            type: "FAKER",
-            fakerType: "CITY",
-            idFieldType: null,
-            objectSchemaId: null,
-            arrayType: null,
-          },
+          { name: "id", type: "ID", idFieldType: "AUTOINCREMENT", objectSchemaId: null, fakerType: null, arrayType: null },
+          { name: "name", type: "FAKER", fakerType: "PRODUCT_NAME", idFieldType: null, objectSchemaId: null, arrayType: null },
+          { name: "price", type: "FAKER", fakerType: "PRICE", idFieldType: null, objectSchemaId: null, arrayType: null },
+          { name: "inStock", type: "BOOLEAN", idFieldType: null, fakerType: null, objectSchemaId: null, arrayType: null },
         ],
       },
     ];
@@ -400,16 +163,16 @@ export async function POST(req: NextRequest) {
     }
     `;
 
-    const systemPrompt = `CRITICAL: You MUST respond with ONLY valid JSON. No explanations, no markdown, no code blocks, no additional text.
+    const systemPrompt = `CRITICAL: You MUST respond with ONLY raw JSON. No explanations, no markdown, no code blocks (\`\`\`json), no additional text.
 
-Your response must start with { and end with }. Nothing else.
+Your response must start with { and end with }. Do NOT wrap in code fences or markdown.
 
 Generate a complete API project structure based EXACTLY on the user's request. Create ONLY what the user asks for - if they ask for 1 schema, create 1 schema. If they ask for a specific feature, focus on that feature.
 
 ${
   isGenerateSchemas
-    ? "IMPORTANT: Generate both schemas AND endpoints as requested. Endpoints should use schemaId to reference schemas."
-    : 'IMPORTANT: Generate ONLY endpoints with static responses. DO NOT generate any schemas. Set "schemas" to an empty array []. Each endpoint MUST have a "staticResponse" field containing the JSON object to return.'
+    ? "IMPORTANT: Generate schemas AND endpoints. Endpoints MUST have schemaId, isDataList, and numberOfData (for lists). DO NOT include staticResponse in endpoints - it will be auto-generated from schemas."
+    : 'IMPORTANT: Generate ONLY endpoints with staticResponse. Set "schemas" to empty array []. Each endpoint MUST have "staticResponse" field. DO NOT include schemaId, isDataList, or numberOfData.'
 }
 
 ${prismaTypes}
@@ -436,24 +199,11 @@ Expected response format:
       : " // EMPTY ARRAY - Do not generate schemas"
   }
   ],
-  "endpoints": [
-    {
-      "path": "/endpoint-path",
-      "method": "GET|POST|PUT|DELETE|PATCH", 
-      "description": "Endpoint description",${
-        isGenerateSchemas
-          ? `
-      "schemaId": 1, // Reference to schema by index (1-based)
-      "isDataList": true|false, // true for list endpoints, false for single item
-      "numberOfData": 10 // only for list endpoints`
-          : `
-      "staticResponse": { // Static JSON response object
-        "key": "value",
-        "data": "example"
-      }`
-      }
-    }
-  ]
+  "endpoints": [{
+      "path": "/path",
+      "method": "GET",
+      "description": "Description"${isGenerateSchemas ? ',\n      "schemaId": 1,\n      "isDataList": true,\n      "numberOfData": 10' : ',\n      "staticResponse": { "key": "value" }'}
+    }]
 }
 
 ${
@@ -477,63 +227,39 @@ CRITICAL for static endpoints:
 `
 }
 
-IMPORTANT REQUIREMENTS:
-1. Follow the user's request EXACTLY - if they ask for 1 car schema and 1 car endpoint, generate exactly that
-2. Do NOT add extra schemas or endpoints unless explicitly requested
-3. If the user doesn't specify, you can create a reasonable small set (2-4 ${
-      isGenerateSchemas ? "schemas" : "endpoints"
-    })
-${
-  isGenerateSchemas
-    ? "4. For each schema mentioned, consider generating basic CRUD operations unless user specifies otherwise"
-    : "4. Each endpoint must return a meaningful static response appropriate to its purpose"
-}
-${
-  !isGenerateSchemas
-    ? "\n5. CRITICAL: Since schema generation is disabled, generate ONLY endpoints with staticResponse field.\n6. DO NOT include schemaId, isDataList, or numberOfData in endpoints."
-    : ""
-}
+REQUIREMENTS:
+1. Follow user request EXACTLY - don't add extras
+2. If unspecified, create 2-4 ${isGenerateSchemas ? "schemas with CRUD endpoints" : "endpoints"}
+3. ${isGenerateSchemas ? "Generate CRUD operations (GET list, GET by ID, POST, PUT, DELETE) for each schema" : "Each endpoint needs meaningful staticResponse matching its purpose"}
 
 ${
   isGenerateSchemas
     ? `
-Schema requirements:
-1. Schema names should be PascalCase (e.g., "User", "Product", "Car")
-2. Field names MUST be camelCase (e.g., "firstName", "userEmail", "createdAt")
-3. Each schema must have "fields" array
-4. Each field in fields MUST have: name, type, idFieldType (null if not ID), fakerType (null if not FAKER), objectSchemaId (null), arrayType (null)
-5. If type is "ID", set "idFieldType" to "UUID" or "AUTOINCREMENT", others to null
-6. If type is "FAKER", set "fakerType" from available options, others to null
-7. DO NOT use "OBJECT" type or reference other schemas with "objectSchemaId" in AI generation
-8. DO NOT use "ARRAY" type with object references in AI generation - use simple arrays only
-9. Keep schemas independent and self-contained for AI generation
-10. Each schema should have 3-8 fields for meaningful data structure
+SCHEMA RULES:
+- Names: PascalCase (User, Product). Fields: camelCase (firstName, createdAt)
+- Each field needs: name, type, idFieldType, fakerType, objectSchemaId, arrayType (set unused to null)
+- ID type: set idFieldType to UUID/AUTOINCREMENT. FAKER type: set fakerType
+- NO OBJECT/ARRAY types with objectSchemaId - keep schemas simple
+- 3-8 fields per schema
 
-Endpoint requirements:
-1. Create REST endpoints following patterns: /resource, /resource/:id
-2. Use proper HTTP methods (GET for read, POST for create, PUT for update, DELETE for delete)
-3. schemaId should reference schemas by their index in the schemas array (1-based)
-4. Use isDataList=true for endpoints that return arrays (like GET /users)
-5. Use isDataList=false for endpoints that return single items (like GET /users/:id)
-6. numberOfData should be specified for list endpoints (typically 10-25)
-7. Paths should start with / and use kebab-case for multi-word resources
+ENDPOINT RULES:
+- REST patterns: /resource, /resource/:id. Use / prefix, kebab-case
+- Methods: GET (read), POST (create), PUT (update), DELETE (delete)
+- schemaId: reference by index (1-based) in schemas array
+- isDataList: true for arrays (GET /users), false for single (GET /users/:id)
+- numberOfData: 10-25 for list endpoints
+- CRITICAL: NO staticResponse field - will be auto-generated from schema
 `
     : `
-Endpoint requirements for static responses:
-1. Create REST endpoints with descriptive paths
-2. Use proper HTTP methods (GET for read, POST for create, PUT for update, DELETE for delete)
-3. Each endpoint MUST have a "staticResponse" field with a JSON object
-4. The staticResponse should be realistic and match the endpoint's purpose
-5. DO NOT include schemaId, isDataList, or numberOfData fields
-6. Paths should start with / and use kebab-case for multi-word resources
+STATIC ENDPOINT RULES:
+- REST patterns with / prefix, kebab-case paths
+- Methods: GET/POST/PUT/DELETE based on purpose
+- MUST have staticResponse field with realistic JSON object
+- NO schemaId, isDataList, or numberOfData fields
 `
 }
 
-Available existing schemas: ${JSON.stringify(
-      existingSchemas.map((s) => ({ id: s.id, name: s.name })),
-      null,
-      2
-    )}
+Available existing schemas: ${JSON.stringify(existingSchemas, null, 2)}
 
 RESPOND WITH ONLY JSON:`;
 
@@ -542,14 +268,21 @@ RESPOND WITH ONLY JSON:`;
       `User request: ${userInput.trim()}`,
     ].join("\n\n");
 
-    // Initialize AI service manager and generate response
+    // const promptTokenEstimate = Math.ceil(prompt.length / 4);
+    // console.log(`📊 [AI Project] Prompt prepared - Est. tokens: ${promptTokenEstimate}, Length: ${prompt.length} chars`);
+    // console.log(`⏱️  [AI Project] Time to prepare prompt: ${(performance.now() - startTime).toFixed(2)}ms`);
 
+    // Initialize AI service manager and generate response
+    const aiStartTime = performance.now();
     let completion;
     try {
       completion = await manager.generateText({
         prompt,
         model,
       });
+      // const aiDuration = performance.now() - aiStartTime;
+      // console.log(`✅ [AI Project] AI response received in ${aiDuration.toFixed(2)}ms`);
+      
     } catch (aiError) {
       // If AI generation fails, throw a more descriptive error
       const errorMessage =
@@ -562,6 +295,7 @@ RESPOND WITH ONLY JSON:`;
     let response;
     let rawResponse = "";
 
+    const parseStartTime = performance.now();
     try {
       // Try to parse the response as JSON
       if (!completion.content) {
@@ -570,7 +304,17 @@ RESPOND WITH ONLY JSON:`;
 
       rawResponse = completion.content;
 
-      response = JSON.parse(rawResponse);
+      // Strip markdown code blocks if present (e.g., ```json ... ```)
+      let cleanedResponse = rawResponse.trim();
+      if (cleanedResponse.startsWith('```')) {
+        // Remove opening code fence (```json or ```)
+        cleanedResponse = cleanedResponse.replace(/^```(?:json)?\s*\n?/, '');
+        // Remove closing code fence
+        cleanedResponse = cleanedResponse.replace(/\n?```\s*$/, '');
+        console.log(`🧹 [AI Project] Stripped markdown code blocks`);
+      }
+
+      response = JSON.parse(cleanedResponse);
     } catch (parseError) {
       // If JSON parsing fails, try to extract JSON from the response
       const jsonMatch = rawResponse.match(/\{[\s\S]*\}/);
@@ -628,6 +372,8 @@ RESPOND WITH ONLY JSON:`;
 
     // TODO: validate with Zod
     // Validate the response structure
+    const validationStartTime = performance.now();
+    
     if (!response.schemas || !Array.isArray(response.schemas)) {
       throw new Error("AI response must contain a 'schemas' array");
     }
@@ -635,7 +381,7 @@ RESPOND WITH ONLY JSON:`;
     if (!response.endpoints || !Array.isArray(response.endpoints)) {
       throw new Error("AI response must contain an 'endpoints' array");
     }
-
+    
     // Validate schemas (only if isGenerateSchemas is true)
     if (isGenerateSchemas) {
       for (const schema of response.schemas) {
@@ -680,10 +426,16 @@ RESPOND WITH ONLY JSON:`;
 
       // Validate endpoint structure based on isGenerateSchemas flag
       if (isGenerateSchemas) {
-        // When generating schemas, endpoints should have schemaId
+        // When generating schemas, endpoints should have schemaId and NOT have staticResponse
         if (endpoint.schemaId === undefined) {
           throw new Error(
             `Endpoint ${endpoint.path} must have a schemaId when generating schemas`
+          );
+        }
+        // Explicitly reject staticResponse when using schemas
+        if (endpoint.staticResponse !== undefined) {
+          throw new Error(
+            `Endpoint ${endpoint.path} must NOT have staticResponse when generating schemas. Use schemaId instead.`
           );
         }
       } else {
@@ -717,8 +469,10 @@ RESPOND WITH ONLY JSON:`;
         }
       }
     }
+    
     return apiResponse(req, { data: response });
   } catch (error) {
+    // console.error(`❌ [AI Project] Error after ${(performance.now() - startTime).toFixed(2)}ms:`, error);
     return errorResponse(req, { error });
   }
 }
