@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo, useCallback, useRef } from "react";
 import { useZodForm } from "@/hooks/useZodForm";
 import ZodForm from "@/components/zod-form";
 import GenericFormField from "@/components/generic-form-field";
@@ -31,13 +31,222 @@ import { ModelSelector } from "../model-selector";
 import MyTooltip from "../my-tooltip";
 
 const formFields = getZodFieldNames(SchemaSchema);
+
+// Static dropdown options - computed once at module load
+const FIELD_TYPE_OPTIONS = Object.values(ESchemaFieldType).map((type) => ({
+  label: convertFirstLetterToUpperCase(type),
+  value: type,
+}));
+
+const ID_FIELD_TYPE_OPTIONS = Object.values(EIdFieldType).map((type) => ({
+  label: convertEnumToTitleCase(type),
+  value: type,
+}));
+
+const FAKER_TYPE_OPTIONS = Object.values(EFakerType)
+  .map((type) => ({
+    label: convertEnumToTitleCase(type),
+    value: type,
+  }))
+  .sort((a, b) => a.label.localeCompare(b.label));
+
+const ARRAY_TYPE_OPTIONS = Object.values(ESchemaFieldType)
+  .filter((type) => type !== ESchemaFieldType.ARRAY)
+  .map((type) => ({
+    label: convertEnumToTitleCase(type),
+    value: type,
+  }));
+
+// CRITICAL: Separate field row component with proper memoization
+const SchemaFieldRow = React.memo(
+  ({
+    field,
+    index,
+    fieldError,
+    schemas,
+    onUpdateField,
+    onDelete,
+  }: {
+    field: ISchemaField;
+    index: number;
+    fieldError: any;
+    schemas: ISchema[] | undefined;
+    onUpdateField: (index: number, updates: Partial<ISchemaField>) => void;
+    onDelete: (index: number) => void;
+  }) => {
+    // Memoize schema options
+    const schemaOptions = useMemo(
+      () => [
+        { label: "Empty Object", value: "0" },
+        ...(schemas?.map((schema) => ({
+          label: schema.name,
+          value: schema.id.toString(),
+        })) || []),
+      ],
+      [schemas]
+    );
+
+    // Local handlers that prevent parent re-renders
+    const handleNameChange = useCallback(
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        onUpdateField(index, { name: e.target.value });
+      },
+      [index, onUpdateField]
+    );
+
+    const handleTypeChange = useCallback(
+      (value: string) => {
+        onUpdateField(index, { type: value as ESchemaFieldType });
+      },
+      [index, onUpdateField]
+    );
+
+    const handleIdFieldTypeChange = useCallback(
+      (value: string) => {
+        onUpdateField(index, { idFieldType: value as EIdFieldType });
+      },
+      [index, onUpdateField]
+    );
+
+    const handleFakerTypeChange = useCallback(
+      (value: string) => {
+        onUpdateField(index, { fakerType: value as EFakerType });
+      },
+      [index, onUpdateField]
+    );
+
+    const handleObjectSchemaIdChange = useCallback(
+      (value: string) => {
+        onUpdateField(index, { objectSchemaId: value ? Number(value) : null });
+      },
+      [index, onUpdateField]
+    );
+
+    const handleArrayTypeChange = useCallback(
+      (value: string) => {
+        onUpdateField(index, {
+          arrayType: {
+            elementType: value as ESchemaFieldType,
+            objectSchemaId: field.arrayType?.objectSchemaId || null,
+            fakerType: field.arrayType?.fakerType || null,
+          },
+        });
+      },
+      [index, onUpdateField, field.arrayType]
+    );
+
+    const handleArrayObjectSchemaIdChange = useCallback(
+      (value: string) => {
+        onUpdateField(index, {
+          arrayType: {
+            elementType: field.arrayType?.elementType || ESchemaFieldType.STRING,
+            objectSchemaId: Number(value),
+            fakerType: field.arrayType?.fakerType || null,
+          },
+        });
+      },
+      [index, onUpdateField, field.arrayType]
+    );
+
+    const handleDelete = useCallback(() => {
+      onDelete(index);
+    }, [index, onDelete]);
+
+    return (
+      <div className="flex flex-col gap-1">
+        <div className="flex items-start gap-3">
+          <div className="flex flex-col gap-1 w-full max-w-40">
+            <Input
+              placeholder="Field name"
+              value={field.name}
+              onChange={handleNameChange}
+              className={cn("w-full", fieldError && "border-destructive")}
+            />
+            {fieldError && (
+              <p className="text-sm text-destructive">{fieldError.message}</p>
+            )}
+          </div>
+          <DynamicSelect
+            options={FIELD_TYPE_OPTIONS as any}
+            value={field.type}
+            onChange={handleTypeChange}
+            className="w-full max-w-40"
+          />
+          {field.type === ESchemaFieldType.ID && (
+            <DynamicSelect
+              options={ID_FIELD_TYPE_OPTIONS as any}
+              defaultValue={EIdFieldType.AUTOINCREMENT}
+              value={`${field.idFieldType}`}
+              onChange={handleIdFieldTypeChange}
+              className="w-full max-w-40"
+            />
+          )}
+          {field.type === ESchemaFieldType.FAKER && (
+            <DynamicSelect
+              options={FAKER_TYPE_OPTIONS as any}
+              value={`${field.fakerType}`}
+              onChange={handleFakerTypeChange}
+              className="w-full max-w-40"
+            />
+          )}
+          {field.type === ESchemaFieldType.OBJECT && (
+            <DynamicSelect
+              options={schemaOptions}
+              value={field.objectSchemaId?.toString()}
+              onChange={handleObjectSchemaIdChange}
+              className="w-full max-w-40"
+            />
+          )}
+          {field.type === ESchemaFieldType.ARRAY && (
+            <>
+              <DynamicSelect
+                options={ARRAY_TYPE_OPTIONS as any}
+                value={field.arrayType?.elementType}
+                onChange={handleArrayTypeChange}
+                className="w-full max-w-40"
+              />
+              {field.arrayType?.elementType === ESchemaFieldType.OBJECT && (
+                <DynamicSelect
+                  options={schemaOptions}
+                  value={field.arrayType?.objectSchemaId?.toString()}
+                  onChange={handleArrayObjectSchemaIdChange}
+                  className="w-full max-w-40"
+                />
+              )}
+            </>
+          )}
+          <Button
+            size="icon"
+            className="size-8 min-w-8"
+            variant="secondary"
+            onClick={handleDelete}
+          >
+            <X className="size-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  },
+  (prevProps, nextProps) => {
+    // Custom comparison for deep equality on field object
+    return (
+      prevProps.index === nextProps.index &&
+      prevProps.fieldError === nextProps.fieldError &&
+      prevProps.schemas === nextProps.schemas &&
+      JSON.stringify(prevProps.field) === JSON.stringify(nextProps.field)
+    );
+  }
+);
+
+SchemaFieldRow.displayName = "SchemaFieldRow";
+
 interface SchemaFormProps {
   schema?: ISchema;
   onSuccess?: () => void;
 }
+
 const SchemaForm = (props: SchemaFormProps) => {
   const projectId = useCurrentProjectId();
-
   const { data: schemas } = useSchemas(projectId);
   const { createSchema, updateSchema, isPending } = useMutationSchema();
 
@@ -71,8 +280,24 @@ const SchemaForm = (props: SchemaFormProps) => {
         }
   );
 
-  // Convert fields to fields for UI rendering
   const fields = form.watch("fields");
+
+  // OPTIMIZATION: Debounce form updates to reduce re-renders
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const debouncedSetValue = useCallback(
+    (fields: ISchemaField[], shouldValidate = false) => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+      
+      // Use requestAnimationFrame for smoother updates
+      requestAnimationFrame(() => {
+        form.setValue("fields", fields, { shouldValidate });
+      });
+    },
+    [form]
+  );
 
   const onSubmit = async (data: SchemaSchemaType) => {
     try {
@@ -93,13 +318,30 @@ const SchemaForm = (props: SchemaFormProps) => {
     }
   };
 
-  // Function to add a new field
-  const addField = () => {
-    const currentSchemaFields = form.getValues("fields");
+  // CRITICAL: Single unified update function to reduce callback recreations
+  const updateField = useCallback(
+    (index: number, updates: Partial<ISchemaField>) => {
+      const currentFields = form.getValues("fields");
+      const updatedFields = [...currentFields];
+      updatedFields[index] = {
+        ...updatedFields[index],
+        ...updates,
+      };
+      
+      // Determine if we need validation
+      const shouldValidate = "name" in updates || "type" in updates;
+      
+      debouncedSetValue(updatedFields, shouldValidate);
+    },
+    [form, debouncedSetValue]
+  );
+
+  const addField = useCallback(() => {
+    const currentFields = form.getValues("fields");
     form.setValue(
       "fields",
       [
-        ...currentSchemaFields,
+        ...currentFields,
         {
           name: "",
           type: ESchemaFieldType.STRING,
@@ -111,62 +353,68 @@ const SchemaForm = (props: SchemaFormProps) => {
       ],
       { shouldValidate: false }
     );
-  };
+  }, [form]);
 
-  // Function to delete a field by index
-  const deleteField = (indexToDelete: number) => {
-    const currentSchemaFields = form.getValues("fields");
-    form.setValue(
-      "fields",
-      currentSchemaFields.filter((_, i) => i !== indexToDelete)
-    );
-  };
-
-  // Function to update a field's name
-  const updateFieldName = (index: number, newName: string) => {
-    const currentSchemaFields = form.getValues("fields");
-    const updatedSchemaFields = [...currentSchemaFields];
-    updatedSchemaFields[index] = {
-      ...updatedSchemaFields[index],
-      name: newName,
-    };
-    form.setValue("fields", updatedSchemaFields, { shouldValidate: true });
-  };
-
-  // Function to update a field's type
-  const updateFieldType = (index: number, newType: ESchemaFieldType) => {
-    const currentSchemaFields = form.getValues("fields");
-    const updatedSchemaFields = [...currentSchemaFields];
-    updatedSchemaFields[index] = {
-      ...updatedSchemaFields[index],
-      type: newType,
-    };
-    form.setValue("fields", updatedSchemaFields, { shouldValidate: true });
-  };
+  const deleteField = useCallback(
+    (indexToDelete: number) => {
+      const currentFields = form.getValues("fields");
+      form.setValue(
+        "fields",
+        currentFields.filter((_, i) => i !== indexToDelete)
+      );
+    },
+    [form]
+  );
 
   const [aiPrompt, setAiPrompt] = useState("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setAiPrompt(e.target.value);
-  };
+  const handlePromptChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      setAiPrompt(e.target.value);
+    },
+    []
+  );
 
-  const handleGenerateSchemaByAI = async (close: () => void) => {
-    setIsGenerating(true);
-    try {
-      const response = await AIService.generateSchemaByAI(
-        aiPrompt,
-        selectedModel || undefined
-      );
-      form.setValue("fields", response);
-      close();
-    } catch (error) {
-      console.error("Error generating response:", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  const handleGenerateSchemaByAI = useCallback(
+    async (close: () => void) => {
+      setIsGenerating(true);
+      try {
+        const response = await AIService.generateSchemaByAI(
+          aiPrompt,
+          selectedModel || undefined
+        );
+        form.setValue("fields", response);
+        close();
+      } catch (error) {
+        console.error("Error generating response:", error);
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    [aiPrompt, selectedModel, form]
+  );
+
+  // Memoize the fields list to prevent unnecessary re-renders
+  const fieldsList = useMemo(
+    () =>
+      fields.map((field: ISchemaField, index) => {
+        const fieldError = (form.formState.errors.fields as any)?.[index]?.name;
+        return (
+          <SchemaFieldRow
+            key={index}
+            field={field}
+            index={index}
+            fieldError={fieldError}
+            schemas={schemas}
+            onUpdateField={updateField}
+            onDelete={deleteField}
+          />
+        );
+      }),
+    [fields, form.formState.errors.fields, schemas, updateField, deleteField]
+  );
 
   return (
     <ZodForm form={form} onSubmit={onSubmit} className="min-w-[36rem]">
@@ -182,213 +430,10 @@ const SchemaForm = (props: SchemaFormProps) => {
         control={form.control}
         displayError={false}
         customChildren={
-          <div className="flex flex-col gap-3 w-full">
-            {fields.map((field: ISchemaField, index) => {
-              const fieldError = (form.formState.errors.fields as any)?.[index]
-                ?.name;
-              return (
-                <div key={index} className="flex flex-col gap-1">
-                  <div className="flex items-start gap-3">
-                    <div className="flex flex-col gap-1 w-full max-w-40">
-                      <Input
-                        placeholder="Field name"
-                        value={field.name}
-                        onChange={(e) => updateFieldName(index, e.target.value)}
-                        className={cn(
-                          "w-full",
-                          fieldError && "border-destructive"
-                        )}
-                      />
-                      {fieldError && (
-                        <p className="text-sm text-destructive">
-                          {fieldError.message}
-                        </p>
-                      )}
-                    </div>
-                    <DynamicSelect
-                      options={
-                        Object.values(ESchemaFieldType).map((type) => ({
-                          label: convertFirstLetterToUpperCase(type),
-                          value: type,
-                        })) as any
-                      }
-                      value={field.type}
-                      onChange={(value) =>
-                        updateFieldType(index, value as ESchemaFieldType)
-                      }
-                      className="w-full max-w-40"
-                    />
-                    {field.type === ESchemaFieldType.ID && (
-                      <DynamicSelect
-                        options={
-                          Object.values(EIdFieldType).map((type) => ({
-                            label: convertEnumToTitleCase(type),
-                            value: type,
-                          })) as any
-                        }
-                        defaultValue={EIdFieldType.AUTOINCREMENT}
-                        value={`${field.idFieldType}`}
-                        onChange={(value) => {
-                          const currentSchemaFields = form.getValues("fields");
-                          const updatedSchemaFields = [...currentSchemaFields];
-                          updatedSchemaFields[index] = {
-                            ...updatedSchemaFields[index],
-                            idFieldType: value as EIdFieldType,
-                          };
-                          form.setValue("fields", updatedSchemaFields, {
-                            shouldValidate: false,
-                          });
-                        }}
-                        className="w-full max-w-40"
-                      />
-                    )}
-                    {field.type === ESchemaFieldType.FAKER && (
-                      <DynamicSelect
-                        options={
-                          Object.values(EFakerType)
-                            .map((type) => ({
-                              label: convertEnumToTitleCase(type),
-                              value: type,
-                            }))
-                            .sort((a, b) =>
-                              a.label.localeCompare(b.label)
-                            ) as any
-                        }
-                        value={`${field.fakerType}`}
-                        onChange={(value) => {
-                          const currentSchemaFields = form.getValues("fields");
-                          const updatedSchemaFields = [...currentSchemaFields];
-                          updatedSchemaFields[index] = {
-                            ...updatedSchemaFields[index],
-                            fakerType: value as EFakerType,
-                          };
-                          form.setValue("fields", updatedSchemaFields, {
-                            shouldValidate: false,
-                          });
-                        }}
-                        className="w-full max-w-40"
-                      />
-                    )}
-                    {field.type === ESchemaFieldType.OBJECT && (
-                      <DynamicSelect
-                        options={[
-                          {
-                            label: "Empty Object",
-                            value: "0",
-                          },
-                          ...(schemas?.map((schema) => ({
-                            label: schema.name,
-                            value: schema.id.toString(),
-                          })) || []),
-                        ]}
-                        value={field.objectSchemaId?.toString()}
-                        onChange={(value) => {
-                          const currentSchemaFields = form.getValues("fields");
-                          const updatedSchemaFields = [...currentSchemaFields];
-                          updatedSchemaFields[index] = {
-                            ...updatedSchemaFields[index],
-                            objectSchemaId: value ? Number(value) : null,
-                          };
-                          form.setValue("fields", updatedSchemaFields, {
-                            shouldValidate: false,
-                          });
-                        }}
-                        className="w-full max-w-40"
-                      />
-                    )}
-                    {field.type === ESchemaFieldType.ARRAY && (
-                      <>
-                        <DynamicSelect
-                          options={
-                            Object.values(ESchemaFieldType)
-                              .filter((type) => type !== ESchemaFieldType.ARRAY) // Filter out ARRAY type
-                              .map((type) => ({
-                                label: convertEnumToTitleCase(type),
-                                value: type,
-                              })) as any
-                          }
-                          value={field.arrayType?.elementType}
-                          onChange={(value) => {
-                            const currentSchemaFields =
-                              form.getValues("fields");
-                            const updatedSchemaFields = [
-                              ...currentSchemaFields,
-                            ];
-                            updatedSchemaFields[index] = {
-                              ...updatedSchemaFields[index],
-                              arrayType: {
-                                elementType: value as ESchemaFieldType,
-                                objectSchemaId:
-                                  updatedSchemaFields[index].arrayType
-                                    ?.objectSchemaId || null,
-                                fakerType:
-                                  updatedSchemaFields[index].arrayType
-                                    ?.fakerType || null,
-                              },
-                            };
-                            form.setValue("fields", updatedSchemaFields, {
-                              shouldValidate: false,
-                            });
-                          }}
-                          className="w-full max-w-40"
-                        />
-                        {field.arrayType?.elementType ===
-                          ESchemaFieldType.OBJECT && (
-                          <DynamicSelect
-                            options={[
-                              {
-                                label: "Empty Object",
-                                value: "0",
-                              },
-                              ...(schemas?.map((schema) => ({
-                                label: schema.name,
-                                value: schema.id.toString(),
-                              })) || []),
-                            ]}
-                            value={field.arrayType?.objectSchemaId?.toString()}
-                            onChange={(value) => {
-                              const currentSchemaFields =
-                                form.getValues("fields");
-                              const updatedSchemaFields = [
-                                ...currentSchemaFields,
-                              ];
-                              const currentArrayType =
-                                updatedSchemaFields[index].arrayType;
-                              updatedSchemaFields[index] = {
-                                ...updatedSchemaFields[index],
-                                arrayType: {
-                                  elementType:
-                                    currentArrayType?.elementType ||
-                                    ESchemaFieldType.STRING,
-                                  objectSchemaId: Number(value),
-                                  fakerType:
-                                    currentArrayType?.fakerType || null,
-                                },
-                              };
-                              form.setValue("fields", updatedSchemaFields, {
-                                shouldValidate: false,
-                              });
-                            }}
-                            className="w-full max-w-40"
-                          />
-                        )}
-                      </>
-                    )}
-                    <Button
-                      size="icon"
-                      className="size-8 min-w-8"
-                      variant="secondary"
-                      onClick={() => deleteField(index)}
-                    >
-                      <X className="size-4" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <div className="flex flex-col gap-3 w-full">{fieldsList}</div>
         }
       />
+      
       <div className="flex justify-between items-center">
         <MyTooltip content="Add Field" asChild>
           <Button size="icon" onClick={addField}>
@@ -459,4 +504,5 @@ const SchemaForm = (props: SchemaFormProps) => {
     </ZodForm>
   );
 };
+
 export default SchemaForm;
