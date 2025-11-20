@@ -143,6 +143,9 @@ async function handleRequest(
         method,
         projectId,
       },
+      include: {
+        responseWrapper: true,
+      },
     });
 
     // Find the best matching endpoint and extract ID if present

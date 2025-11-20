@@ -425,7 +425,7 @@ export default function EndpointForm({
                     <ModelSelector
                       value={selectedModel}
                       onValueChange={setSelectedModel}
-                      placeholder="Select AI model (optional)"
+                      placeholder="Select AI model"
                     />
                     <p className="text-xs text-muted-foreground">
                       Choose an AI model for generation. If not selected, the default model will be used.

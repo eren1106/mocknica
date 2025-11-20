@@ -3,6 +3,7 @@ import { SchemaService } from "@/services/schema.service";
 import { ISchema } from "@/types";
 import { SchemaSchemaType } from "@/zod-schemas/schema.schema";
 import { toast } from "sonner";
+import { ENDPOINTS_QUERY_KEY } from "./useEndpoint";
 
 const SCHEMAS_QUERY_KEY = "schemas";
 
@@ -16,8 +17,11 @@ export const useSchemas = (projectId: string) => {
 
 export const useMutationSchema = () => {
   const queryClient = useQueryClient();
-  const invalidateQueries = () =>
+  const invalidateQueries = () => {
     queryClient.invalidateQueries({ queryKey: [SCHEMAS_QUERY_KEY] });
+    // TODO: need projectId as queryKey too
+    queryClient.invalidateQueries({ queryKey: [ENDPOINTS_QUERY_KEY] });
+  }
 
   const createSchema = useMutation({
     mutationFn: (data: SchemaSchemaType & { projectId?: string }) =>

@@ -97,7 +97,7 @@ export default function AIGenerationDialog({
         <div className="flex items-center gap-2">
           <Sparkles className="size-4 text-purple-600" />
           <label className="text-sm font-semibold">
-            AI Model (Optional)
+            AI Model
           </label>
         </div>
         <ModelSelector
