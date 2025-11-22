@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Accordion } from "../ui/accordion";
 import { useEndpoints, useMutationEndpoint } from "@/hooks/useEndpoint";
 import { useSchemas } from "@/hooks/useSchema";
@@ -14,17 +14,33 @@ import { toast } from "sonner";
 import { useAtom } from "jotai";
 import { aiGeneratedDataAtom } from "@/atoms/aiGenerationAtom";
 
-type SortOrder = "description-asc" | "description-desc" | "created-asc" | "created-desc" | "method-asc" | "path-asc";
+type SortOrder =
+  | "description-asc"
+  | "description-desc"
+  | "created-asc"
+  | "created-desc"
+  | "method-asc"
+  | "path-asc";
 type FilterType = "all" | "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+
+// 1. Define the order weights
+const METHOD_WEIGHTS: Record<string, number> = {
+  GET: 1,
+  POST: 2,
+  PUT: 3,
+  DELETE: 4,
+  PATCH: 5,
+};
 
 export default function EndpointsList() {
   const projectId = useCurrentProjectId();
-  const { data: endpoints, isLoading: isLoadingEndpoints } = useEndpoints(projectId);
-  // TODO: use isLoadingSchemas and isPendingBulk
+  const { data: endpoints, isLoading: isLoadingEndpoints } =
+    useEndpoints(projectId);
   const { data: schemas, isLoading: isLoadingSchemas } = useSchemas(projectId);
-  const { createBulkEndpoints, isPending: isPendingBulk } = useMutationEndpoint();
-  
-  const [sortOrder, setSortOrder] = useState<SortOrder>("created-desc");
+  const { createBulkEndpoints, isPending: isPendingBulk } =
+    useMutationEndpoint();
+
+  const [sortOrder, setSortOrder] = useState<SortOrder>("path-asc");
   const [filterType, setFilterType] = useState<FilterType>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [aiGeneratedData, setAiGeneratedData] = useAtom(aiGeneratedDataAtom);
@@ -32,12 +48,18 @@ export default function EndpointsList() {
 
   const getMethodColor = (method: string) => {
     switch (method) {
-      case "GET": return "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-300";
-      case "POST": return "bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-300";
-      case "PUT": return "bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-300";
-      case "DELETE": return "bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-300";
-      case "PATCH": return "bg-purple-50 text-purple-700 dark:bg-purple-950/20 dark:text-purple-300";
-      default: return "bg-gray-50 text-gray-700 dark:bg-gray-950/20 dark:text-gray-300";
+      case "GET":
+        return "bg-green-50 text-green-700 dark:bg-green-950/20 dark:text-green-300";
+      case "POST":
+        return "bg-yellow-50 text-yellow-700 dark:bg-yellow-950/20 dark:text-yellow-300";
+      case "PUT":
+        return "bg-blue-50 text-blue-700 dark:bg-blue-950/20 dark:text-blue-300";
+      case "DELETE":
+        return "bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-300";
+      case "PATCH":
+        return "bg-purple-50 text-purple-700 dark:bg-purple-950/20 dark:text-purple-300";
+      default:
+        return "bg-gray-50 text-gray-700 dark:bg-gray-950/20 dark:text-gray-300";
     }
   };
 
@@ -61,7 +83,8 @@ export default function EndpointsList() {
       // Prepare schemas to create (filter out duplicates)
       const schemasToCreate = aiGeneratedData?.schemas?.filter((schemaData) => {
         const isDuplicate = existingSchemas.some(
-          (existing) => existing.name.toLowerCase() === schemaData.name.toLowerCase()
+          (existing) =>
+            existing.name.toLowerCase() === schemaData.name.toLowerCase()
         );
         if (isDuplicate) {
           skippedSchemas.push(schemaData.name);
@@ -70,7 +93,10 @@ export default function EndpointsList() {
             (s) => s.name.toLowerCase() === schemaData.name.toLowerCase()
           );
           if (existingSchema) {
-            createdSchemas.push({ id: existingSchema.id, name: existingSchema.name });
+            createdSchemas.push({
+              id: existingSchema.id,
+              name: existingSchema.name,
+            });
           }
           return false;
         }
@@ -78,18 +104,22 @@ export default function EndpointsList() {
       });
 
       // Prepare endpoints to create (filter out duplicates)
-      const endpointsToCreate = aiGeneratedData.endpoints.filter((endpointData) => {
-        const isDuplicate = existingEndpoints.some(
-          (existing) =>
-            existing.path === endpointData.path &&
-            existing.method === endpointData.method
-        );
-        if (isDuplicate) {
-          skippedEndpoints.push(`${endpointData.method} ${endpointData.path}`);
-          return false;
+      const endpointsToCreate = aiGeneratedData.endpoints.filter(
+        (endpointData) => {
+          const isDuplicate = existingEndpoints.some(
+            (existing) =>
+              existing.path === endpointData.path &&
+              existing.method === endpointData.method
+          );
+          if (isDuplicate) {
+            skippedEndpoints.push(
+              `${endpointData.method} ${endpointData.path}`
+            );
+            return false;
+          }
+          return true;
         }
-        return true;
-      });
+      );
 
       // Create schemas and endpoints in one API call
       const result = await createBulkEndpoints({
@@ -99,7 +129,7 @@ export default function EndpointsList() {
           fields: s.fields,
         })),
         endpoints: endpointsToCreate.map((endpointData) => {
-          // CRITICAL FIX: Pass the AI's schemaId (1-based index) directly to backend
+          // Pass the AI's schemaId (1-based index) directly to backend
           // The backend will handle mapping it to actual database schema IDs
           return {
             path: endpointData.path,
@@ -113,7 +143,7 @@ export default function EndpointsList() {
           };
         }),
       });
-      
+
       if (skippedSchemas.length > 0 || skippedEndpoints.length > 0) {
         const skippedParts = [];
         if (skippedSchemas.length > 0) {
@@ -141,80 +171,126 @@ export default function EndpointsList() {
   };
 
   const sortOptions: SortOption[] = [
+    { value: "path-asc", label: "Default (Grouped)" },
     { value: "created-desc", label: "Newest First" },
     { value: "created-asc", label: "Oldest First" },
     { value: "description-asc", label: "Description A-Z" },
     { value: "description-desc", label: "Description Z-A" },
     { value: "method-asc", label: "Method A-Z" },
-    { value: "path-asc", label: "Path A-Z" },
   ];
 
   const filterOptions: FilterOption[] = [
     { value: "all", label: "All Methods" },
-    { 
-      value: "GET", 
+    {
+      value: "GET",
       label: "GET Only",
-      badge: { text: "GET", className: getMethodColor("GET") }
+      badge: { text: "GET", className: getMethodColor("GET") },
     },
-    { 
-      value: "POST", 
+    {
+      value: "POST",
       label: "POST Only",
-      badge: { text: "POST", className: getMethodColor("POST") }
+      badge: { text: "POST", className: getMethodColor("POST") },
     },
-    { 
-      value: "PUT", 
+    {
+      value: "PUT",
       label: "PUT Only",
-      badge: { text: "PUT", className: getMethodColor("PUT") }
+      badge: { text: "PUT", className: getMethodColor("PUT") },
     },
-    { 
-      value: "DELETE", 
+    {
+      value: "DELETE",
       label: "DELETE Only",
-      badge: { text: "DELETE", className: getMethodColor("DELETE") }
+      badge: { text: "DELETE", className: getMethodColor("DELETE") },
     },
-    { 
-      value: "PATCH", 
+    {
+      value: "PATCH",
       label: "PATCH Only",
-      badge: { text: "PATCH", className: getMethodColor("PATCH") }
+      badge: { text: "PATCH", className: getMethodColor("PATCH") },
     },
   ];
 
-  const filteredAndSortedEndpoints = React.useMemo(() => {
+  const filteredAndSortedEndpoints = useMemo(() => {
     if (!endpoints) return [];
 
+    // 1. First, apply filters
     const filtered = endpoints.filter((endpoint) => {
-      // Search filter
-      const matchesSearch = searchQuery === "" || 
-        endpoint.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        endpoint.path.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        endpoint.description?.toLowerCase().includes(searchQuery.toLowerCase());
-
-      // Method filter
-      const matchesFilter = filterType === "all" || endpoint.method === filterType;
-
+      const matchesSearch =
+        searchQuery === "" ||
+        endpoint.description
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        endpoint.path.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesFilter =
+        filterType === "all" || endpoint.method === filterType;
       return matchesSearch && matchesFilter;
     });
 
-    // Sort
-    filtered.sort((a, b) => {
+    // 2. Pre-calculate grouping data if using default sort
+    // We need to know the creation date of the "Group" (the root resource)
+    // so we can sort Groups by date, but keep items inside groups tied together.
+    const groupDates = new Map<string, number>();
+
+    if (sortOrder === "path-asc") {
+      filtered.forEach((ep) => {
+        // Extract root: "/aitems/:id" -> "aitems"
+        const group = ep.path.split("/").find((p) => p) || ep.path;
+        const date = new Date(ep.createdAt).getTime();
+
+        // Set the group's date to the EARLIEST creation date found within that group
+        // This ensures the group stays anchored by its creation time
+        const current = groupDates.get(group);
+        if (!current || date < current) {
+          groupDates.set(group, date);
+        }
+      });
+    }
+
+    // 3. Apply Sorting
+    return filtered.sort((a, b) => {
       switch (sortOrder) {
         case "description-asc":
-          return a.description.localeCompare(b.description);
+          return (a.description || "").localeCompare(b.description || "");
         case "description-desc":
-          return b.description.localeCompare(a.description);
+          return (b.description || "").localeCompare(a.description || "");
         case "created-asc":
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          return (
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
         case "created-desc":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         case "method-asc":
           return a.method.localeCompare(b.method);
-        case "path-asc":
-          return a.path.localeCompare(b.path);
+
+        case "path-asc": // This is your "Default" sort
+          // Helper to extract root group
+          const groupA = a.path.split("/").find((p) => p) || a.path;
+          const groupB = b.path.split("/").find((p) => p) || b.path;
+
+          // Priority 1: Sort by Date of the GROUP
+          // If groups are different, sort them by their anchor dates
+          if (groupA !== groupB) {
+            const dateA = groupDates.get(groupA) || 0;
+            const dateB = groupDates.get(groupB) || 0;
+            // Sort groups Newest First (descending) or Oldest First (ascending)?
+            // Typically "Default" lists show newest created resources at the top.
+            return dateB - dateA;
+          }
+
+          // Priority 2: Sort by Path Name (Alphabetical / Specificity)
+          // This ensures "/aitems" comes before "/aitems/:id"
+          const pathCompare = a.path.localeCompare(b.path);
+          if (pathCompare !== 0) return pathCompare;
+
+          // Priority 3: Sort by Method Weight
+          return (
+            (METHOD_WEIGHTS[a.method] || 99) - (METHOD_WEIGHTS[b.method] || 99)
+          );
+
         default:
           return 0;
       }
     });
-
-    return filtered;
   }, [endpoints, searchQuery, sortOrder, filterType]);
 
   return (
@@ -231,7 +307,6 @@ export default function EndpointsList() {
         filterOptions={filterOptions}
       />
 
-      {/* AI Generated Preview */}
       {aiGeneratedData && (
         <AIGeneratedPreview
           data={aiGeneratedData}
@@ -243,9 +318,8 @@ export default function EndpointsList() {
           isCreatingAll={isCreatingAll}
         />
       )}
-      
+
       {isLoadingEndpoints ? (
-        // TODO: make this into reusable component
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, index) => (
             <Skeleton key={index} className="w-full h-40" />
@@ -257,16 +331,14 @@ export default function EndpointsList() {
             <Globe className="w-12 h-12 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-medium text-foreground mb-2">
-            {searchQuery || filterType !== "all" 
+            {searchQuery || filterType !== "all"
               ? "No endpoints found"
-              : "No endpoints yet"
-            }
+              : "No endpoints yet"}
           </h3>
           <p className="text-muted-foreground mb-4">
             {searchQuery || filterType !== "all"
               ? "Try adjusting your search or filter criteria"
-              : "Create your first API endpoint to start building your mock API"
-            }
+              : "Create your first API endpoint to start building your mock API"}
           </p>
         </div>
       ) : (
