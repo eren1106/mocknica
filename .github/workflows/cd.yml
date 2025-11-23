@@ -25,53 +25,52 @@ env:
   REPO_NAME: ${{ github.event.repository.name }}   # Repository name for tagging
 
 jobs:
-  # NEW JOB: Run database migrations before building Docker image
-  migrate-database:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+  # Run database migrations before building Docker image
+  # migrate-database:
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 10
     
-    # Deployment environment for better tracking and protection
-    environment:
-      name: production
-      url: https://your-app.com  # Update with your actual URL
+  #   # Deployment environment for better tracking and protection
+  #   environment:
+  #     name: production
 
-    steps:
-      # Download the repository code to access Prisma schema and migrations
-      - name: Checkout code
-        uses: actions/checkout@v4
+  #   steps:
+  #     # Download the repository code to access Prisma schema and migrations
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      # Install pnpm package manager (faster alternative to npm)
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+  #     # Install pnpm package manager (faster alternative to npm)
+  #     - name: Setup pnpm
+  #       uses: pnpm/action-setup@v4
 
-      # Install and configure Node.js with pnpm caching for faster subsequent runs
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.x'
-          cache: 'pnpm'
+  #     # Install and configure Node.js with pnpm caching for faster subsequent runs
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: '20.x'
+  #         cache: 'pnpm'
 
-      # Install project dependencies using frozen lockfile to ensure reproducible builds
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+  #     # Install project dependencies using frozen lockfile to ensure reproducible builds
+  #     - name: Install dependencies
+  #       run: pnpm install --frozen-lockfile
 
-      # Apply pending migrations to production database
-      # This happens BEFORE building the Docker image to ensure schema and code are in sync
-      - name: Run Prisma migrations
-        run: pnpm prisma migrate deploy
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  #     # Apply pending migrations to production database
+  #     # This happens BEFORE building the Docker image to ensure schema and code are in sync
+  #     - name: Run Prisma migrations
+  #       run: pnpm prisma migrate deploy
+  #       env:
+  #         DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      # Report migration status (always runs even if previous step fails)
-      - name: Migration status
-        if: always()
-        run: |
-          if [ ${{ job.status }} == 'success' ]; then
-            echo "✅ Database migrations applied successfully"
-          else
-            echo "❌ Migration failed - deployment will be aborted"
-            exit 1
-          fi
+  #     # Report migration status (always runs even if previous step fails)
+  #     - name: Migration status
+  #       if: always()
+  #       run: |
+  #         if [ ${{ job.status }} == 'success' ]; then
+  #           echo "✅ Database migrations applied successfully"
+  #         else
+  #           echo "❌ Migration failed - deployment will be aborted"
+  #           exit 1
+  #         fi
 
   build-and-push:
     needs: migrate-database  # Only run after migrations succeed
