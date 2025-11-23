@@ -16,7 +16,8 @@
     "db:migrate": "prisma migrate dev",
     "prepare": "husky",
     "start:docker": "prisma migrate deploy && node server.js",
-    "start:docker:dev": "prisma db push --accept-data-loss && node server.js"
+    "start:docker:dev": "prisma db push --accept-data-loss && node server.js",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@faker-js/faker": "^9.6.0",

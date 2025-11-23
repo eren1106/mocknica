@@ -12,10 +12,15 @@ import { useMutationProject } from "@/hooks/useProject";
 import { LinkButton } from "../link-button";
 
 const ProjectCard = ({ project }: { project: IProject }) => {
-  const { deleteProject } = useMutationProject();
+  const { deleteProject, isPending } = useMutationProject();
 
   const handleDelete = async () => {
-    await deleteProject(project.id);
+    try {
+      await deleteProject(project.id);
+    }
+    catch (error) {
+      console.log("Error deleting project:", error);
+    }
   };
 
   return (
@@ -79,6 +84,7 @@ const ProjectCard = ({ project }: { project: IProject }) => {
                     close();
                   }}
                   onCancel={close}
+                  isLoading={isPending}
                 />
               )}
             >
