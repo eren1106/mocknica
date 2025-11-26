@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@mocknica/ui";
 import "./globals.css";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,12 +17,22 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Mocknica - Open-Source AI-Powered Mock API Platform",
-  description: "Create, manage, and deploy realistic mock APIs in seconds with AI. Build faster, test smarter, and ship with confidence. 100% open source.",
-  keywords: ["mock api", "api mocking", "development tools", "testing", "frontend development", "open source", "AI-powered"],
+  description:
+    "Create, manage, and deploy realistic mock APIs in seconds with AI. Build faster, test smarter, and ship with confidence. 100% open source.",
+  keywords: [
+    "mock api",
+    "api mocking",
+    "development tools",
+    "testing",
+    "frontend development",
+    "open source",
+    "AI-powered",
+  ],
   authors: [{ name: "Mocknica Team" }],
   openGraph: {
     title: "Mocknica - Open-Source AI-Powered Mock API Platform",
-    description: "Create, manage, and deploy realistic mock APIs in seconds with AI. Build faster, test smarter, and ship with confidence.",
+    description:
+      "Create, manage, and deploy realistic mock APIs in seconds with AI. Build faster, test smarter, and ship with confidence.",
     type: "website",
   },
 };
@@ -41,7 +53,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <div className="min-h-screen">
+            <Header />
+            {children}
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>

@@ -1,36 +1,43 @@
 import Link from "next/link";
-import { Github, Twitter } from "lucide-react";
-import { Separator } from "@mocknica/ui";
+import { Github } from "lucide-react";
+import { config } from "../../lib/config";
+import { BrandLogo } from "./BrandLogo";
 
 export function Footer() {
   const footerLinks = {
     product: [
       { label: "Features", href: "#features" },
-      { label: "Dashboard", href: "http://localhost:3000" },
+      { label: "Dashboard", href: `${config.dashboardUrl}` },
     ],
     resources: [
       { label: "GitHub", href: "https://github.com/eren1106/mocknica" },
       { label: "Issues", href: "https://github.com/eren1106/mocknica/issues" },
-      { label: "Contributing", href: "https://github.com/eren1106/mocknica#contribute" },
+      {
+        label: "Contributing",
+        href: "https://github.com/eren1106/mocknica#contribute",
+      },
+      { label: "Privacy Policy", href: "/policy" },
+      { label: "Terms of Service", href: "/terms" },
     ],
-    company: [
-      { label: "About", href: "#about" },
-      { label: "Blog", href: "#blog" },
-      { label: "Contact", href: "#contact" },
-    ],
+    // company: [
+    //   { label: "About", href: "#about" },
+    //   { label: "Blog", href: "#blog" },
+    //   { label: "Contact", href: "#contact" },
+    // ],
   };
 
   return (
     <footer className="border-t bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center space-x-2 mb-4">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+              {/* <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-lg">M</span>
               </div>
-              <span className="font-bold text-xl">Mocknica</span>
+              <span className="font-bold text-xl">Mocknica</span> */}
+              <BrandLogo size="lg" />
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
               Open-source mock API platform for modern development teams.
@@ -44,13 +51,6 @@ export function Footer() {
                 rel="noopener noreferrer"
               >
                 <Github className="h-5 w-5" />
-              </Link>
-              <Link
-                href="#twitter"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Twitter"
-              >
-                <Twitter className="h-5 w-5" />
               </Link>
             </div>
           </div>
@@ -90,7 +90,7 @@ export function Footer() {
           </div>
 
           {/* Company Links */}
-          <div>
+          {/* <div>
             <h3 className="font-semibold text-sm mb-4">Company</h3>
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
@@ -104,23 +104,7 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
-        </div>
-
-        <Separator className="mb-8" />
-
-        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Mocknica. Built with ❤️ by developers, for developers.
-          </p>
-          <div className="flex space-x-6">
-            <Link href="#privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="#terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Terms of Service
-            </Link>
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>

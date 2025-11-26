@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 import { LinkButton } from "@mocknica/ui";
 import { BrandLogo } from "./BrandLogo";
 import { FaGithub, FaStar } from "react-icons/fa";
+import { config } from "../../lib/config";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -34,7 +35,12 @@ export function Header() {
     //     {/* <p className="tabular-nums">100</p> */}
     //   </div>
     // </Link>
-    <LinkButton href="https://github.com/eren1106/mocknica" openNewTab variant="outline" className="group inline-flex items-center gap-2 text-sm">
+    <LinkButton
+      href="https://github.com/eren1106/mocknica"
+      openNewTab
+      variant="outline"
+      className="group inline-flex items-center gap-2 text-sm"
+    >
       <div className="flex items-center">
         <FaGithub className="mr-1 size-4" />
         <span className="ml-1 lg:hidden">Star</span>
@@ -50,10 +56,14 @@ export function Header() {
   // CTA Buttons Component
   const CTAButtons = ({ className = "" }) => (
     <div className={`flex items-center space-x-4 ${className}`}>
-      <LinkButton href="http://localhost:3000/login" openNewTab variant="ghost">
+      <LinkButton
+        href={`${config.dashboardUrl}/login`}
+        openNewTab
+        variant="ghost"
+      >
         Sign In
       </LinkButton>
-      <LinkButton href="http://localhost:3000/signup" openNewTab>
+      <LinkButton href={`${config.dashboardUrl}/signup`} openNewTab>
         Get Started
       </LinkButton>
     </div>
@@ -80,7 +90,7 @@ export function Header() {
   );
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}

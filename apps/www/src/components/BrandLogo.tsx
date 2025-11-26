@@ -50,6 +50,7 @@ export const BrandLogo = ({
         src={currentTheme === "dark" ? "/icon-dark.png" : "/icon-light.png"}
         alt="Logo"
         className={cn(container)}
+        unoptimized // TODO: Remove this when Next.js supports dynamic imports for images
       />
       {showText && (
         <h1
