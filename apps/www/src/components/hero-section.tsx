@@ -1,6 +1,7 @@
 import { Badge, LinkButton } from "@mocknica/ui";
 import { ArrowRight, Github, Sparkles, Star, GitFork } from "lucide-react";
 import { CodePreview } from "./code-preview";
+import { config } from "../../lib/config";
 
 export function HeroSection() {
   return (
@@ -49,7 +50,7 @@ export function HeroSection() {
               <LinkButton
                 size="lg"
                 className="text-base group"
-                href="http://localhost:3000/signup"
+                href={`${config.dashboardUrl}/signup`}
                 openNewTab
               >
                 Get Started Free{" "}
@@ -60,7 +61,7 @@ export function HeroSection() {
                 variant="outline"
                 className="text-base"
                 openNewTab
-                href="https://github.com/eren1106/mocknica"
+                href={config.githubUrl}
               >
                 <Github className="mr-2 size-4" />
                 View on GitHub
