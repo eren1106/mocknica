@@ -73,7 +73,7 @@ jobs:
   #         fi
 
   build-and-push:
-    needs: migrate-database  # Only run after migrations succeed
+    # needs: migrate-database  # Only run after migrations succeed (currently disabled)
     runs-on: ubuntu-latest
     # Allow longer timeout for Docker builds (includes multi-platform builds)
     timeout-minutes: 45
