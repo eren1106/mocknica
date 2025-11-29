@@ -1,5 +1,5 @@
+<img width="1474" height="602" alt="Mocknica Banner" src="https://github.com/user-attachments/assets/9b1eb6d8-3e94-4b65-9960-d1f18a56d750" />
 
-<img width="1474" height="602" alt="Mocknica Banner" src="https://github.com/user-attachments/assets/6cc307c9-50e3-4500-8e29-b97d87f2cb7e" />
 
 # Mocknica 
 
