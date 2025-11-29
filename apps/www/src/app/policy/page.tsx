@@ -18,7 +18,7 @@ export default function PrivacyPolicyPage() {
           </p>
           <p>
             This Privacy Policy applies to all information collected through our
-            website (https://mocknica.com), our application, and any related
+            website (https://mocknica.dev), our application, and any related
             services, sales, marketing, or events.
           </p>
         </section>

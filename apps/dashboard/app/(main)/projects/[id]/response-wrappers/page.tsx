@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import ResponseWrappersList from "./_ui/ResponseWrappersList";
 import { CreateResponseWrapperButton } from "./page-actions";
+
+export const metadata: Metadata = {
+  title: "Response Wrappers",
+};
 
 export default function ProjectResponseWrappersPage() {
   return (

@@ -1,13 +1,6 @@
-import type { Metadata } from "next";
-import "../globals.css";
 import Topbar from "@/components/layout/Topbar";
 import Sidebar from "@/components/layout/Sidebar";
 import AuthGuard from "@/components/auth/AuthGuard";
-
-export const metadata: Metadata = {
-  title: "Mocknica",
-  description: "Mock API Server",
-};
 
 export default function RootLayout({
   children,

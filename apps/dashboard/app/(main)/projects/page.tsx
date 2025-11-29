@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import ProjectList from "@/components/project/ProjectList";
 import { CreateProjectButton } from "./page-actions";
+
+export const metadata: Metadata = {
+  title: "Projects",
+};
 
 export default function ProjectsPage() {
   return (

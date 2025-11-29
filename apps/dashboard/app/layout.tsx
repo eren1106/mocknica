@@ -17,15 +17,55 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.mocknica.dev";
+
 export const metadata: Metadata = {
-  title: "Mocknica - Open-Source AI-Powered Mock API Platform",
-  description: "Create, manage, and deploy realistic mock APIs in seconds with AI. Build faster, test smarter, and ship with confidence. 100% open source.",
-  keywords: ["mock api", "api mocking", "development tools", "testing", "frontend development", "open source", "AI-powered"],
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Mocknica",
+    template: "%s | Mocknica",
+  },
+  description:
+    "Create, manage, and deploy realistic mock APIs in seconds with AI. Build faster, test smarter, and ship with confidence. 100% open source.",
+  keywords: [
+    "mock api",
+    "api mocking",
+    "development tools",
+    "testing",
+    "frontend development",
+    "open source",
+    "AI-powered",
+  ],
   authors: [{ name: "Mocknica Team" }],
+  creator: "Mocknica",
+  publisher: "Mocknica",
   openGraph: {
-    title: "Mocknica - Open-Source AI-Powered Mock API Platform",
-    description: "Create, manage, and deploy realistic mock APIs in seconds with AI. Build faster, test smarter, and ship with confidence.",
     type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    siteName: "Mocknica",
+    title: "Mocknica - Open-Source AI-Powered Mock API Platform",
+    description:
+      "Create, manage, and deploy realistic mock APIs in seconds with AI. Build faster, test smarter, and ship with confidence.",
+    images: [
+      {
+        url: "/open-graph.png",
+        width: 1200,
+        height: 630,
+        alt: "Mocknica - AI-Powered Mock API Platform",
+      },
+    ],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 

@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import SchemasList from "./_ui/SchemasList";
 import { CreateSchemaButton } from "./page-actions";
+
+export const metadata: Metadata = {
+  title: "Schemas",
+};
 
 export default function ProjectSchemasPage() {
   return (
