@@ -1,7 +1,7 @@
 import { Badge, LinkButton } from "@mocknica/ui";
 import { ArrowRight, Github, Sparkles, Star, GitFork } from "lucide-react";
-import { CodePreview } from "./code-preview";
 import { config } from "../../lib/config";
+import HeroVideoDialog from "./hero-video-dialog";
 
 export function HeroSection() {
   return (
@@ -82,14 +82,17 @@ export function HeroSection() {
             </div>
           </div>
 
-          {/* Right Column - Code Preview */}
-          <div className="hidden lg:block animate-in fade-in slide-in-from-right duration-1000 delay-300">
-            <CodePreview />
-          </div>
+          {/* Right Column - Demo Video */}
+          <HeroVideoDialog
+            animationStyle="top-in-bottom-out"
+            videoSrc="https://www.youtube.com/embed/1EfUX0agPLQ"
+            thumbnailSrc="/dashboard-ss.png"
+            thumbnailAlt="Hero Video"
+          />
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto mt-20 pt-12 border-t animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-600">
+        {/* <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto mt-20 pt-12 border-t animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-600">
           <div className="text-center">
             <div className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               100%
@@ -108,7 +111,7 @@ export function HeroSection() {
             </div>
             <div className="text-sm text-muted-foreground">Self Host</div>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

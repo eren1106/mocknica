@@ -10,14 +10,7 @@ import DeleteConfirmation from "../delete-confirmation";
 import EndpointForm from "./EndpointForm";
 import JsonViewer from "../json-viewer";
 import { cn } from "@/lib/utils";
-import {
-  Copy,
-  Edit,
-  Trash,
-  Database,
-  FileJson2,
-  Clock,
-} from "lucide-react";
+import { Copy, Edit, Trash, Database, FileJson2, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useMutationEndpoint } from "@/hooks/useEndpoint";
 import { EndpointService } from "@/services/endpoint.service";
@@ -68,6 +61,16 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
     }
   };
 
+  const handleDeleteEndpoint = async (onSuccess: () => void) => {
+    try {
+      await deleteEndpoint(endpoint.id);
+      toast.success("Endpoint deleted successfully!");
+      onSuccess();
+    } catch (err) {
+      toast.error("Failed to delete endpoint");
+    }
+  };
+
   return (
     <AccordionItem
       value={endpoint.id}
@@ -89,7 +92,9 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
           {/* Endpoint Info */}
           <div className="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 text-left">
             <div className="flex-1 flex flex-col gap-1">
-              <p className="font-bold text-foreground">{endpoint.description}</p>
+              <p className="font-bold text-foreground">
+                {endpoint.description}
+              </p>
               <code className="text-sm text-muted-foreground bg-muted px-2 rounded w-fit">
                 {endpoint.path}
               </code>
@@ -159,7 +164,7 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
                 <DeleteConfirmation
                   title="Delete Endpoint"
                   description="Are you sure you want to delete this endpoint? This action cannot be undone."
-                  onConfirm={() => deleteEndpoint(endpoint.id)}
+                  onConfirm={() => handleDeleteEndpoint(close)}
                   onCancel={close}
                   isLoading={isMutatingEndpoints}
                 />
@@ -175,13 +180,12 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
         </div>
 
         {/* Description, Schema, and Response Wrapper Info in One Row */}
-        {(
+        {
           // endpoint.description ||
-          endpoint.schema ||
-          endpoint.responseWrapper) && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {/* Description */}
-            {/* {endpoint.description && (
+          (endpoint.schema || endpoint.responseWrapper) && (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {/* Description */}
+              {/* {endpoint.description && (
               <div className="space-y-2">
                 <h4 className="font-medium text-sm flex items-center gap-2">
                   <FileText className="h-4 w-4 text-blue-500" />
@@ -200,42 +204,39 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
               </div>
             )} */}
 
-            {/* Schema Info */}
-            {endpoint.schema && (
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm flex items-center gap-2">
-                  <Database className="h-4 w-4 text-green-500" />
-                  Schema
-                </h4>
-                {/* TODO: after click, navigate to schemas page and open up the edit dialog */}
-                <Badge variant="outline">
-                  {endpoint.schema.name}
-                </Badge>
-              </div>
-            )}
+              {/* Schema Info */}
+              {endpoint.schema && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm flex items-center gap-2">
+                    <Database className="h-4 w-4 text-green-500" />
+                    Schema
+                  </h4>
+                  {/* TODO: after click, navigate to schemas page and open up the edit dialog */}
+                  <Badge variant="outline">{endpoint.schema.name}</Badge>
+                </div>
+              )}
 
-            {/* Response Wrapper Info */}
-            {endpoint.responseWrapper && (
-              <div className="space-y-2">
-                <h4 className="font-medium text-sm flex items-center gap-2">
-                  <FileJson2 className="h-4 w-4 text-purple-500" />
-                  Response Wrapper
-                </h4>
-                {/* TODO: after click, navigate to response wrappers page and open up the edit dialog */}
-                <Badge variant="outline">
-                  {endpoint.responseWrapper.name}
-                </Badge>
-              </div>
-            )}
-          </div>
-        )}
+              {/* Response Wrapper Info */}
+              {endpoint.responseWrapper && (
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm flex items-center gap-2">
+                    <FileJson2 className="h-4 w-4 text-purple-500" />
+                    Response Wrapper
+                  </h4>
+                  {/* TODO: after click, navigate to response wrappers page and open up the edit dialog */}
+                  <Badge variant="outline">
+                    {endpoint.responseWrapper.name}
+                  </Badge>
+                </div>
+              )}
+            </div>
+          )
+        }
 
         {/* Sample Response */}
         <div>
           <h4 className="font-medium text-sm mb-2">Sample Response</h4>
-          <JsonViewer
-            data={EndpointService.getEndpointResponse(endpoint)}
-          />
+          <JsonViewer data={EndpointService.getEndpointResponse(endpoint)} />
         </div>
       </AccordionContent>
     </AccordionItem>

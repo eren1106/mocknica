@@ -37,7 +37,7 @@ export function Footer() {
                 <span className="text-primary-foreground font-bold text-lg">M</span>
               </div>
               <span className="font-bold text-xl">Mocknica</span> */}
-              <BrandLogo size="lg" />
+              <BrandLogo size="lg" showBeta={false} />
             </Link>
             <p className="text-sm text-muted-foreground mb-4">
               Open-source mock API platform for modern development teams.
