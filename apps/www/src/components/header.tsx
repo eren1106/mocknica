@@ -16,110 +16,127 @@ import { BrandLogo } from "./BrandLogo";
 import { FaGithub, FaStar } from "react-icons/fa";
 import { config } from "../../lib/config";
 
+const NAV_ITEMS = [
+  { href: "#features", label: "Features" },
+  { href: "#use-cases", label: "Use Cases" },
+] as const;
+
+const GITHUB_URL = "https://github.com/eren1106/mocknica";
+const LOGIN_URL = `${config.dashboardUrl}/login`;
+
+// GitHub Star Button Component
+const GitHubStarButton = ({
+  mobile = false,
+  className = "",
+}: {
+  mobile?: boolean;
+  className?: string;
+}) => (
+  <LinkButton
+    href={GITHUB_URL}
+    variant="outline"
+    className={`group inline-flex items-center gap-2 text-sm ${
+      mobile ? "w-full" : "w-full md:w-auto"
+    } ${className}`}
+  >
+    <div className="flex items-center">
+      <FaGithub className="mr-1 size-4" />
+      <span className="ml-1 lg:hidden">Star</span>
+      <span className="ml-1 hidden lg:inline">GitHub</span>
+    </div>
+    <div className="flex items-center gap-1 text-sm">
+      <FaStar className="relative size-3 fill-gray-400 duration-300 group-hover:fill-yellow-400 group-hover:drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]" />
+    </div>
+  </LinkButton>
+);
+
+// Navigation Links Component
+const NavigationLinks = ({
+  mobile = false,
+  onNavigate,
+}: {
+  mobile?: boolean;
+  onNavigate?: () => void;
+}) => (
+  <>
+    {NAV_ITEMS.map((item) => (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={
+          mobile
+            ? "block px-3 py-2 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+            : "text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        }
+        onClick={onNavigate}
+      >
+        {item.label}
+      </Link>
+    ))}
+  </>
+);
+
+// Sign In Button Component
+const SignInButton = ({
+  mobile = false,
+  onClick,
+}: {
+  mobile?: boolean;
+  onClick?: () => void;
+}) => (
+  <LinkButton
+    href={LOGIN_URL}
+    className={mobile ? "w-full justify-center" : ""}
+    onClick={onClick}
+  >
+    Sign In
+  </LinkButton>
+);
+
+// Actions Group Component (GitHub + Sign In)
+const ActionButtons = ({
+  mobile = false,
+  onNavigate,
+}: {
+  mobile?: boolean;
+  onNavigate?: () => void;
+}) => (
+  <div className={mobile ? "space-y-4" : "flex items-center space-x-4"}>
+    {mobile && <GitHubStarButton mobile />}
+    {!mobile && (
+      <>
+        <ModeToggle />
+        <GitHubStarButton />
+      </>
+    )}
+    <SignInButton mobile={mobile} onClick={onNavigate} />
+  </div>
+);
+
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const navItems = [
-    { href: "#features", label: "Features" },
-    { href: "#use-cases", label: "Use Cases" },
-  ];
-
-  // GitHub Star Button Component
-  const GitHubStarButton = () => (
-    // <Link
-    //   href="https://github.com/eren1106/mocknica"
-    //   target="_blank"
-    //   rel="noopener noreferrer"
-    //   className="group inline-flex h-8 items-center gap-2 rounded-lg bg-black px-2 text-sm text-white transition-colors hover:bg-black/90"
-    // >
-    //   <div className="flex items-center text-white">
-    //     <FaGithub className="mr-1 size-4 fill-white" />
-    //     <span className="ml-1 lg:hidden">Star</span>
-    //     <span className="ml-1 hidden lg:inline">GitHub</span>
-    //   </div>
-    //   <div className="flex items-center gap-1 text-sm">
-    //     <FaStar className="relative size-3 fill-gray-400 duration-300 group-hover:fill-yellow-400 group-hover:drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]" />
-    //     {/* <p className="tabular-nums">100</p> */}
-    //   </div>
-    // </Link>
-    <LinkButton
-      href="https://github.com/eren1106/mocknica"
-      openNewTab
-      variant="outline"
-      className="group inline-flex items-center gap-2 text-sm"
-    >
-      <div className="flex items-center">
-        <FaGithub className="mr-1 size-4" />
-        <span className="ml-1 lg:hidden">Star</span>
-        <span className="ml-1 hidden lg:inline">GitHub</span>
-      </div>
-      <div className="flex items-center gap-1 text-sm">
-        <FaStar className="relative size-3 fill-gray-400 duration-300 group-hover:fill-yellow-400 group-hover:drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]" />
-        {/* <p className="tabular-nums">100</p> */}
-      </div>
-    </LinkButton>
-  );
-
-  // CTA Buttons Component
-  const CTAButtons = ({ className = "" }) => (
-    <div className={`flex items-center space-x-4 ${className}`}>
-      <LinkButton
-        href={`${config.dashboardUrl}/login`}
-        openNewTab
-        variant="ghost"
-      >
-        Sign In
-      </LinkButton>
-      <LinkButton href={`${config.dashboardUrl}/signup`} openNewTab>
-        Get Started
-      </LinkButton>
-    </div>
-  );
-
-  // Navigation Links Component
-  const NavigationLinks = ({ mobile = false }) => (
-    <>
-      {navItems.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={
-            mobile
-              ? "block px-3 py-2 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
-              : "text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          }
-          onClick={mobile ? () => setMobileMenuOpen(false) : undefined}
-        >
-          {item.label}
-        </Link>
-      ))}
-    </>
-  );
+  const closeMobileMenu = () => setMobileMenuOpen(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-16">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-14 flex items-center">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center">
+        <div className="flex items-center justify-between">
+          {/* Logo & Desktop Navigation */}
+          <div className="flex items-center gap-10">
             <Link href="/" className="flex items-center space-x-2">
               <BrandLogo />
             </Link>
+            <div className="hidden md:flex md:items-center md:space-x-8">
+              <NavigationLinks />
+            </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-8">
-            <NavigationLinks />
+          {/* Desktop Actions */}
+          <div className="hidden md:flex">
+            <ActionButtons />
           </div>
 
-          {/* Desktop Right Section - Theme Toggle, GitHub, CTA */}
-          <div className="hidden md:flex md:items-center md:space-x-4">
-            <ModeToggle />
-            <GitHubStarButton />
-            <CTAButtons />
-          </div>
-
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
               <Button
@@ -134,39 +151,20 @@ export function Header() {
             <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
             <SheetContent side="right" className="w-[85vw] sm:w-[350px] p-0">
               <div className="flex flex-col h-full">
-                {/* Sheet Header */}
+                {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b">
                   <BrandLogo size="sm" showBeta={false} />
                   <ModeToggle />
                 </div>
 
-                {/* Navigation Links */}
+                {/* Navigation */}
                 <nav className="flex-1 p-4 space-y-1">
-                  <NavigationLinks mobile />
+                  <NavigationLinks mobile onNavigate={closeMobileMenu} />
                 </nav>
 
-                {/* Footer Actions */}
-                <div className="p-4 border-t space-y-4">
-                  <GitHubStarButton />
-                  <div className="flex flex-col space-y-2">
-                    <LinkButton
-                      href={`${config.dashboardUrl}/login`}
-                      openNewTab
-                      variant="outline"
-                      className="w-full justify-center"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Sign In
-                    </LinkButton>
-                    <LinkButton
-                      href={`${config.dashboardUrl}/signup`}
-                      openNewTab
-                      className="w-full justify-center"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Get Started
-                    </LinkButton>
-                  </div>
+                {/* Footer */}
+                <div className="p-4 border-t">
+                  <ActionButtons mobile onNavigate={closeMobileMenu} />
                 </div>
               </div>
             </SheetContent>

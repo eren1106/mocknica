@@ -16,8 +16,8 @@ export function Footer() {
         label: "Contributing",
         href: "https://github.com/eren1106/mocknica#contribute",
       },
-      { label: "Privacy Policy", href: "/policy" },
-      { label: "Terms of Service", href: "/terms" },
+      // { label: "Privacy Policy", href: "/policy" },
+      // { label: "Terms of Service", href: "/terms" },
     ],
     // company: [
     //   { label: "About", href: "#about" },

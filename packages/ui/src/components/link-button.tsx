@@ -1,6 +1,6 @@
-import React from 'react'
-import Link from 'next/link'
-import { Button, ButtonProps } from './ui/button';
+import React from "react";
+import Link from "next/link";
+import { Button, ButtonProps } from "./ui/button";
 
 interface LinkButtonProps extends ButtonProps {
   href: string;
@@ -15,9 +15,11 @@ const LinkButton = ({
 }: LinkButtonProps) => {
   return (
     <Button asChild {...props}>
-      <Link href={href} target={openNewTab ? '_blank' : ''}>{children}</Link>
+      <Link href={href} target={openNewTab ? "_blank" : ""}>
+        {children}
+      </Link>
     </Button>
-  )
-}
+  );
+};
 
 export { LinkButton };
