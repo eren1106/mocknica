@@ -2,9 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@mocknica/ui";
-import { Menu, X } from "lucide-react";
-import { LinkButton } from "@mocknica/ui";
+import {
+  Button,
+  LinkButton,
+  ModeToggle,
+  Sheet,
+  SheetContent,
+  SheetTitle,
+  SheetTrigger,
+} from "@mocknica/ui";
+import { Menu } from "lucide-react";
 import { BrandLogo } from "./BrandLogo";
 import { FaGithub, FaStar } from "react-icons/fa";
 import { config } from "../../lib/config";
@@ -103,37 +110,68 @@ export function Header() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex md:items-center md:space-x-8">
             <NavigationLinks />
-            <GitHubStarButton />
           </div>
 
-          {/* Desktop CTA Buttons */}
-          <CTAButtons className="hidden md:flex" />
+          {/* Desktop Right Section - Theme Toggle, GitHub, CTA */}
+          <div className="hidden md:flex md:items-center md:space-x-4">
+            <ModeToggle />
+            <GitHubStarButton />
+            <CTAButtons />
+          </div>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? (
-                <X className="h-6 w-6" />
-              ) : (
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                aria-label="Open navigation menu"
+              >
                 <Menu className="h-6 w-6" />
-              )}
-            </Button>
-          </div>
-        </div>
+              </Button>
+            </SheetTrigger>
+            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            <SheetContent side="right" className="w-[85vw] sm:w-[350px] p-0">
+              <div className="flex flex-col h-full">
+                {/* Sheet Header */}
+                <div className="flex items-center justify-between p-4 border-b">
+                  <BrandLogo size="sm" showBeta={false} />
+                  <ModeToggle />
+                </div>
 
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden pb-4 space-y-2">
-            <NavigationLinks mobile />
-            <GitHubStarButton />
-            <CTAButtons className="pt-4 space-y-2" />
-          </div>
-        )}
+                {/* Navigation Links */}
+                <nav className="flex-1 p-4 space-y-1">
+                  <NavigationLinks mobile />
+                </nav>
+
+                {/* Footer Actions */}
+                <div className="p-4 border-t space-y-4">
+                  <GitHubStarButton />
+                  <div className="flex flex-col space-y-2">
+                    <LinkButton
+                      href={`${config.dashboardUrl}/login`}
+                      openNewTab
+                      variant="outline"
+                      className="w-full justify-center"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sign In
+                    </LinkButton>
+                    <LinkButton
+                      href={`${config.dashboardUrl}/signup`}
+                      openNewTab
+                      className="w-full justify-center"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Get Started
+                    </LinkButton>
+                  </div>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </nav>
     </header>
   );
