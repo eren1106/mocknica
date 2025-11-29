@@ -35,7 +35,7 @@ export const BrandLogo = ({
   className,
 }: BrandLogoProps) => {
   const { container, text } = sizeClasses[size];
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // Ensure component is mounted on client before using theme
@@ -44,7 +44,7 @@ export const BrandLogo = ({
   }, []);
 
   // Use a default theme during SSR to prevent hydration mismatch
-  const currentTheme = mounted ? theme : "light";
+  const currentTheme = mounted ? resolvedTheme : "light";
 
   return (
     <div className={cn("flex items-center gap-2", className)}>

@@ -1,7 +1,6 @@
 "use client";
 
-import { cn, Badge, NextImage } from "@mocknica/ui";
-import { useTheme } from "next-themes";
+import { cn, Badge, NextImage, useTheme } from "@mocknica/ui";
 import { useEffect, useState } from "react";
 
 interface BrandLogoProps {
@@ -33,7 +32,7 @@ export const BrandLogo = ({
   className,
 }: BrandLogoProps) => {
   const { container, text } = sizeClasses[size];
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // Ensure component is mounted on client before using theme
@@ -42,7 +41,7 @@ export const BrandLogo = ({
   }, []);
 
   // Use a default theme during SSR to prevent hydration mismatch
-  const currentTheme = mounted ? theme : "light";
+  const currentTheme = mounted ? resolvedTheme : "light";
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
