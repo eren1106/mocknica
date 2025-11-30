@@ -38,6 +38,7 @@ const GitHubStarButton = ({
     className={`group inline-flex items-center gap-2 text-sm ${
       mobile ? "w-full" : "w-full md:w-auto"
     } ${className}`}
+    openNewTab
   >
     <div className="flex items-center">
       <FaGithub className="mr-1 size-4" />

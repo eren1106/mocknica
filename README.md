@@ -1,53 +1,87 @@
 <img width="1474" height="602" alt="Mocknica Banner" src="https://github.com/user-attachments/assets/42f3f9fa-4986-47bd-9f4c-63f7c1586058" />
 
-# Mocknica 
+# Mocknica
 
 An AI-Powered Open-Source Mock API Server for creating and managing mock APIs
 
-# Demo
+## Demo
+
 https://github.com/user-attachments/assets/cd6d967b-e5c6-4355-a039-2e5f7052dfce
 
 ## Why Mocknica?
+
 **Stop waiting for backend APIs.** Mocknica empowers frontend developers and teams to build and test applications without backend dependencies.
 
-### ✨ Key Features
+## ✨ Key Features
 
-- **✅ Open-Source** - No hidden agendas, fully transparent.
-- **🤖 AI-Powered** - Generate mock endpoints with realistic response using LLMs.
-- **📝 Schema-Based** - Define reusable data schemas with type-safe fields and auto-generate CRUD endpoints.
-- **☁ Self Hosting Freedom** - Deploy anywhere with Docker or host locally - your data, your control.
-- **🔐 Production-Ready** - Token authentication, CORS, and response wrappers included.
-- **📊 Multiple Projects** - Organize mock APIs by project with isolated endpoints and configurations.
-- **🎨 Easy to Use** - Intuitive UI for creating endpoints, schemas, and managing mock data without code. 
+- **🤖 AI-Powered Generation** - Generate schemas and endpoints using natural language with OpenAI, Gemini, or local Ollama models
+- **📝 Schema-Based Design** - Define reusable data schemas with type-safe fields and auto-generate complete CRUD endpoints
+- **📊 Multi-Project Support** - Organize mock APIs by project with isolated endpoints and configurations
+- **🔐 Token Authentication** - Secure your mock APIs with Bearer token authentication per project
+- **🌐 CORS Configuration** - Configure allowed origins for browser requests on a per-project basis
+- **📦 Response Wrappers** - Customize response format and structure with reusable wrapper templates
+- **⚡ Rate Limiting** - Built-in rate limiting support with Redis/Upstash integration
 
-### Perfect For
+## 🎯 Perfect For
 
-- **Frontend Developers** building UIs before backend APIs are ready
-- **Prototyping** new features and validating ideas quickly
-- **Demo Applications** with realistic data scenarios
-- **QA Teams** testing edge cases with controlled mock data
+| Use Case                 | Description                                               |
+| ------------------------ | --------------------------------------------------------- |
+| **Frontend Development** | Build UIs before backend APIs are ready                   |
+| **Rapid Prototyping**    | Validate ideas quickly with realistic data                |
+| **Demo Applications**    | Create compelling demos with realistic scenarios          |
+| **QA Testing**           | Test edge cases with controlled mock data                 |
+| **API Design**           | Design and iterate on API contracts before implementation |
 
 ## 🛠️ Tech Stack
+
 Mocknica is built with modern and reliable technologies:
 
-- **Frontend**: Next.js, React, TypeScript, TailwindCSS, Shadcn UI
-- **Backend**: Node.js, Prisma ORM
-- **Database**: PostgreSQL
-- **Authentication**: Better Auth, Google OAuth
-- **AI Integration**: OpenAI, Gemini, Ollama
-- **Rate Limiting**: Upstash Redis
+| Category           | Technologies                  |
+| ------------------ | ----------------------------- |
+| **Framework**      | Next.js, React, TypeScript    |
+| **Styling**        | Tailwind CSS, Shadcn          |
+| **Database**       | PostgreSQL, Prisma ORM        |
+| **Authentication** | Better Auth, Google OAuth     |
+| **AI Providers**   | OpenAI, Google Gemini, Ollama |
+| **Rate Limiting**  | Redis, Upstash                |
+| **Monorepo**       | Turborepo, pnpm Workspaces    |
+| **Testing**        | Vitest                        |
+| **Deployment**     | Docker, Vercel                |
+
+## 📁 Monorepo Structure
+
+Mocknica uses a **Turborepo-powered monorepo** architecture for better code organization, shared configurations, and efficient builds with caching.
+
+```
+mocknica/
+├── apps/
+│   ├── dashboard/          # Main Next.js application
+│   │   ├── app/            # App router pages & API routes
+│   │   ├── components/     # React components
+│   │   ├── lib/            # Utilities, services, repositories, auth
+│   │   └── prisma/         # Database schema & migrations
+│   └── www/                # Landing page / Marketing website
+├── packages/
+│   ├── ui/                 # Shared UI component library
+│   ├── eslint-config/      # Shared ESLint configurations
+│   └── tsconfig/           # Shared TypeScript configurations
+├── docker-compose.yml      # Docker orchestration
+├── turbo.json              # Turborepo configuration
+└── pnpm-workspace.yaml     # pnpm workspace config
+```
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/en/download) (v18 or higher)
-- [pnpm](https://pnpm.io) (v10 or higher)
-- [Docker](https://docs.docker.com/engine/install/) (v20 or higher)
+- [Node.js](https://nodejs.org) v18+
+- [pnpm](https://pnpm.io) v10+
+- [Docker](https://docs.docker.com/get-docker/) (for database & Redis)
 
 ### Quick Setup
 
 1. **Clone and install**
+
    ```bash
    git clone https://github.com/eren1106/mocknica.git
    cd mocknica
@@ -55,135 +89,141 @@ Mocknica is built with modern and reliable technologies:
    ```
 
 2. **Configure environment**
+
    ```bash
-   cp .env.example .env
-   ```
-   
-   Add your database and AI provider credentials:
-   ```env
-   DATABASE_URL="postgresql://..."
-   
-   # AI Providers (choose one or more, Gemini is recommended because it offers a free tier)
-   OPENAI_API_KEY="sk-..."
-   GEMINI_API_KEY="your-gemini-key"
-   # For Ollama: just install Ollama locally
-   
-   # Optional: Rate Limiting (recommended for production)
-   REDIS_URL="http://localhost:8079"  # Local via proxy, or Upstash URL
-   REDIS_TOKEN="dev_token"
+   cp apps/dashboard/.env.example apps/dashboard/.env
    ```
 
-3. **Setup database & Redis (optional)**
+   Add your database, AI provider, and Redis credentials:
+
+   ```env
+    # Database (required)
+    DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mocknica"
+
+    # AI Providers (at least one recommended)
+    GEMINI_API_KEY="your-gemini-key"          # Free tier available
+    OPENAI_API_KEY="sk-..."                   # Optional
+    OLLAMA_BASE_URL="http://localhost:11434"  # Optional
+
+    # Optional: Rate Limiting (recommended for production)
+    REDIS_URL="http://localhost:8079"         # Local via proxy, or Upstash URL
+    REDIS_TOKEN="example_token"
+   ```
+
+3. **Better Auth Setup**
+
+   Generate a secure secret for authentication:
+
+   ```bash
+   openssl rand -hex 32
+   ```
+
+   Add the generated secret to your `.env` file:
+
+   ```env
+   BETTER_AUTH_SECRET=your_generated_secret_here
+   BETTER_AUTH_URL="http://localhost:3000"
+   ```
+
+4. **Google OAuth Setup** (Optional - for Google sign-in)
+
+   - Go to [Google Cloud Console](https://console.cloud.google.com)
+   - Create a new project (or select an existing one)
+   - Navigate to **APIs & Services** > **OAuth consent screen**
+     - Configure the consent screen (External or Internal based on your needs)
+     - Add your email as a test user during development
+   - Navigate to **APIs & Services** > **Credentials**
+     - Click **Create Credentials** > **OAuth client ID**
+     - Select **Web application** as the application type
+     - Add authorized redirect URIs:
+       - Development: `http://localhost:3000/api/auth/callback/google`
+       - Production: `https://your-domain.com/api/auth/callback/google`
+   - Add the credentials to your `.env` file:
+
+     ```env
+     GOOGLE_CLIENT_ID=your_client_id
+     GOOGLE_CLIENT_SECRET=your_client_secret
+     ```
+
+   > **Note:** During development, add yourself as a test user in the [OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent) under **Test users**.
+
+5. **Setup database**
+
    ```bash
    pnpm docker:db
    pnpm db:sync
    ```
-   
+
    For rate limiting, also start Redis and proxy:
+
    ```bash
    docker-compose up redis serverless-redis-http -d
    ```
 
-4. **Start developing**
+6. **Start developing**
+
    ```bash
    pnpm dev
    ```
-   
-   Open [http://localhost:3000](http://localhost:3000)
+
+   Open [http://localhost:3000](http://localhost:3000) to get started.
 
 ### Docker Alternative
 
+Deploy the complete stack with a single command:
+
 ```bash
+# Start all services (app, database, Redis)
 pnpm docker:up
+
+# Sync database
 pnpm db:sync
 ```
 
-### Creating Your First Mock API
+#### Docker Services
 
-1. **Sign up** and create a project
-2. **Generate a schema** with AI:
-   - Describe your data: *"User profile for social media app"*
-   - AI creates complete schema with realistic fields
-3. **Auto-generate endpoints** from schema
-4. **Use your API** immediately:
-   ```bash
-   curl http://localhost:3000/api/mock/your-project/users
-   ```
+| Service                 | Description              | Port |
+| ----------------------- | ------------------------ | ---- |
+| `app`                   | Mocknica application     | 3000 |
+| `db`                    | PostgreSQL database      | 5432 |
+| `redis`                 | Redis for rate limiting  | 6379 |
+| `serverless-redis-http` | Upstash-compatible proxy | 8079 |
 
-### 🤖 AI-Powered Development
+## 📡 Using Your Mock APIs
 
-Mocknica supports multiple AI providers for intelligent schema and response generation:
+Once created, your mock APIs are instantly available:
 
-#### Supported Providers
+```bash
+# Get all items
+curl http://localhost:3000/api/mock/{project-id}/users
 
-| Provider | Models | Setup |
-|----------|--------|-------|
-| **OpenAI** | GPT-4o, GPT-4 Turbo, GPT-3.5 Turbo | Add `OPENAI_API_KEY` to .env |
-| **Google Gemini** | Gemini 2.0 Flash, Gemini Pro | Add `GEMINI_API_KEY` to .env |
-| **Ollama (Local)** | Llama 3.2, DeepSeek, Mistral | Install Ollama locally |
+# Get single item
+curl http://localhost:3000/api/mock/{project-id}/users/123
 
-#### AI Features
+# Create item
+curl -X POST http://localhost:3000/api/mock/{project-id}/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Doe", "email": "john@example.com"}'
 
-- **Smart Schema Generation**: Describe your data in plain English
-  ```text
-  "E-commerce product with pricing, reviews, and inventory"
-  ```
-- **Realistic Response Creation**: Generate complex mock responses
-- **Domain-Aware**: Context-aware field generation for any industry
-- **Multiple Models**: Choose the best AI model for your needs
-
-### 📡 Using Your Mock APIs
-
-Once created, your mock APIs are instantly available via REST endpoints:
-
-```javascript
-// Get all items
-fetch('http://localhost:3000/api/mock/project-id/users')
-
-// Get single item
-fetch('http://localhost:3000/api/mock/project-id/users/123')
-
-// Create new item
-fetch('http://localhost:3000/api/mock/project-id/users', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ name: 'John Doe', email: 'john@example.com' })
-})
+# With authentication
+curl http://localhost:3000/api/mock/{project-id}/users \
+  -H "Authorization: Bearer your-project-token"
 ```
 
-### 🔧 Configuration Options
-
-- **Authentication**: Public or token-protected endpoints
-- **CORS**: Configure allowed origins for browser requests
-- **Response Wrappers**: Customize response format and structure
-- **Data Volume**: Control how many items returned in lists
-
-## 🤝 Contribute
+## 🤝 Contributing
 
 We welcome contributions! Here's how to get started:
 
-### Development Setup
-
 1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
 3. **Make your changes**
-4. **Run tests**
-   ```bash
-   pnpm test
-   ```
-5. **Submit a pull request**
+4. **Run tests**: `pnpm test`
+5. **Commit your changes**: `git commit -m 'Add amazing feature'`
+6. **Push to the branch**: `git push origin feature/amazing-feature`
+7. **Open a Pull Request**
 
 ### Reporting Issues
 
 - Use [GitHub Issues](https://github.com/eren1106/mocknica/issues) for bug reports
 - Include reproduction steps and environment details
 - Check existing issues before creating new ones
-
----
-
-**Built with ❤️ by developers, for developers.**
-
-Ready to accelerate your frontend development? [Get started now!](https://github.com/eren1106/mocknica)
