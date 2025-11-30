@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Button,
@@ -114,9 +114,24 @@ const ActionButtons = ({
   </div>
 );
 
+// Placeholder for SSR to prevent hydration mismatch
+const ActionButtonsPlaceholder = () => (
+  <div className="flex items-center space-x-4">
+    <div className="h-9 w-9" /> {/* ModeToggle placeholder */}
+    <GitHubStarButton />
+    <SignInButton />
+  </div>
+);
+
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const closeMobileMenu = () => setMobileMenuOpen(false);
+
+  // Prevent hydration mismatch by only rendering Radix components after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 h-14 flex items-center">
@@ -134,42 +149,53 @@ export function Header() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex">
-            <ActionButtons />
+            {mounted ? <ActionButtons /> : <ActionButtonsPlaceholder />}
           </div>
 
           {/* Mobile Menu */}
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden"
-                aria-label="Open navigation menu"
-              >
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-            <SheetContent side="right" className="w-[85vw] sm:w-[350px] p-0">
-              <div className="flex flex-col h-full">
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b">
-                  <BrandLogo size="sm" showBeta={false} />
-                  <ModeToggle />
-                </div>
+          {mounted ? (
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="md:hidden"
+                  aria-label="Open navigation menu"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <SheetContent side="right" className="w-[85vw] sm:w-[350px] p-0">
+                <div className="flex flex-col h-full">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-4 border-b">
+                    <BrandLogo size="sm" showBeta={false} />
+                    <ModeToggle />
+                  </div>
 
-                {/* Navigation */}
-                <nav className="flex-1 p-4 space-y-1">
-                  <NavigationLinks mobile onNavigate={closeMobileMenu} />
-                </nav>
+                  {/* Navigation */}
+                  <nav className="flex-1 p-4 space-y-1">
+                    <NavigationLinks mobile onNavigate={closeMobileMenu} />
+                  </nav>
 
-                {/* Footer */}
-                <div className="p-4 border-t">
-                  <ActionButtons mobile onNavigate={closeMobileMenu} />
+                  {/* Footer */}
+                  <div className="p-4 border-t">
+                    <ActionButtons mobile onNavigate={closeMobileMenu} />
+                  </div>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              aria-label="Open navigation menu"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          )}
         </div>
       </nav>
     </header>

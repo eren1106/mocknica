@@ -1,7 +1,6 @@
 "use client";
 
-import { cn, Badge, NextImage, useTheme } from "@mocknica/ui";
-import { useEffect, useState } from "react";
+import { cn, Badge, NextImage } from "@mocknica/ui";
 
 interface BrandLogoProps {
   size?: "sm" | "md" | "lg";
@@ -32,23 +31,19 @@ export const BrandLogo = ({
   className,
 }: BrandLogoProps) => {
   const { container, text } = sizeClasses[size];
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  // Ensure component is mounted on client before using theme
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Use a default theme during SSR to prevent hydration mismatch
-  const currentTheme = mounted ? resolvedTheme : "light";
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <NextImage
-        src={currentTheme === "dark" ? "/icon-dark.png" : "/icon-light.png"}
+        src="/icon-dark.png"
         alt="Logo"
-        className={cn(container)}
+        className={cn(container, "hidden dark:block")}
+        unoptimized // TODO: Remove this when Next.js supports dynamic imports for images
+      />
+      <NextImage
+        src="/icon-light.png"
+        alt="Logo"
+        className={cn(container, "block dark:hidden")}
         unoptimized // TODO: Remove this when Next.js supports dynamic imports for images
       />
       {showText && (
