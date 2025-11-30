@@ -15,9 +15,11 @@ interface ResponseWrappersPageContainerProps {
 
 type SortOrder = "name-asc" | "name-desc" | "created-asc" | "created-desc";
 
-const ResponseWrappersPageContainer = ({ projectId }: ResponseWrappersPageContainerProps) => {
+const ResponseWrappersPageContainer = ({
+  projectId,
+}: ResponseWrappersPageContainerProps) => {
   const { data: responseWrappers, isLoading } = useResponseWrappers(projectId);
-  
+
   const [sortOrder, setSortOrder] = useState<SortOrder>("created-desc");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -36,9 +38,13 @@ const ResponseWrappersPageContainer = ({ projectId }: ResponseWrappersPageContai
         case "name-desc":
           return b.name.localeCompare(a.name);
         case "created-asc":
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          return (
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
         case "created-desc":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         default:
           return 0;
       }
@@ -59,16 +65,20 @@ const ResponseWrappersPageContainer = ({ projectId }: ResponseWrappersPageContai
       {/* Header Section */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Response Wrappers</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Response Wrappers
+          </h1>
           <p className="text-muted-foreground">
-            Create consistent response formats for your API endpoints. Standardize how data, metadata, and pagination are structured in your responses.
+            Create consistent response formats for your API endpoints.
+            Standardize how data, metadata, and pagination are structured in
+            your responses.
           </p>
         </div>
-        
+
         <DialogButton
           content={(close) => <ResponseWrapperForm onSuccess={close} />}
           className="w-fit self-start lg:self-center"
-          contentClassName="min-w-[40rem]"
+          contentClassName="sm:min-w-[40rem]"
           title="Create Response Wrapper"
           description="Create a new response wrapper"
         >
@@ -101,22 +111,20 @@ const ResponseWrappersPageContainer = ({ projectId }: ResponseWrappersPageContai
             <Package className="size-12 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-medium text-foreground mb-2">
-            {searchQuery ? "No response wrappers found" : "No response wrappers yet"}
+            {searchQuery
+              ? "No response wrappers found"
+              : "No response wrappers yet"}
           </h3>
           <p className="text-muted-foreground mb-4">
-            {searchQuery 
+            {searchQuery
               ? "Try adjusting your search criteria"
-              : "Create your first response wrapper to standardize your API response formats"
-            }
+              : "Create your first response wrapper to standardize your API response formats"}
           </p>
         </div>
       ) : (
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {filteredAndSortedWrappers.map((wrapper) => (
-            <ResponseWrapperCard
-              key={wrapper.id}
-              wrapper={wrapper}
-            />
+            <ResponseWrapperCard key={wrapper.id} wrapper={wrapper} />
           ))}
         </div>
       )}

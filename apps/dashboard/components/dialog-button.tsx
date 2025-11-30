@@ -67,15 +67,22 @@ const DialogButton = ({
           {children}
         </Button>
       </DialogTrigger>
-      <DialogContent className={cn("w-full md:w-auto max-w-[90vw] lg:min-w-[50vw] md:min-w-[60vw] min-w-full p-0", contentClassName)}>
+      <DialogContent
+        className={cn(
+          "w-[95vw] sm:w-auto sm:max-w-[90vw] md:max-w-[80vw] lg:max-w-[60vw] p-0",
+          contentClassName
+        )}
+      >
         {/* the dialog content need dialog title component no matter what */}
-        {!title && <DialogTitle className="hidden"/>}
+        {!title && <DialogTitle className="hidden" />}
 
-        <ScrollArea className="max-h-[90vh] p-6">
+        <ScrollArea className="max-h-[85vh] p-4 sm:p-6">
           {(title || description) && (
             <DialogHeader className="mb-5">
-               {title && <DialogTitle>{title}</DialogTitle>}
-              {description && <DialogDescription>{description}</DialogDescription>}
+              {title && <DialogTitle>{title}</DialogTitle>}
+              {description && (
+                <DialogDescription>{description}</DialogDescription>
+              )}
             </DialogHeader>
           )}
           {typeof content === "function" ? content(close) : content}

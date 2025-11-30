@@ -151,7 +151,7 @@ export default function EndpointItem({ endpoint }: IEndpointItemProps) {
               content={(close) => (
                 <EndpointForm onSuccess={close} endpoint={endpoint} />
               )}
-              contentClassName="min-w-[40rem]"
+              contentClassName="sm:min-w-[40rem]"
               size="sm"
               variant="outline"
               className="gap-2"

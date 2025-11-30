@@ -1,7 +1,6 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { useParams } from "next/navigation";
 import { useProject } from "@/hooks/useProject";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -103,7 +102,9 @@ export default function ProjectSettings() {
                   ))}
                 </div>
               ) : (
-                <Badge variant="secondary">No restrictions (allows all origins)</Badge>
+                <Badge variant="secondary">
+                  No restrictions (allows all origins)
+                </Badge>
               )}
             </div>
           </div>

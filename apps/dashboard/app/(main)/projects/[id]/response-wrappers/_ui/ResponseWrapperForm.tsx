@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React from "react";
 import ZodForm from "@/components/zod-form";
@@ -21,10 +21,14 @@ interface ResponseWrapperFormProps {
   responseWrapper?: IResponseWrapper;
   onSuccess?: () => void;
 }
-const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormProps) => {
+const ResponseWrapperForm = ({
+  responseWrapper,
+  onSuccess,
+}: ResponseWrapperFormProps) => {
   const projectId = useCurrentProjectId();
 
-  const { createResponseWrapper, updateResponseWrapper, isPending } = useMutationResponseWrapper();
+  const { createResponseWrapper, updateResponseWrapper, isPending } =
+    useMutationResponseWrapper();
   const form = useZodForm<ResponseWrapperSchemaType>(
     ResponseWrapperSchema,
     responseWrapper
@@ -34,9 +38,13 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
         }
       : {
           name: "",
-          json: JSON.stringify({
-            data: WRAPPER_DATA_STR
-          }, undefined, 2),
+          json: JSON.stringify(
+            {
+              data: WRAPPER_DATA_STR,
+            },
+            undefined,
+            2
+          ),
         }
   );
   const onSubmit = async (data: ResponseWrapperSchemaType) => {
@@ -64,9 +72,13 @@ const ResponseWrapperForm = ({responseWrapper, onSuccess}: ResponseWrapperFormPr
       console.log(e);
     }
   };
-  
+
   return (
-    <ZodForm form={form} onSubmit={onSubmit}>
+    <ZodForm
+      form={form}
+      onSubmit={onSubmit}
+      className="w-full sm:min-w-[24rem]"
+    >
       <GenericFormField
         type="input"
         name={formFields.name}

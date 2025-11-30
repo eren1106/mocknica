@@ -221,19 +221,17 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (
                   <SelectValue placeholder={placeholder} />
                 </SelectTrigger>
                 <SelectContent>
-                  {props.options.length > 0 ? (
-                    props.options.map((item) => (
-                      <SelectItem value={`${item.value}`} key={item.value}>
-                        {item.label}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    props.emptyOptionsFallback || (
-                      <i className="text-muted-foreground text-sm px-1">
-                        No options
-                      </i>
-                    )
-                  )}
+                  {props.options.length > 0
+                    ? props.options.map((item) => (
+                        <SelectItem value={`${item.value}`} key={item.value}>
+                          {item.label}
+                        </SelectItem>
+                      ))
+                    : props.emptyOptionsFallback || (
+                        <i className="text-muted-foreground text-sm px-1">
+                          No options
+                        </i>
+                      )}
                 </SelectContent>
               </Select>
             );
@@ -394,11 +392,7 @@ const GenericFormField: React.FC<GenericFormFieldProps> = (
                 <div className="ml-auto">{props.topEndContent}</div>
               )}
             </div>
-            {description && (
-              <FormDescription className="whitespace-pre">
-                {description}
-              </FormDescription>
-            )}
+            {description && <FormDescription>{description}</FormDescription>}
             <FormControl>{res}</FormControl>
             {displayError && <FormMessage />}
           </FormItem>

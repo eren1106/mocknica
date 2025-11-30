@@ -9,7 +9,7 @@ export function CreateResponseWrapperButton() {
     <DialogButton
       content={(close) => <ResponseWrapperForm onSuccess={close} />}
       className="w-fit self-start lg:self-center"
-      contentClassName="min-w-[40rem]"
+      contentClassName="sm:min-w-[40rem]"
       title="Create Response Wrapper"
       description="Create a new response wrapper"
     >

@@ -66,7 +66,11 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
   };
 
   return (
-    <ZodForm form={form} onSubmit={onSubmit} className="min-w-[30rem]">
+    <ZodForm
+      form={form}
+      onSubmit={onSubmit}
+      className="w-full sm:min-w-[40rem]"
+    >
       <GenericFormField
         control={form.control}
         type="input"
@@ -83,17 +87,6 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
         placeholder="A brief description of your project..."
         optional
       />
-
-      {/* <GenericFormField
-        control={form.control}
-        type="select"
-        name="permission"
-        label="Visibility"
-        options={Object.values(ProjectPermission).map((permission) => ({
-          value: permission,
-          label: convertEnumToTitleCase(permission),
-        }))}
-      /> */}
 
       <GenericFormField
         control={form.control}
@@ -129,56 +122,6 @@ const ProjectForm = ({ project, onSuccess }: ProjectFormProps) => {
           </p>
         </Card>
       )}
-
-      {/* {!project && (
-        <DialogButton
-          size="lg"
-          className={cn(
-            "w-full",
-            "bg-gradient-to-r from-purple-500 via-blue-500 to-purple-500 dark:from-purple-600 dark:via-blue-600 dark:to-purple-600",
-            "hover:shadow-lg hover:shadow-purple-500/50",
-            "active:scale-[0.98]",
-            "transition-all duration-500 ease-out",
-            "text-white font-semibold"
-          )}
-          title="Generate Project with AI ✨"
-          description="Let AI create your entire project structure based on your description"
-          content={(close) => (
-            <AIGenerationDialog
-              onGenerate={handleAIGenerate}
-              onClose={close}
-              generationType="project"
-            />
-          )}
-        >
-          <div className="relative flex gap-3 items-center justify-center py-1">
-            <div className="relative flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-white/20 backdrop-blur-sm">
-                <Sparkles className="size-5 animate-pulse" />
-              </div>
-              <div className="flex flex-col items-start">
-                <p className="font-bold text-base leading-tight">
-                  Setup Project with AI
-                </p>
-                <span className="text-xs font-normal text-purple-100">
-                  Generate schemas & endpoints instantly
-                </span>
-              </div>
-            </div>
-          </div>
-        </DialogButton>
-      )} */}
-
-      {/* AI Generated Content Preview */}
-      {/* {!project && aiGeneratedData && (
-        <AIGeneratedPreview
-          data={aiGeneratedData}
-          onRegenerate={handleRegenerateAI}
-          onRemove={handleRemoveAI}
-          isExpanded={isPreviewExpanded}
-          onToggleExpand={() => setIsPreviewExpanded(!isPreviewExpanded)}
-        />
-      )} */}
 
       <FormButton isLoading={isPending}>
         {project ? "Update Project" : "Create Project"}

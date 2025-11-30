@@ -55,7 +55,7 @@ export default function EndpointForm({
     !!endpoint?.responseWrapperId
   );
   const [isUseSchema, setIsUseSchema] = useState(!!endpoint?.schemaId);
-  
+
   // Track the initial schemaId to prevent auto-regeneration on mount
   const initialSchemaIdRef = useRef(endpoint?.schemaId);
   const initialIsDataListRef = useRef(endpoint?.isDataList);
@@ -103,10 +103,16 @@ export default function EndpointForm({
     // Skip if this is the initial state (editing existing endpoint)
     const hasSchemaChanged = schemaId !== initialSchemaIdRef.current;
     const hasIsDataListChanged = isDataList !== initialIsDataListRef.current;
-    const hasNumberOfDataChanged = numberOfData !== initialNumberOfDataRef.current;
-    
+    const hasNumberOfDataChanged =
+      numberOfData !== initialNumberOfDataRef.current;
+
     // Only regenerate if something actually changed AND we're using schema
-    if (isUseSchema && schemaId && schemas && (hasSchemaChanged || hasIsDataListChanged || hasNumberOfDataChanged)) {
+    if (
+      isUseSchema &&
+      schemaId &&
+      schemas &&
+      (hasSchemaChanged || hasIsDataListChanged || hasNumberOfDataChanged)
+    ) {
       handleRegenerateSchemaResponse();
     }
   }, [schemaId, isDataList, numberOfData, isUseSchema, schemas]);
@@ -154,7 +160,7 @@ export default function EndpointForm({
     setIsGenerating(true);
     try {
       const res = await AIService.generateResponseByAI(
-        aiPrompt, 
+        aiPrompt,
         selectedModel || undefined
       );
       form.setValue("staticResponse", stringifyJSON(res));
@@ -205,10 +211,7 @@ export default function EndpointForm({
             isDataList || false,
             numberOfData || undefined
           );
-          form.setValue(
-            "staticResponse",
-            stringifyJSON(generatedResponse)
-          );
+          form.setValue("staticResponse", stringifyJSON(generatedResponse));
           if (showToast) {
             toast.success("Schema response regenerated");
           }
@@ -259,7 +262,11 @@ export default function EndpointForm({
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   return (
-    <ZodForm form={form} onSubmit={onSubmit}>
+    <ZodForm
+      form={form}
+      onSubmit={onSubmit}
+      className="w-full sm:min-w-[40rem]"
+    >
       <GenericFormField
         control={form.control}
         type="input"
@@ -367,8 +374,11 @@ export default function EndpointForm({
                   <JsonViewer
                     data={(() => {
                       try {
-                        const staticResponse = form.watch("staticResponse") || "{}";
-                        return staticResponse.trim() ? JSON.parse(staticResponse) : {};
+                        const staticResponse =
+                          form.watch("staticResponse") || "{}";
+                        return staticResponse.trim()
+                          ? JSON.parse(staticResponse)
+                          : {};
                       } catch (error) {
                         console.error("Error parsing staticResponse:", error);
                         return {};
@@ -428,12 +438,15 @@ export default function EndpointForm({
                       placeholder="Select AI model"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Choose an AI model for generation. If not selected, the default model will be used.
+                      Choose an AI model for generation. If not selected, the
+                      default model will be used.
                     </p>
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Response Description</label>
+                    <label className="text-sm font-medium">
+                      Response Description
+                    </label>
                     <AutoResizeTextarea
                       placeholder="Generate a user profile response with fields for id, name, email, role, and status"
                       minRows={5}
@@ -441,7 +454,7 @@ export default function EndpointForm({
                       onChange={handlePromptChange}
                     />
                   </div>
-                  
+
                   <div className="flex justify-end gap-2">
                     <Button
                       variant="outline"

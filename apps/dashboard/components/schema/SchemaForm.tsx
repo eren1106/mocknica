@@ -139,7 +139,8 @@ const SchemaFieldRow = React.memo(
       (value: string) => {
         onUpdateField(index, {
           arrayType: {
-            elementType: field.arrayType?.elementType || ESchemaFieldType.STRING,
+            elementType:
+              field.arrayType?.elementType || ESchemaFieldType.STRING,
             objectSchemaId: Number(value),
             fakerType: field.arrayType?.fakerType || null,
           },
@@ -153,9 +154,9 @@ const SchemaFieldRow = React.memo(
     }, [index, onDelete]);
 
     return (
-      <div className="flex flex-col gap-1">
-        <div className="flex items-start gap-3">
-          <div className="flex flex-col gap-1 w-full max-w-40">
+      <div className="flex flex-col gap-1 p-3 sm:p-0 border sm:border-0 rounded-lg">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2 sm:gap-3">
+          <div className="flex flex-col gap-1 w-full sm:max-w-40">
             <Input
               placeholder="Field name"
               value={field.name}
@@ -166,11 +167,12 @@ const SchemaFieldRow = React.memo(
               <p className="text-sm text-destructive">{fieldError.message}</p>
             )}
           </div>
+          {/* <div className="flex flex-wrap items-start gap-2 sm:gap-3 flex-1"> */}
           <DynamicSelect
             options={FIELD_TYPE_OPTIONS as any}
             value={field.type}
             onChange={handleTypeChange}
-            className="w-full max-w-40"
+            className="w-full sm:max-w-40"
           />
           {field.type === ESchemaFieldType.ID && (
             <DynamicSelect
@@ -178,7 +180,7 @@ const SchemaFieldRow = React.memo(
               defaultValue={EIdFieldType.AUTOINCREMENT}
               value={`${field.idFieldType}`}
               onChange={handleIdFieldTypeChange}
-              className="w-full max-w-40"
+              className="w-full sm:max-w-40"
             />
           )}
           {field.type === ESchemaFieldType.FAKER && (
@@ -186,7 +188,7 @@ const SchemaFieldRow = React.memo(
               options={FAKER_TYPE_OPTIONS as any}
               value={`${field.fakerType}`}
               onChange={handleFakerTypeChange}
-              className="w-full max-w-40"
+              className="w-full sm:max-w-40"
             />
           )}
           {field.type === ESchemaFieldType.OBJECT && (
@@ -194,7 +196,7 @@ const SchemaFieldRow = React.memo(
               options={schemaOptions}
               value={field.objectSchemaId?.toString()}
               onChange={handleObjectSchemaIdChange}
-              className="w-full max-w-40"
+              className="w-full sm:max-w-40"
             />
           )}
           {field.type === ESchemaFieldType.ARRAY && (
@@ -203,18 +205,19 @@ const SchemaFieldRow = React.memo(
                 options={ARRAY_TYPE_OPTIONS as any}
                 value={field.arrayType?.elementType}
                 onChange={handleArrayTypeChange}
-                className="w-full max-w-40"
+                className="w-full sm:max-w-40"
               />
               {field.arrayType?.elementType === ESchemaFieldType.OBJECT && (
                 <DynamicSelect
                   options={schemaOptions}
                   value={field.arrayType?.objectSchemaId?.toString()}
                   onChange={handleArrayObjectSchemaIdChange}
-                  className="w-full max-w-40"
+                  className="w-full sm:max-w-40"
                 />
               )}
             </>
           )}
+          {/* </div> */}
           <Button
             size="icon"
             className="size-8 min-w-8"
@@ -284,13 +287,13 @@ const SchemaForm = (props: SchemaFormProps) => {
 
   // OPTIMIZATION: Debounce form updates to reduce re-renders
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   const debouncedSetValue = useCallback(
     (fields: ISchemaField[], shouldValidate = false) => {
       if (updateTimeoutRef.current) {
         clearTimeout(updateTimeoutRef.current);
       }
-      
+
       // Use requestAnimationFrame for smoother updates
       requestAnimationFrame(() => {
         form.setValue("fields", fields, { shouldValidate });
@@ -327,10 +330,10 @@ const SchemaForm = (props: SchemaFormProps) => {
         ...updatedFields[index],
         ...updates,
       };
-      
+
       // Determine if we need validation
       const shouldValidate = "name" in updates || "type" in updates;
-      
+
       debouncedSetValue(updatedFields, shouldValidate);
     },
     [form, debouncedSetValue]
@@ -417,7 +420,11 @@ const SchemaForm = (props: SchemaFormProps) => {
   );
 
   return (
-    <ZodForm form={form} onSubmit={onSubmit} className="min-w-[36rem]">
+    <ZodForm
+      form={form}
+      onSubmit={onSubmit}
+      className="w-full sm:min-w-[40rem] lg:min-w-[36rem]"
+    >
       <GenericFormField
         type="input"
         name={formFields.name}
@@ -433,7 +440,7 @@ const SchemaForm = (props: SchemaFormProps) => {
           <div className="flex flex-col gap-3 w-full">{fieldsList}</div>
         }
       />
-      
+
       <div className="flex justify-between items-center">
         <MyTooltip content="Add Field" asChild>
           <Button size="icon" onClick={addField}>
