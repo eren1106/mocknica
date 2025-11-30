@@ -1,12 +1,13 @@
-<img width="1474" height="602" alt="Mocknica Banner" src="https://github.com/user-attachments/assets/9b1eb6d8-3e94-4b65-9960-d1f18a56d750" />
-
+<img width="1474" height="602" alt="Mocknica Banner" src="https://github.com/user-attachments/assets/42f3f9fa-4986-47bd-9f4c-63f7c1586058" />
 
 # Mocknica 
 
-An Open-Source Mock API Platform for creating and managing mock APIs
+An AI-Powered Open-Source Mock API Server for creating and managing mock APIs
+
+# Demo
+https://github.com/user-attachments/assets/cd6d967b-e5c6-4355-a039-2e5f7052dfce
 
 ## Why Mocknica?
-
 **Stop waiting for backend APIs.** Mocknica empowers frontend developers and teams to build and test applications without backend dependencies.
 
 ### ✨ Key Features
@@ -34,7 +35,7 @@ Mocknica is built with modern and reliable technologies:
 - **Database**: PostgreSQL
 - **Authentication**: Better Auth, Google OAuth
 - **AI Integration**: OpenAI, Gemini, Ollama
-- **Rate Limiting**: Upstash Redis (optional)
+- **Rate Limiting**: Upstash Redis
 
 ## 🚀 Getting Started
 
