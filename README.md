@@ -2,7 +2,7 @@
 
 # Mocknica
 
-An AI-Powered Open-Source Mock API Server for creating and managing mock APIs
+An AI-Powered Open-Source Mock API Server that enables users to self-host, manage, and run mock APIs with ease.
 
 ## Demo
 
