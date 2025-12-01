@@ -16,13 +16,13 @@ Try it out at [https://mocknica.dev](https://mocknica.dev)
 
 ## ✨ Key Features
 
-- **🤖 AI-Powered Generation** - Generate schemas and endpoints using natural language with OpenAI, Gemini, or local Ollama models
-- **📝 Schema-Based Design** - Define reusable data schemas with type-safe fields and auto-generate complete CRUD endpoints
+- **⚡ Instant REST Endpoints** - Instantly generate REST endpoints you can call from any client
+- **📝 Schema-Based Design** - Define reusable data schemas and auto-generate complete CRUD endpoints
+- **🤖 AI-Powered Generation** - Generate schemas and endpoints using LLM like GPT, Gemini, or local Ollama models
+- **📦 Response Wrappers** - Customize response structure with reusable wrapper templates
 - **📊 Multi-Project Support** - Organize mock APIs by project with isolated endpoints and configurations
-- **🔐 Token Authentication** - Secure your mock APIs with Bearer token authentication per project
-- **🌐 CORS Configuration** - Configure allowed origins for browser requests on a per-project basis
-- **📦 Response Wrappers** - Customize response format and structure with reusable wrapper templates
-- **⚡ Rate Limiting** - Built-in rate limiting support with Redis/Upstash integration
+- **🔐 Token Authentication** - Secure your mock APIs with Bearer token authentication
+- **🌐 CORS Configuration** - Configure allowed origins for browser requests
 
 ## 🎯 Perfect For
 
@@ -38,18 +38,20 @@ Try it out at [https://mocknica.dev](https://mocknica.dev)
 
 Mocknica is built with modern and reliable technologies:
 
-| Category           | Technologies                  |
-| ------------------ | ----------------------------- |
-| **Framework**      | Next.js, React, TypeScript    |
-| **Styling**        | Tailwind CSS, Shadcn          |
-| **Data Fetching**  | TanStack Query                |
-| **Database**       | PostgreSQL, Prisma ORM        |
-| **Authentication** | Better Auth, Google OAuth     |
-| **AI Providers**   | OpenAI, Google Gemini, Ollama |
-| **Rate Limiting**  | Redis, Upstash                |
-| **Monorepo**       | Turborepo, pnpm Workspaces    |
-| **Testing**        | Vitest                        |
-| **Deployment**     | Docker, Vercel                |
+| Category             | Technologies                  |
+| -------------------- | ----------------------------- |
+| **Framework**        | Next.js, React, TypeScript    |
+| **Styling**          | Tailwind CSS, Shadcn          |
+| **Data Fetching**    | TanStack Query                |
+| **Database**         | PostgreSQL, Prisma ORM        |
+| **Authentication**   | Better Auth, Google OAuth     |
+| **AI Providers**     | OpenAI, Google Gemini, Ollama |
+| **Rate Limiting**    | Redis, Upstash                |
+| **Monorepo**         | Turborepo, pnpm Workspaces    |
+| **Testing**          | Vitest                        |
+| **Containerization** | Docker                        |
+| **CI/CD**            | GitHub Actions                |
+| **Deployment**       | Vercel                        |
 
 ## 📁 Monorepo Structure
 
