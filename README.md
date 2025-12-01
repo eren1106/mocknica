@@ -8,6 +8,8 @@ An AI-Powered Open-Source Mock API Server that enables users to self-host, manag
 
 https://github.com/user-attachments/assets/cd6d967b-e5c6-4355-a039-2e5f7052dfce
 
+Try it out at [https://mocknica.dev](https://mocknica.dev)
+
 ## Why Mocknica?
 
 **Stop waiting for backend APIs.** Mocknica empowers frontend developers and teams to build and test applications without backend dependencies.
@@ -40,6 +42,7 @@ Mocknica is built with modern and reliable technologies:
 | ------------------ | ----------------------------- |
 | **Framework**      | Next.js, React, TypeScript    |
 | **Styling**        | Tailwind CSS, Shadcn          |
+| **Data Fetching**  | TanStack Query                |
 | **Database**       | PostgreSQL, Prisma ORM        |
 | **Authentication** | Better Auth, Google OAuth     |
 | **AI Providers**   | OpenAI, Google Gemini, Ollama |
