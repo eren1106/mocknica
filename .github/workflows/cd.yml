@@ -4,9 +4,9 @@ name: CD - Build and Push Docker Image
 # Trigger conditions: main branch pushes, version tags, or manual dispatch
 on:
   push:
-    branches: [main]          # Deploy on main branch updates
-    tags: ["v*"]             # Deploy on version tags (e.g., v1.0.0)
-  workflow_dispatch:          # Allow manual triggering from GitHub UI
+    branches: [main] # Deploy on main branch updates
+    tags: ["v*"] # Deploy on version tags (e.g., v1.0.0)
+  workflow_dispatch: # Allow manual triggering from GitHub UI
     inputs:
       tag:
         description: "Docker image tag"
@@ -16,20 +16,20 @@ on:
 # Prevent concurrent deployments to avoid conflicts
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false  # Don't cancel deployments (could leave DB in inconsistent state)
+  cancel-in-progress: false # Don't cancel deployments (could leave DB in inconsistent state)
 
 # Environment variables used throughout the workflow
 env:
-  GHCR_REGISTRY: ghcr.io                           # GitHub Container Registry
-  DOCKERHUB_REGISTRY: docker.io                    # Docker Hub registry
-  REPO_NAME: ${{ github.event.repository.name }}   # Repository name for tagging
+  GHCR_REGISTRY: ghcr.io # GitHub Container Registry
+  DOCKERHUB_REGISTRY: docker.io # Docker Hub registry
+  REPO_NAME: ${{ github.event.repository.name }} # Repository name for tagging
 
 jobs:
   # Run database migrations before building Docker image
   # migrate-database:
   #   runs-on: ubuntu-latest
   #   timeout-minutes: 10
-    
+
   #   # Deployment environment for better tracking and protection
   #   environment:
   #     name: production
@@ -79,15 +79,19 @@ jobs:
     timeout-minutes: 45
     # Required permissions for pushing to registries and creating attestations
     permissions:
-      contents: read      # Read repository contents
-      packages: write     # Push to GitHub Packages
+      contents: read # Read repository contents
+      packages: write # Push to GitHub Packages
       attestations: write # Create build attestations
-      id-token: write     # Generate OIDC tokens for attestations
+      id-token: write # Generate OIDC tokens for attestations
 
     steps:
       # Download repository code including Dockerfile
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # Setup QEMU for multi-platform builds (Essential for arm64 builds)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       # Setup Docker Buildx for advanced features like multi-platform builds
       - name: Setup Docker Buildx
@@ -142,14 +146,14 @@ jobs:
         id: build
         uses: docker/build-push-action@v5
         with:
-          context: .                              # Use monorepo root as build context
-          file: Dockerfile                        # Dockerfile is at root
-          platforms: linux/amd64,linux/arm64     # Build for both x86_64 and ARM64
-          push: true                              # Push images to registries
-          tags: ${{ steps.meta.outputs.tags }}   # Apply generated tags
+          context: . # Use monorepo root as build context
+          file: Dockerfile # Dockerfile is at root
+          platforms: linux/amd64,linux/arm64 # Build for both x86_64 and ARM64
+          push: true # Push images to registries
+          tags: ${{ steps.meta.outputs.tags }} # Apply generated tags
           labels: ${{ steps.meta.outputs.labels }} # Apply generated labels
-          cache-from: type=gha                    # Use GitHub Actions cache for layers
-          cache-to: type=gha,mode=max            # Save cache for future builds
+          cache-from: type=gha # Use GitHub Actions cache for layers
+          cache-to: type=gha,mode=max # Save cache for future builds
           build-args: |
             BUILDKIT_INLINE_CACHE=1              # Enable inline caching
 
